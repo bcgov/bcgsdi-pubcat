@@ -1,0 +1,61 @@
+import express from "express";
+import { config } from "../core/config.js";
+import { logRequests } from "../core/express-middleware.js";
+import { logger } from "../core/logger.js";
+import { prisma } from "../core/prisma.js";
+import { apiRouter } from "../routers/api-router.js";
+
+logger.info(`Starting up`);
+const port = config.get("server:port");
+
+//-----------------------------------------------------------------------------
+
+const app = express();
+app.set("trust proxy", 1);
+
+// Logging
+//-----------------------------------------------------------------------------
+
+app.use(logRequests);
+app.use(sessionMiddleware);
+
+// Routers
+// ----------------------------------------------------------------------------
+
+//app.use(/(\/api)?/, apiRouter)
+app.use("/api", apiRouter);
+
+// Launch
+// ----------------------------------------------------------------------------
+
+const server = app.listen(port, async () => {
+  // Initialize the DB connection pool (so we don't defer this until the first
+  // query is performed.  that would slow down the first query significantly, and
+  // could result in timeout errors.)
+  const dbSearchPath = await DbService.getDbSearchPath();
+  logger.info(
+    `Connecting to database: ${config.get("db:urlObfuscatedPassword")} (searchPath=${dbSearchPath})`,
+  );
+  await prisma.$connect();
+  logger.info(`Connected to database`);
+
+  if (config.get("session:allowedHosts").length) {
+    logger.info(
+      `Login/logout only allowed from: ${config.get("session:allowedHosts")}`,
+    );
+  } else {
+    logger.warn(
+      "ALLOWED_HOSTS not specified. Post-login and post-logout redirect URLs won't be verified.",
+    );
+  }
+  logger.info(
+    `Attachment storage at endpoint: ${config.get("s3:endpoint")}, bucket: ${config.get("s3:bucket")}`,
+  );
+  logger.info(`PubCat backend is ready and listening on port ${port}`);
+  logger.info(
+    `API URL: http://${config.get("environment") == "local" ? "localhost" : "HOST"}:${port}/api`,
+  );
+});
+
+server.keepAliveTimeout = 60000;
+server.headersTimeout = 61000;

@@ -1,21 +1,103 @@
 generator client {
-  provider     = "prisma-client"
-  output       = "../generated/prisma"
-  moduleFormat = "cjs"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
 }
 
-// NOTE: The datasource URL is now configured in prisma.config.ts (Prisma 7+).
-// This file no longer contains the `url` field for the datasource.
 datasource db {
   provider = "postgresql"
-  schemas  = ["users"]
 }
 
-model users {
-  id    Decimal @id(map: "USER_PK") @default(dbgenerated("nextval('\"USER_SEQ\"'::regclass)")) @db.Decimal
-  name  String  @db.VarChar(200)
-  email String  @db.VarChar(200)
+model flyway_schema_history {
+  installed_rank Int      @id(map: "flyway_schema_history_pk")
+  version        String?  @db.VarChar(50)
+  description    String   @db.VarChar(200)
+  type           String   @db.VarChar(20)
+  script         String   @db.VarChar(1000)
+  checksum       Int?
+  installed_by   String   @db.VarChar(100)
+  installed_on   DateTime @default(now()) @db.Timestamp(6)
+  execution_time Int
+  success        Boolean
 
-  @@schema("users")
+  @@index([success], map: "flyway_schema_history_s_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model publication_flattened {
+  publication_guid                  String                   @id(map: "publication_guid_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  publication_key                   Int
+  series_name                       String?
+  issue_identification              String?
+  edition                           String?
+  originator                        String?
+  publication_year                  Int?
+  title                             String?
+  geospatial_data_presentation_form String?
+  publication_place                 String?
+  publisher                         String?
+  other_citation_details            String?
+  bcgs_link                         String?
+  pdf_link                          String?
+  zip_link                          String?
+  zip_content_link                  String?
+  other_link_1                      String?
+  other_link_2                      String?
+  other_link_3                      String?
+  thumbnail_link                    String?
+  online_linkage_8                  String?
+  online_linkage_9                  String?
+  online_linkage_10                 String?
+  online_linkage_11                 String?
+  larger_work_citation              String?
+  citation_information              String?
+  abstract                          String?
+  purpose                           String?
+  supplemental_information          String?
+  date_range                        String?
+  beginning_date                    String?
+  ending_date                       String?
+  currentness_reference             String?
+  progress                          String?
+  maintenance_and_update_frequence  String?
+  bounding_coordinates              String?
+  west_bounding_coordinate          Float?
+  east_bounding_coordinate          Float?
+  north_bounding_coordinate         Float?
+  south_bounding_coordinate         Float?
+  theme_keyword_thesaurus           String?
+  theme_keyword_1                   String?
+  theme_keyword_2                   String?
+  theme_keyword_3                   String?
+  theme_keyword_4                   String?
+  theme_keyword_5                   String?
+  place_keyword_thesaurus           String?
+  place_keyword_1                   String?
+  place_keyword_2                   String?
+  place_keyword_3                   String?
+  place_keyword_4                   String?
+  place_keyword_5                   String?
+  use_constraints                   String?
+  browse_graphic_file_type          String?
+  geographic_coordinate_units       String?
+  map_projection_name               String?
+  grid_coordinate_system_name       String?
+  utm_zone_number                   String?
+  ellipsoid_name                    String?
+  horizontal_datum                  String?
+  altitude_distance_units           String?
+  distributor                       String?
+  distributor_liability             String?
+  non_digital_form                  String?
+  scale                             Int?
+  nts_maps                          String?
+  cost                              String?
+  stock_no                          String?
+  area                              Float?
+  footprint_geojson                 String?
+  geometry                          Unsupported("geometry")?
+  created_time                      DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_time                      DateTime                 @default(now()) @db.Timestamptz(6)
+  created_by_db                     String                   @default(dbgenerated("CURRENT_USER"))
+  updated_by_db                     String                   @default(dbgenerated("CURRENT_USER"))
 }

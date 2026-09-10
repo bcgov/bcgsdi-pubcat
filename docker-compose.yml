@@ -1,8 +1,9 @@
 # Reusable vars
 x-var:
-  - &POSTGRES_USER postgres
-  - &POSTGRES_PASSWORD default
-  - &POSTGRES_DATABASE postgres
+  - &POSTGRES_USER pubcat
+  - &POSTGRES_PASSWORD pubcat
+  - &POSTGRES_DATABASE pubcat
+  - &POSTGRES_URL jdbc:postgresql://database:5432/pubcat
   - &node-image node:22
 
 # Reusable envars for postgres
@@ -15,7 +16,6 @@ x-postgres-vars: &postgres-vars
 services:
   database:
     image: postgis/postgis:17-3.4 # if using crunchy , make sure to align with crunchy version, currently it is at 16 and postgis 3.3
-    container_name: database
     environment:
       <<: *postgres-vars
     healthcheck:
@@ -24,15 +24,15 @@ services:
 
   migrations:
     image: flyway/flyway:13-alpine
-    container_name: migrations
-    command: info migrate info
+    command: -connectRetries=10 info migrate info
     volumes: ["./migrations/sql:/flyway/sql:ro"]
     environment:
-      FLYWAY_URL: jdbc:postgresql://database:5432/postgres
+      FLYWAY_URL: *POSTGRES_URL
       FLYWAY_USER: *POSTGRES_USER
       FLYWAY_PASSWORD: *POSTGRES_PASSWORD
       FLYWAY_BASELINE_ON_MIGRATE: true
-      FLYWAY_DEFAULT_SCHEMA: users
+      FLYWAY_DEFAULT_SCHEMA: *POSTGRES_DATABASE
+      #FLYWAY_LOCATIONS: filesystem:/flyway/sql
     depends_on:
       database:
         condition: service_healthy

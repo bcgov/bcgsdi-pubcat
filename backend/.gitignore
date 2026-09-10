@@ -1,0 +1,10 @@
+dist
+node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+# JS build artifacts
+prisma.config.js
+
+*.log

@@ -1,35 +1,38 @@
-# Build
-FROM node:24.20.0-slim AS build
+FROM node:20-bullseye-slim AS build
 
-# Copy, build static files; see .dockerignore for exclusions
+# Install packages, build and keep only prod packages
 WORKDIR /app
-COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-RUN npm run deploy
+COPY *.json ./
+COPY ./src ./src
+COPY ./prisma ./prisma
+RUN npm ci --ignore-scripts && \
+    npm run build
 
-# Dependencies
-FROM node:24.20.0-slim AS dependencies
+FROM node:20-bullseye-slim AS dependencies
 
-# Copy, build static files; see .dockerignore for exclusions
+# Install packages, build and keep only prod packages
 WORKDIR /app
-COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-RUN npm ci --ignore-scripts --no-update-notifier --omit=dev
+COPY *.json ./
+RUN npm ci --omit=dev --ignore-scripts
 
-# Deploy using minimal Distroless image
-FROM gcr.io/distroless/nodejs24-debian12:nonroot
+# Deployment container
+FROM gcr.io/distroless/nodejs20-debian11:nonroot
 ENV NODE_ENV=production
-
-# Copy app and dependencies
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=build /app/generated ./generated
+#COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+#COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
 
-# Boilerplate, not used in OpenShift/Kubernetes
+# Port and health check
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/api
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost/:3000
 
-# Nonroot user; Node 24 automatically respects cgroup memory limits
-USER nonroot
-CMD ["/app/dist/main"]
+# Non-privileged user
+USER app
+
+# Start up command with 100MB of heap size, each application needs to determine what is the best value. DONT use default as it is 4GB.
+CMD ["--max-old-space-size=100", "/app/dist/server"]
+
