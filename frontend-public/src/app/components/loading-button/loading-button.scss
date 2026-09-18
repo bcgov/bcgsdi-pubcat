@@ -1,0 +1,31 @@
+@use '@angular/material' as mat;
+
+:host {
+  display: inline-flex;
+  // The host element carries the btn-* background colour, so it must share the
+  // button's border-radius to avoid square corners showing at the edges.
+  border-radius: var(--mat-button-filled-container-shape, var(--mat-sys-corner-full));
+}
+
+button {
+  position: relative;
+  color: inherit !important;
+  background-color: inherit !important;
+
+  .btn-content {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .btn-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    @include mat.progress-spinner-overrides(
+      (
+        active-indicator-color: currentColor,
+      )
+    );
+  }
+}

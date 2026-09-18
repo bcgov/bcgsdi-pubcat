@@ -1,1 +1,109 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* This file maps colors from bcgov/design-tokens to styles that are 
+useful to an Angular Material site. Prefer styling typography, links, and buttons
+with these definitions over using tailwind or angular material styles. */
+
+@import 'tailwindcss';
+@import '@bcgov/design-tokens/css/variables.css';
+
+body {
+  color-scheme: light;
+  background-color: var(
+    ----surface-color-background-white
+  ); /*var(--surface-color-background-light-gray);*/
+  font: var(--typography-regular-small-body) !important;
+  color: var(--typography-color-primary) !important;
+  margin: 0;
+  height: 100%;
+}
+
+.btn-primary {
+  background-color: var(--surface-color-primary-button-default) !important;
+  color: var(--typography-color-primary-invert) !important;
+}
+.btn-secondary {
+  background-color: var(--surface-color-secondary-button-default) !important;
+  border: solid 1px var(--surface-color-border-dark) !important;
+  color: var(--typography-color-primary) !important;
+}
+.btn-secondary:hover {
+  background-color: var(--surface-color-secondary-button-hover) !important;
+}
+.btn-error {
+  background-color: var(--surface-color-primary-danger-button-default) !important;
+  color: var(--typography-color-primary-invert) !important;
+}
+loading-button:has(button:disabled),
+button:disabled {
+  opacity: 0.5;
+}
+.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+  border-radius: 4px !important;
+}
+.mat-mdc-icon-button > .mat-icon {
+  color: var(--typography-color-primary) !important;
+}
+
+.menu-item-error,
+.menu-item-error > mat-icon {
+  color: var(--surface-color-primary-danger-button-default) !important;
+}
+
+a {
+  text-decoration: underline;
+  color: var(--typography-color-link);
+}
+
+h1,
+.h1 {
+  font: var(--typography-bold-h3) !important;
+  color: var(--typography-color-primary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+h2,
+.h2 {
+  font: var(--typography-bold-h4) !important;
+  color: var(--typography-color-secondary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+h3,
+.h3 {
+  font: var(--typography-bold-h5) !important;
+  color: var(--typography-color-secondary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+h4,
+.h4 {
+  font: var(--typography-bold-h6) !important;
+  color: var(--typography-color-secondary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+h5,
+.h5 {
+  font: var(--typography-regular-h6) !important;
+  color: var(--typography-color-primary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+h6,
+.h6 {
+  font: var(--typography-regular-h6) !important;
+  color: var(--typography-color-secondary) !important;
+  line-height: var(--typography-line-heights-regular) !important;
+}
+
+.label {
+  font: var(--typography-regular-label) !important;
+  color: var(--typography-color-secondary) !important;
+  line-height: var(--typography-line-heights-xdense) !important;
+}
+
+.disabled {
+  background-color: #f6f6f6;
+  color: #cccccc;
+}

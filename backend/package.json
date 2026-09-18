@@ -5,15 +5,16 @@
   "main": "server.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/api/server.ts",
-    "build": "npm run prisma-gen && tsc",
+    "dev": "tsx watch src/entrypoints/server.ts",
+    "build": "npm run clean && npm run prisma-gen && tsc",
+    "clean": "rm -rf dist",
     "test": "jest",
     "prisma-gen": "npx prisma generate --schema=prisma/schema.prisma",
     "job-publish": "tsx src/jobs/publish.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bcgov-c/Bcgsdi-Pubcat.git"
+    "url": "git+https://github.com/bcgov/bcgsdi-pubcat.git"
   },
   "keywords": [
     "publication",
@@ -21,9 +22,9 @@
   ],
   "author": "banders",
   "bugs": {
-    "url": "https://github.com/bcgov-c/Bcgsdi-Pubcat/issues"
+    "url": "https://github.com/bcgov/bcgsdi-pubcat/issues"
   },
-  "homepage": "https://github.com/bcgov-c/Bcgsdi-Pubcat#readme",
+  "homepage": "https://github.com/bcgov/bcgsdi-pubcat#readme",
   "dependencies": {
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",

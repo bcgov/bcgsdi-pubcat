@@ -24,14 +24,14 @@ model flyway_schema_history {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model publication_flattened {
+model publication {
   publication_guid                  String                   @id(map: "publication_guid_pk") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   publication_key                   Int
   series_name                       String?
   issue_identification              String?
   edition                           String?
   originator                        String?
-  publication_year                  Int?
+  publication_year                  String?
   title                             String?
   geospatial_data_presentation_form String?
   publication_place                 String?
@@ -59,7 +59,7 @@ model publication_flattened {
   ending_date                       String?
   currentness_reference             String?
   progress                          String?
-  maintenance_and_update_frequence  String?
+  maintenance_and_update_frequency  String?
   bounding_coordinates              String?
   west_bounding_coordinate          Float?
   east_bounding_coordinate          Float?
@@ -87,7 +87,7 @@ model publication_flattened {
   horizontal_datum                  String?
   altitude_distance_units           String?
   distributor                       String?
-  distributor_liability             String?
+  distribution_liability            String?
   non_digital_form                  String?
   scale                             Int?
   nts_maps                          String?

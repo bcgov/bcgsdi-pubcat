@@ -75,7 +75,7 @@ export const PublicationServicePrivate = {
     // to SQL injection.
     const geometryRows = await db.$queryRaw<[{ geometry_json: string | null }]>`
       SELECT ST_AsGeoJSON(geometry)::text AS geometry_json
-      FROM publication_flattened
+      FROM publication
       WHERE publication_guid = ${publicationGuid}::uuid
     `;
     // geometryRows may be empty if the row was deleted between the two queries
@@ -118,10 +118,9 @@ export const PublicationService = {
       take: limit,
     };
 
-    const publications_flattened =
-      await prisma.publication_flattened.findMany(query);
+    const publication = await prisma.publication.findMany(query);
 
-    return publications_flattened.map(PublicationAdapter.toApi);
+    return publication.map(PublicationAdapter.toApi);
   },
 
   async getPublication(
@@ -133,14 +132,14 @@ export const PublicationService = {
     // now we've added a call to getPublicationVersionGeometry(..., db)
     const db = tx ?? prisma;
 
-    const publicationFlattened = await db.publication_flattened.findUnique({
+    const publication = await db.publication.findUnique({
       where: {
         publication_guid: publicationGuid,
       },
     });
 
-    const apiPublication: ApiPublication | null = publicationFlattened
-      ? PublicationAdapter.toApi(publicationFlattened)
+    const apiPublication: ApiPublication | null = publication
+      ? PublicationAdapter.toApi(publication)
       : null;
 
     //inject the geometry into the current_publication_version

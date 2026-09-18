@@ -1,0 +1,18 @@
+mat-toolbar {
+  border-bottom: 1px solid var(--surface-color-border-default);
+}
+
+h2,
+h5 {
+  line-height: var(--typography-line-heights-xdense) !important;
+}
+
+h2 a,
+h5 a {
+  color: var(--typography-color-secondary) !important;
+  text-decoration: none;
+}
+h2 a:hover,
+h5 a:hover {
+  color: var(--typography-color-secondary) !important;
+}

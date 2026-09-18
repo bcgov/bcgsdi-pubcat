@@ -1,0 +1,145 @@
+@use '@angular/material' as mat;
+@use './styles/button-overrides' as button-overrides;
+@reference 'tailwindcss';
+
+/*
+----------------------------------------------------------------------------
+Override Angular Material styles
+----------------------------------------------------------------------------
+*/
+
+/* Mat list */
+
+mat-list .mat-mdc-list-item.cdk-drag {
+  cursor: grab;
+}
+
+/* hover over a draggable item (but not a button within the draggable item) */
+mat-list .mat-mdc-list-item.cdk-drag *:not(button *) {
+  cursor: grab;
+}
+
+/* special styling for buttons within draggable items */
+mat-list .mat-mdc-list-item.cdk-drag button {
+  cursor: pointer;
+}
+
+mat-list.cdk-drop-list-dragging {
+  cursor: grabbing !important;
+}
+
+/* Mat card - smaller corner radius, consistent with other ui elements*/
+
+@include mat.card-overrides(
+  (
+    outlined-container-shape: 4px,
+  )
+);
+
+/* Mat-Dialog -- ensure dialog container has a solid white background */
+
+@include mat.dialog-overrides(
+  (
+    container-color: white,
+    container-shape: 4px,
+    supporting-text-size: 0.875rem,
+  )
+);
+
+/* Mat Menu */
+
+@include mat.menu-overrides(
+  (
+    container-color: white,
+  )
+);
+
+/* Mat-Chip -- make the chips more compact */
+
+@include mat.chips-overrides(
+  (
+    container-height: 22px,
+    label-text-size: 0.7rem,
+    label-text-line-height: 12px,
+    label-text-weight: 400,
+    with-icon-icon-size: 14px,
+    //no color change on hover
+    hover-state-layer-opacity: 0,
+  )
+);
+
+.mdc-evolution-chip__action--primary {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* Button -- less rounding to corners, and use a bold font */
+
+@include button-overrides.apply();
+
+/* Select */
+
+@include mat.select-overrides(
+  (
+    panel-background-color: white,
+  )
+);
+
+/* Datepicker */
+
+@include mat.datepicker-overrides(
+  (
+    calendar-container-background-color: var(--surface-color-background-light-gray),
+    calendar-container-elevation-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05),
+    calendar-container-shape: 4px,
+  )
+);
+
+/* Timepicker */
+
+@include mat.timepicker-overrides(
+  (
+    container-background-color: var(--surface-color-background-light-gray),
+  )
+);
+
+/* Mat-Form-Field -- remove the "hint" area below each field, add small margin below each field */
+
+.mat-mdc-form-field-subscript-wrapper {
+  @apply hidden;
+}
+
+mat-form-field {
+  @apply mb-2;
+}
+
+mat-form-field > .mdc-text-field--disabled {
+  background-color: var(--surface-color-background-light-gray);
+}
+
+/* hide the text caret (to keep it from blinking) on readonly fields */
+mat-form-field > input[readonly] {
+  caret-color: transparent;
+}
+
+/* Toast (MatSnackBar) panel overrides */
+
+.toast-panel .mdc-snackbar__surface {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+.toast-panel-error .mdc-snackbar__surface {
+  background-color: var(--support-surface-color-danger) !important;
+  border: 1px solid var(--support-border-color-danger);
+}
+
+.toast-panel-info .mdc-snackbar__surface {
+  background-color: var(--theme-gray-20) !important;
+  border: 1px solid var(--surface-color-border-medium);
+}
+
+.toast-panel-success .mdc-snackbar__surface {
+  background-color: var(--support-surface-color-success) !important;
+  border: 1px solid var(--support-border-color-success);
+}

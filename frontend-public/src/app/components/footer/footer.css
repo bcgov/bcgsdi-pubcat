@@ -1,0 +1,12 @@
+:host {
+  background-color: var(--surface-color-primary-button-default) !important;
+  color: var(--typography-color-primary-invert) !important;
+}
+
+:host a {
+  color: var(--typography-color-primary-invert) !important;
+  text-decoration: none;
+}
+:host a:hover {
+  color: var(--typography-color-secondary-invert) !important;
+}

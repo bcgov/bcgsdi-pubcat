@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { publication_flattened } from "../generated/prisma/client.js";
+import { publication } from "../generated/prisma/client.js";
 import type { FilterClause, SearchFilter } from "./search.js";
 import {
   filterOperatorSchema,
@@ -11,7 +11,7 @@ import {
 // Service layer types
 // ---------------------------------------------------------------------------
 
-export type ApiPublication = publication_flattened & {
+export type ApiPublication = publication & {
   geometry: any;
 };
 

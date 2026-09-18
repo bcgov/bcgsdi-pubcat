@@ -31,12 +31,20 @@ const server = app.listen(port, async () => {
   // Initialize the DB connection pool (so we don't defer this until the first
   // query is performed.  that would slow down the first query significantly, and
   // could result in timeout errors.)
-  const dbSearchPath = await DbService.getDbSearchPath();
+
   logger.info(
-    `Connecting to database: ${config.get("db:urlObfuscatedPassword")} (searchPath=${dbSearchPath})`,
+    `Connecting to database: ${config.get("db:urlObfuscatedPassword")}`,
   );
-  await prisma.$connect();
-  logger.info(`Connected to database`);
+  try {
+    await prisma.$connect();
+    logger.info(`Connected to database`);
+    const dbSearchPath = await DbService.getDbSearchPath();
+    logger.info(`Database search path is: ${dbSearchPath}`);
+  } catch (e) {
+    logger.error(
+      `Unable to connect to database: ${config.get("db:urlObfuscatedPassword")}`,
+    );
+  }
 
   logger.info(`PubCat backend is ready and listening on port ${port}`);
   logger.info(

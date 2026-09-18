@@ -1,0 +1,24 @@
+<mat-toolbar class="!bg-white border-b-1 h-14">
+
+  <div class="container mx-auto max-w-5xl flex items-center">
+    <a href="http://www2.gov.bc.ca/gov/content/home"><img src="img/bcgov-logo.png" style="height: 60px"
+        class="flex-none mr-2" /></a>
+    <div class="flex flex-col">
+      <h2><a
+          href="https://www2.gov.bc.ca/gov/content/industry/mineral-exploration-mining/british-columbia-geological-survey">BC
+          Geological Survey</a></h2>
+      <h5 class="text-lg font-bold">Publication Catalogue
+      </h5>
+    </div>
+    <div class="flex-grow flex justify-end">
+
+    </div>
+  </div>
+</mat-toolbar>
+@if(showBreadcrumbs) {
+@if(!router.isActive('/search', true)) {
+<div class="container mx-auto mt-4 flex">
+  <a routerLink="/">Back to Search</a>
+</div>
+}
+}

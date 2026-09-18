@@ -1,10 +1,10 @@
-import { publication_flattened } from "../generated/prisma/client.js";
+import { publication } from "../generated/prisma/client.js";
 import { ApiPublication } from "../types/publication.js";
 
 export const PublicationAdapter = {
-  toApi(publicationFlattened: publication_flattened): ApiPublication {
+  toApi(publication: publication): ApiPublication {
     return {
-      ...publicationFlattened,
+      ...publication,
       geometry: null,
     };
   },

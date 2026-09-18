@@ -32,14 +32,14 @@ $$ language plpgsql;
 -- operational tables
 -- ----------------------------------------------------------------------------
 
-create table publication_flattened (
+create table publication (
 	publication_guid                    uuid                not null       default gen_random_uuid(), 
   publication_key                     integer              not null,      
   series_name                         text,
   issue_identification                text,
 	edition                             text,
 	originator                          text,
-	publication_year                    integer,                            
+	publication_year                    text,                            
 	title                               text,
 	geospatial_data_presentation_form   text,
 	publication_place                   text,
@@ -65,9 +65,9 @@ create table publication_flattened (
   date_range                          text,
 	beginning_date                      text,
 	ending_date                         text,
-	currentness_reference               text,                             -- maps to original CURRENTNESS_REERENCE (short text)
+	currentness_reference               text,
 	progress                            text,
-	maintenance_and_update_frequence    text,
+	maintenance_and_update_frequency    text,
 	bounding_coordinates                text,
 	west_bounding_coordinate            double precision,
 	east_bounding_coordinate            double precision,
@@ -95,7 +95,7 @@ create table publication_flattened (
 	horizontal_datum                    text,
 	altitude_distance_units             text,
 	distributor                         text,
-	distributor_liability               text,
+	distribution_liability              text,
 	non_digital_form                    text,
 	scale                               integer,
 	nts_maps                            text,
@@ -112,12 +112,12 @@ create table publication_flattened (
   --constraints
   constraint publication_guid_pk primary key (publication_guid)
 );
-comment on table publication_flattened is 'A table which is almost exactly a direct copy of the CGKN_METADATA tables from the original publication catalogue MS Access database.  It container metadata about publications in a flattened (de-normalized) form.';
-comment on column publication_flattened.publication_guid is 'The primary key uuid';
-comment on column publication_flattened.publication_key is 'An alternative identifier.  This was the primary key from in the original MS Access database, but has been deprecated in favour of the new publication_guid.  Not populated for any records created after the original MS Access database was replaced by this newer database';
-comment on column publication_flattened.publication_year is 'The year of publication.  Replaces the publication_date column from the original MS Access database because the original name was misleading given the value is always just a year.';
-comment on column publication_flattened.scale is 'The scale of mapping.  A value of 0 means validation is required.';
+comment on table publication is 'A table which is almost exactly a direct copy of the CGKN_METADATA tables from the original publication catalogue MS Access database.  It container metadata about publications in a flattened (de-normalized) form.';
+comment on column publication.publication_guid is 'The primary key uuid';
+comment on column publication.publication_key is 'An alternative identifier.  This was the primary key from in the original MS Access database, but has been deprecated in favour of the new publication_guid.  Not populated for any records created after the original MS Access database was replaced by this newer database';
+comment on column publication.publication_year is 'The year of publication.  Replaces the publication_date column from the original MS Access database because the original name was misleading given the value is always just a year.';
+comment on column publication.scale is 'The scale of mapping.  A value of 0 means validation is required.';
 
-create trigger publication_flattened_trg
-    before insert or update on publication_flattened
+create trigger publication_trg
+    before insert or update on publication
     for each row execute function audit_trigger_fn();

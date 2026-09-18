@@ -1,0 +1,30 @@
+@use '@angular/material' as mat;
+
+// Shared button overrides applied globally via material-overrides.scss.
+// Emits --mat-button-filled-* tokens on the html element so all filled-button
+// instances inherit the values.
+@mixin apply() {
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 4px,
+      filled-label-text-weight: bold,
+      // Tailwind v4's base layer applies `font-family: var(--default-font-family)`
+      // to both `html` and `:host` selectors. Chromium treats `:host` as matching
+      // all custom element hosts, including Angular components. Without this override
+      // the Angular Material button's own font-family token falls back to the ambient
+      // font set by the :host rule (Tailwind's system-ui stack) instead of BC Sans.
+      // Setting the token explicitly here ensures all filled buttons use BC Sans
+      // regardless of their component-host ancestry.
+      filled-label-text-font: var(--typography-font-families-bc-sans, "BC Sans"),
+      // material-theme.scss omits `typography` from mat.theme() so the
+      // --mat-sys-label-large-size system token is never emitted. Angular Material's
+      // button CSS falls back through var(--mat-button-filled-label-text-size,
+      // var(--mat-sys-label-large-size)) — both undefined — and ultimately inherits
+      // the parent font-size. mat-dialog-content sets font-size: 1rem (16px at root),
+      // causing buttons inside the dialog tabs to render at 16px instead of 14px.
+      // Explicitly emitting the token here pins the size to 0.875rem (14px) for all
+      // filled buttons regardless of container.
+      filled-label-text-size: 0.875rem,
+    )
+  );
+}

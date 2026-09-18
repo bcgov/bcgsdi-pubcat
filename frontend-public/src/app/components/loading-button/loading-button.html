@@ -1,0 +1,8 @@
+<button [matButton]="variant()" [disabled]="loading() || disabled()" [type]="type()" (click)="onClick($event)">
+  <span class="btn-content" [style.visibility]="loading() ? 'hidden' : 'visible'">
+    <ng-content></ng-content>
+  </span>
+  @if (loading()) {
+  <mat-spinner class="btn-spinner" [diameter]="spinnerDiameter()"></mat-spinner>
+  }
+</button>
