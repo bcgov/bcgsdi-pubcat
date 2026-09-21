@@ -103,7 +103,6 @@
   "include": [
     "src/**/*.ts",
     "types/**/*.d.ts",
-    "types/express-session-augmentation.ts", "src/routers/attachment-version-router.ts.TO_DELETE",
     //"prisma.config.ts"
   ],
   "exclude": [

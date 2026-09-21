@@ -94,10 +94,9 @@ model publication {
   cost                              String?
   stock_no                          String?
   area                              Float?
-  footprint_geojson                 String?
   geometry                          Unsupported("geometry")?
-  created_time                      DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_time                      DateTime                 @default(now()) @db.Timestamptz(6)
-  created_by_db                     String                   @default(dbgenerated("CURRENT_USER"))
-  updated_by_db                     String                   @default(dbgenerated("CURRENT_USER"))
+  create_timestamp                  DateTime                 @default(now()) @db.Timestamptz(6)
+  update_timestamp                  DateTime                 @default(now()) @db.Timestamptz(6)
+  create_db_user                    String                   @default(dbgenerated("CURRENT_USER")) @db.VarChar(63)
+  update_db_user                    String                   @default(dbgenerated("CURRENT_USER")) @db.VarChar(63)
 }

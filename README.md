@@ -28,7 +28,9 @@ podman compose build --no-cache backend
 podman compose up -d backend
 ```
 
-Test at http://localhost:3000/api
+Note: This will also spin up the database on localhost:5432.
+
+Access the containerized backend at http://localhost:3001/api
 
 Frontend:
 
@@ -37,4 +39,7 @@ podman compose build --no-cache frontend
 podman compose up -d frontend
 ```
 
-Test at http://localhost:3001/
+Note: This will also spin up the backend on localhost:3001 and the
+database on localhost:5432.
+
+Access the containerized frontend at http://localhost:3000/

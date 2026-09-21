@@ -26,7 +26,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
 
 # Port and health check
-EXPOSE 3000
+EXPOSE 3001
 
 HEALTHCHECK \
   --interval=30s \
