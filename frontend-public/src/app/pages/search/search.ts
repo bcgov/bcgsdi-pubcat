@@ -54,18 +54,36 @@ export class Search {
     all: [null],
   });
 
+  ngOnInit() {
+    this.populateFormFromStore();
+  }
+
   async search() {
     const searchParams = this.buildSearchParams();
     await this.publicationSearchStore.search(searchParams);
-    this.router.navigate(['/results'] );
+    this.router.navigate(['/results']);
   }
 
   reset() {
-    this.form.reset();
+    this.publicationSearchStore.reset();
+    this.populateFormFromStore();
   }
 
   // Private
   // --------------------------------------------------------------------------
+
+  private populateFormFromStore() {
+    const filter = this.publicationSearchStore.lastSearchedParams()?.filter;
+    this.form.reset();
+    if (Array.isArray(filter)) {
+      for (const f of filter) {
+        const value = f.value;
+        if (f.field == 'title') {
+          this.form.get('title')?.setValue(value);
+        }
+      }
+    }
+  }
 
   private buildSearchParams(): PublicationSearchParams {
     // Prepare filters.  All filters are 'ANDed' together.
@@ -91,15 +109,23 @@ export class Search {
       });
     }
     if (this.form.get('year')?.value) {
-      filter.push({ field: 'year', operator: 'contains', value: this.form.get('year')?.value });
+      filter.push({
+        field: 'publication_year',
+        operator: 'contains',
+        value: this.form.get('year')?.value,
+      });
     }
     if (this.form.get('ntsMap')?.value) {
-      filter.push({ field: 'ntsMap', operator: 'contains', value: this.form.get('ntsMap')?.value });
+      filter.push({
+        field: 'nts_map',
+        operator: 'contains',
+        value: this.form.get('ntsMap')?.value,
+      });
     }
     if (this.form.get('mapScale')?.value) {
       filter.push({
-        field: 'mapScale',
-        operator: 'contains',
+        field: 'map_scale',
+        operator: 'eq',
         value: this.form.get('mapScale')?.value,
       });
     }
@@ -108,13 +134,13 @@ export class Search {
     }
     if (this.form.get('publicationId')?.value) {
       filter.push({
-        field: 'publicationId',
+        field: 'publication_key',
         operator: 'eq',
         value: this.form.get('publicationId')?.value,
       });
     }
     if (this.form.get('issueId')?.value) {
-      filter.push({ field: 'issueId', operator: 'eq', value: this.form.get('issueId')?.value });
+      filter.push({ field: 'issue_id', operator: 'eq', value: this.form.get('issueId')?.value });
     }
 
     return {

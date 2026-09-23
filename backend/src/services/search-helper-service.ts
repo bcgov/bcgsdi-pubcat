@@ -18,40 +18,53 @@ export const SearchHelperService: any = {
   operatorToPrisma(
     operator: FilterOperator,
     value: FilterValue | FilterValue[] | undefined,
+    coerceValueTo: "number" | undefined = undefined,
   ): unknown {
+    let cleanedValue = value;
+    if (coerceValueTo == "number") {
+      cleanedValue = Number(value);
+      if (Number.isNaN(cleanedValue)) {
+        throw new Error("Cannot coerse value into a number");
+      }
+    }
+
     switch (operator) {
       case "eq":
-        return value ?? null;
+        return cleanedValue ?? null;
 
       case "neq":
-        return { not: value ?? null };
+        return { not: cleanedValue ?? null };
 
       case "lt":
-        return { lt: value };
+        return { lt: cleanedValue };
 
       case "lte":
-        return { lte: value };
+        return { lte: cleanedValue };
 
       case "gt":
-        return { gt: value };
+        return { gt: cleanedValue };
 
       case "gte":
-        return { gte: value };
+        return { gte: cleanedValue };
 
       case "contains":
-        return { contains: value, mode: "insensitive" };
+        return { contains: cleanedValue, mode: "insensitive" };
 
       case "startsWith":
-        return { startsWith: value };
+        return { startsWith: cleanedValue };
 
       case "endsWith":
-        return { endsWith: value };
+        return { endsWith: cleanedValue };
 
       case "in":
-        return { in: Array.isArray(value) ? value : [value] };
+        return {
+          in: Array.isArray(cleanedValue) ? cleanedValue : [cleanedValue],
+        };
 
       case "notIn":
-        return { notIn: Array.isArray(value) ? value : [value] };
+        return {
+          notIn: Array.isArray(cleanedValue) ? cleanedValue : [cleanedValue],
+        };
 
       case "isNull":
         return null;
@@ -90,7 +103,7 @@ export const SearchHelperService: any = {
    *                 (direct field mapping). Override when a field requires special
    *                 handling (e.g. join-based filters like `author_guid`).
    */
-  searchFilterToQuery<TField extends string>(
+  searchFilterToWhere<TField extends string>(
     filter: SearchFilter<TField> | FilterClause<TField>[],
     clauseFn: (
       clause: FilterClause<TField>,
@@ -105,7 +118,7 @@ export const SearchHelperService: any = {
     if ("and" in filter) {
       return {
         AND: filter.and.map((f) =>
-          SearchHelperService.searchFilterToQuery(f, clauseFn),
+          SearchHelperService.searchFilterToWhere(f, clauseFn),
         ),
       };
     }
@@ -113,7 +126,7 @@ export const SearchHelperService: any = {
     if ("or" in filter) {
       return {
         OR: filter.or.map((f) =>
-          SearchHelperService.searchFilterToQuery(f, clauseFn),
+          SearchHelperService.searchFilterToWhere(f, clauseFn),
         ),
       };
     }

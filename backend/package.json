@@ -5,7 +5,7 @@
   "main": "server.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/entrypoints/server.ts",
+    "dev": "tsx watch src/api/server.ts",
     "build": "npm run clean && npm run prisma-gen && tsc",
     "clean": "rm -rf dist",
     "test": "jest",

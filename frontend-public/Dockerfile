@@ -53,7 +53,7 @@ RUN /usr/bin/caddy fmt --overwrite /etc/caddy/Caddyfile
 
 EXPOSE 3000 3001
 # OpenShift ignores HEALTHCHECK; kept for Trivy/Docker best practices. Uses busybox wget (no curl).
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -q -O /dev/null http://127.0.0.1:3001/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -q -O /dev/null http://127.0.0.1:3009/health || exit 1
 
 USER 1001
 ENTRYPOINT ["/usr/bin/caddy"]

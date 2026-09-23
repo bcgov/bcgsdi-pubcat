@@ -22,19 +22,16 @@ export type ApiPublication = publication & {
 // Zod schema is the single source of truth; the TypeScript type is derived from it.
 export const publicationFilterableFieldSchema = z.enum([
   "publication_guid",
-  "parent_publication_guid",
-  "publication_type",
-  "publisher_name",
-  "distributor_name",
+  "publication_key",
   "title",
-  "editor",
-  "publication_place",
-  "publication_date",
-  "updated_time",
-  "expiry_time",
-  "publication_id",
-  //pseudo fields to provide additional filtering options
-  "linked_to_submission",
+  "abstract",
+  "publication_year",
+  "author",
+  "nts_map",
+  "map_scale",
+  "series",
+  "keyword",
+  "issue_id",
 ]);
 
 export type PublicationFilterableField = z.infer<
@@ -50,11 +47,15 @@ export type PublicationFilter = SearchFilter<PublicationFilterableField>;
 // ---------------------------------------------------------------------------
 
 export const publicationSortFieldSchema = z.enum([
+  "publication_guid",
+  "publication_key",
   "title",
-  "publication_date",
-  "publication_type",
-  "publisher_name",
-  "updated_time",
+  "abstract",
+  "publication_year",
+  "series",
+  "issue_id",
+  "created_timestamp",
+  "updated_timestamp",
 ]);
 
 export type PublicationSortField = z.infer<typeof publicationSortFieldSchema>;
@@ -64,7 +65,9 @@ export const publicationSortSchema = z.object({
   direction: sortDirectionSchema,
 });
 
-export type PublicationSort = z.infer<typeof publicationSortSchema>;
+export type PublicationSort =
+  | z.infer<typeof publicationSortSchema>
+  | z.infer<typeof publicationSortSchema>[];
 
 // ---------------------------------------------------------------------------
 // Zod schemas

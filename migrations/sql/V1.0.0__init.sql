@@ -7,22 +7,22 @@ set search_path = pubcat;
 
 -- This function is to be called by a 'before insert or update' trigger
 -- on any table that supports the standard audit columns:
---   - created_time
---   - updated_time
---   - created_by_db
---   - updated_by_db
+--   - create_timestamp
+--   - update_timestamp
+--   - create_db_user
+--   - update_db_user
 -- It auto-populates these columns.
 create or replace function audit_trigger_fn()
 returns trigger as $$
 begin
     if TG_OP = 'INSERT' then
-        NEW.created_time  := now();
-        NEW.created_by_db := current_user;
-        NEW.updated_time  := now();
-        NEW.updated_by_db := current_user;
+        NEW.create_timestamp  := now();
+        NEW.create_db_user := current_user;
+        NEW.update_timestamp  := now();
+        NEW.update_db_user := current_user;
     elsif TG_OP = 'UPDATE' then
-        NEW.updated_time := now();
-        NEW.updated_by_db := current_user;
+        NEW.update_timestamp := now();
+        NEW.update_db_user := current_user;
     end if;
     return NEW;
 end;

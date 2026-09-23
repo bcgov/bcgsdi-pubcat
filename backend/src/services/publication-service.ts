@@ -2,22 +2,22 @@ import { prisma } from "../core/prisma.js";
 
 import { Geometry } from "geojson";
 import { PublicationAdapter } from "../adapters/publication-adapter.js";
+import { UserInputError } from "../types/error.js";
 import {
   ApiPublication,
   PublicationFilter,
+  PublicationFilterableField,
   PublicationFilterClause,
   PublicationSort,
+  publicationSortFieldSchema,
 } from "../types/publication.js";
 import { SearchHelperService } from "./search-helper-service.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TransactionClient = any;
 
-const auditColumnDefaults = {
-  created_time: new Date(),
-  updated_time: new Date(),
-  created_by_db: "",
-  updated_by_db: "",
+export const SEARCH_FIELD_TYPES = {
+  scale: "number",
 };
 
 export const PublicationServicePrivate = {
@@ -39,24 +39,121 @@ export const PublicationServicePrivate = {
       }));
   },
 
+  validateFieldSupportsOperators(
+    field: PublicationFilterableField,
+    operator: string,
+  ) {
+    //fields not listed here are assumed to support all operators
+    const fieldOperatorMappings = {
+      map_scale: ["eq"],
+    } as any;
+    if (Object.hasOwn(fieldOperatorMappings, field)) {
+      if (
+        fieldOperatorMappings[field].find((op: any) => op == operator) ==
+        undefined
+      ) {
+        throw new UserInputError(
+          `field '${field}' does not support operator '${operator}'`,
+        );
+      }
+    }
+  },
+
+  searchFieldToDbCol(field: PublicationFilterableField): string | undefined {
+    const oneToOneMappings = {
+      publication_guid: "publication_guid",
+      publication_key: "publication_key",
+      title: "title",
+      abstract: "abstract",
+      publication_year: "publication_year",
+      author: "originator",
+      nts_map: "nts_maps",
+      map_scale: "scale",
+      series: "series_name",
+      issue_id: "issue_identification",
+      create_timestamp: "created_timestamp",
+      update_timestamp: "update_timestamp",
+    } as any;
+    if (Object.hasOwn(oneToOneMappings, field)) {
+      return oneToOneMappings[field];
+    }
+    return undefined;
+  },
+
   /**
    * Converts a single {@link PublicationFilterClause} into a Prisma `where` fragment.
    */
-  filterClauseToQuery(
+  filterClauseToWhere(
     clause: PublicationFilterClause,
   ): Record<string, unknown> {
     const { field, operator, value } = clause;
+    const numericColumns = ["scale", "publication_key"];
 
-    //
-    if (field === "linked_to_submission") {
+    // Check if the given field supports the given operator.
+    this.validateFieldSupportsOperators(field, operator);
+
+    // Check the normal case: where the filter field maps
+    // to a single database column
+    const dbCol = this.searchFieldToDbCol(field);
+    if (dbCol) {
+      // For filters applied to any db column that is numeric, coerce the values
+      // into numbers
+      const coerseValueTo = numericColumns.find((c) => c == dbCol)
+        ? "number"
+        : undefined;
+
       return {
-        publication_version_submission_track_event: {
-          some: {},
-        },
+        [dbCol]: SearchHelperService.operatorToPrisma(
+          operator,
+          value,
+          coerseValueTo,
+        ),
       };
     }
 
-    return { [field]: SearchHelperService.operatorToPrisma(operator, value) };
+    // Special cases below...
+
+    // If filtering by keyword, search against several different columns in the database
+    if (field == "keyword") {
+      const keywordDbCols = [
+        "theme_keyword_1",
+        "theme_keyword_2",
+        "theme_keyword_3",
+        "theme_keyword_4",
+        "theme_keyword_5",
+        "place_keyword_1",
+        "place_keyword_2",
+        "place_keyword_3",
+        "place_keyword_4",
+        "place_keyword_5",
+      ];
+      return {
+        OR: keywordDbCols.map((keywordDbCol) => {
+          return {
+            [keywordDbCol]: SearchHelperService.operatorToPrisma(
+              operator,
+              value,
+            ),
+          };
+        }),
+      };
+    }
+
+    throw new UserInputError(`Unsupported filter field: ${field}`);
+  },
+
+  sortToOrderBy(sort: PublicationSort): any {
+    if (Array.isArray(sort)) {
+      return sort.map((s) => this.sortToOrderBy(s));
+    } else {
+      const parsedSort = publicationSortFieldSchema.safeParse(sort.field);
+      if (!parsedSort.success) {
+        throw new UserInputError("Unsupported sort");
+      }
+      return {
+        [sort.field]: sort.direction,
+      };
+    }
   },
 
   async getPublicationGeometry(
@@ -101,26 +198,28 @@ export const PublicationService = {
     offset = 0,
     limit = 20,
   ) {
-    const where = SearchHelperService.searchFilterToQuery(
-      filter,
-      (clause: PublicationFilterClause) =>
-        PublicationServicePrivate.filterClauseToQuery(clause),
-    );
+    try {
+      const where = SearchHelperService.searchFilterToWhere(
+        filter,
+        (clause: PublicationFilterClause) =>
+          PublicationServicePrivate.filterClauseToWhere(clause),
+      );
 
-    const query = {
-      where: where,
+      const orderBy = PublicationServicePrivate.sortToOrderBy(sort);
 
-      orderBy: {
-        [sort.field]: sort.direction,
-      },
+      const query = {
+        where: where,
+        orderBy: orderBy,
+        skip: offset,
+        take: limit,
+      };
 
-      skip: offset,
-      take: limit,
-    };
+      const publication = await prisma.publication.findMany(query);
 
-    const publication = await prisma.publication.findMany(query);
-
-    return publication.map(PublicationAdapter.toApi);
+      return publication.map(PublicationAdapter.toApi);
+    } catch (err) {
+      throw err;
+    }
   },
 
   async getPublication(

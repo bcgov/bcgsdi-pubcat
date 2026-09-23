@@ -133,17 +133,16 @@ export type PageParams = {
 
 export type PublicationFilterableField =
   | 'publication_guid'
-  | 'publication_id'
+  | 'publication_key'
   | 'title'
   | 'abstract'
-  | 'year'
+  | 'publication_year'
   | 'author'
-  | 'ntsMap'
-  | 'mapScale'
+  | 'nts_map'
+  | 'map_scale'
   | 'series'
   | 'keyword'
-  | 'publicationId'
-  | 'issueId';
+  | 'issue_id';
 
 export type PublicationFilterClause = FilterClause<PublicationFilterableField>;
 
@@ -151,19 +150,18 @@ export type PublicationFilter = SearchFilter<PublicationFilterableField>;
 
 export type PublicationSortField =
   | 'publication_guid'
-  | 'publication_id'
+  | 'publication_key'
   | 'title'
   | 'abstract'
-  | 'year'
+  | 'publication_year'
   | 'series'
-  | 'publicationId'
-  | 'issueId';
+  | 'issue_id';
 
-export type PublicationSort = SearchSort<PublicationSortField>;
+export type PublicationSort = SearchSort<PublicationSortField> | SearchSort<PublicationSortField>[];
 
 export type PublicationSearchParams = {
   filter?: PublicationFilter | PublicationFilterClause[];
-  sort?: PublicationSort | PublicationSort[];
+  sort?: PublicationSort;
   offset?: number;
   limit?: number;
 };

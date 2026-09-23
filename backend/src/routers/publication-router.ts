@@ -6,6 +6,7 @@ import {
 } from "../core/error-handling.js";
 import { handleAsync } from "../core/express-middleware.js";
 import { PublicationService } from "../services/publication-service.js";
+import { UserInputError } from "../types/error.js";
 import {
   PublicationFilter,
   PublicationFilterClause,
@@ -38,6 +39,9 @@ publicationRouter.post(
       );
       return res.status(200).json(results);
     } catch (err: any) {
+      if (err instanceof UserInputError) {
+        return sendErrorResponse(res, 400, { userMessage: err.message });
+      }
       console.log(err);
       return sendErrorResponse(res, 500);
     }
