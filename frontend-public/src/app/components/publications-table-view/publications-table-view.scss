@@ -1,0 +1,12 @@
+@use '@angular/material' as mat;
+
+table {
+  @include mat.table-overrides(
+    (
+      header-headline-color: var(--typography-color-secondary),
+    )
+  );
+  th {
+    font: var(--typography-bold-body);
+  }
+}

@@ -1,0 +1,4 @@
+:host ::ng-deep .page-size .mat-mdc-form-field-infix {
+  width: auto;
+  min-width: 0;
+}

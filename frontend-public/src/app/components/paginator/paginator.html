@@ -1,0 +1,35 @@
+<div class="flex items-center justify-between" [formGroup]="form">
+  <div class="flex items-center gap-2 mr-4">
+    <mat-label>Page size</mat-label>
+    <div class="shrink">
+      <mat-form-field appearance="outline" class="page-size min-w-18! mb-0!">
+        <mat-select formControlName="pageSize" placeholder="Page size">
+          @for (option of pageSizeOptions(); track option) {
+          <mat-option [value]="option">
+            {{ option }}
+          </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div>
+    @if(!!rangeStart() && !!rangeEnd() ) {
+    {{ rangeStart() }} – {{ rangeEnd() }}
+    }
+    @else if(!!rangeStart()) {
+    {{ rangeStart() }} – {{ rangeStart() + pageSize() - 1}}
+    }
+  </div>
+
+  <div class="flex items-center gap-2">
+    <button matIconButton [disabled]="!hasPreviousPage()" (click)="previous()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <button matIconButton [disabled]="!hasNextPage()" (click)="next()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</div>

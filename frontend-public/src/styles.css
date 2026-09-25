@@ -22,12 +22,12 @@ body {
   background-color: var(--surface-color-primary-button-default) !important;
   color: var(--typography-color-primary-invert) !important;
 }
-.btn-secondary {
+.btn-secondary:not(.mat-mdc-icon-button) {
   background-color: var(--surface-color-secondary-button-default) !important;
   border: solid 1px var(--surface-color-border-dark) !important;
   color: var(--typography-color-primary) !important;
 }
-.btn-secondary:hover {
+.btn-secondary:not(.mat-mdc-icon-button):hover {
   background-color: var(--surface-color-secondary-button-hover) !important;
 }
 .btn-error {
@@ -41,6 +41,10 @@ button:disabled {
 .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
   border-radius: 4px !important;
 }
+.btn-secondary.mat-mdc-icon-button > .mat-icon {
+  color: var(--typography-color-placeholder) !important;
+}
+
 .mat-mdc-icon-button > .mat-icon {
   color: var(--typography-color-primary) !important;
 }
@@ -85,15 +89,15 @@ h4,
 
 h5,
 .h5 {
-  font: var(--typography-regular-h6) !important;
-  color: var(--typography-color-primary) !important;
+  font: 700 1.05rem/1.5rem 'BC Sans' !important;
+  color: var(--typography-color-secondary);
   line-height: var(--typography-line-heights-regular) !important;
 }
 
 h6,
 .h6 {
-  font: var(--typography-regular-h6) !important;
-  color: var(--typography-color-secondary) !important;
+  font: 600 0.97rem/1.4rem 'BC Sans' !important;
+  color: #666563 !important;
   line-height: var(--typography-line-heights-regular) !important;
 }
 

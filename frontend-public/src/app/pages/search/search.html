@@ -1,77 +1,106 @@
 <div class="mb-4">
-  <h3>Search the Catalogue</h3>
-  Any fields left blank will not be applied to the search filter
+  <h3>Search the Publication Catalogue</h3>
 </div>
 
 <div [formGroup]="form">
-  <div class="grid grid-cols-12 gap-2 mb-2">
-    <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
-      <mat-label>Title</mat-label>
-      <input matInput formControlName="title" (keyup.enter)="search()" />
-    </mat-form-field>
+  <div class="basic-search mb-6">
+    <div class="mb-2">
+      <h6>Quick search</h6>
+      Search all fields for the given text
+    </div>
+    <div class="grid grid-cols-12 gap-2 mb-2">
+      <div class="col-span-12 md:col-span-8 xl:col-span-8 flex gap-2 items-center">
+        <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8 mb-0! grow-1">
+          <mat-label>Search text</mat-label>
+          <input matInput formControlName="all" (keyup.enter)="search()" />
+        </mat-form-field>
 
-    <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
+        <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
+          (triggered)="search()">Search</loading-button>
+      </div>
+    </div>
+  </div>
+  <div class="advanced-search">
+    <div class="mb-2">
+      <h6>Advanced search</h6>
+      Search specific fields. Any fields left blank will not be applied to the search filter
+    </div>
 
-    <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
-      <mat-label>Abstract</mat-label>
-      <input matInput formControlName="abstract" (keyup.enter)="search()" />
-    </mat-form-field>
+    <div class="grid grid-cols-12 gap-2 mb-2">
 
-    <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
+      <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" (keyup.enter)="search()" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
-      <mat-label>Author</mat-label>
-      <input matInput formControlName="author" (keyup.enter)="search()" />
-    </mat-form-field>
+      <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
 
-    <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
+      <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
+        <mat-label>Abstract</mat-label>
+        <input matInput formControlName="abstract" (keyup.enter)="search()" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
-      <mat-label>Keyword</mat-label>
-      <input matInput formControlName="keyword" (keyup.enter)="search()" />
-    </mat-form-field>
+      <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
 
-    <mat-form-field appearance="outline" class="col-span-12 sm:col-span-6 md:col-span-4" [floatLabel]="'always'">
-      <mat-label>Series</mat-label>
-      <mat-select formControlName="series" placeholder="All">
-        <mat-option [value]="null">-- All --</mat-option>
-        @for (option of publicationSeriesOptions(); track option.code) {
-        <mat-option [value]="option.code">
-          {{ option.title }}
-        </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
+        <mat-label>Author</mat-label>
+        <input matInput formControlName="author" (keyup.enter)="search()" />
+      </mat-form-field>
 
-    <div class="hidden md:block md:col-span-4"></div>
+      <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
 
-    <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
-      <mat-label>NTS Map</mat-label>
-      <input matInput formControlName="ntsMap" (keyup.enter)="search()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
+        <mat-label>Keyword</mat-label>
+        <input matInput formControlName="keyword" (keyup.enter)="search()" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
-      <mat-label>Map Scale</mat-label>
-      <input matInput formControlName="mapScale" (keyup.enter)="search()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="col-span-12 sm:col-span-6 md:col-span-4" [floatLabel]="'always'">
+        <mat-label>Series</mat-label>
+        <mat-select formControlName="series" placeholder="All">
+          <mat-option [value]="null">-- All --</mat-option>
+          @for (option of publicationSeriesOptions(); track option.code) {
+          <mat-option [value]="option.code">
+            {{ option.title }}
+          </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
-    <div class="hidden md:block md:col-span-4"></div>
+      <div class="hidden md:block md:col-span-4"></div>
 
-    <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
-      <mat-label>Publication ID</mat-label>
-      <input matInput formControlName="publicationId" (keyup.enter)="search()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
+        <mat-label>NTS Map</mat-label>
+        <input matInput formControlName="ntsMap" (keyup.enter)="search()" />
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
-      <mat-label>Issue ID</mat-label>
-      <input matInput formControlName="issueId" (keyup.enter)="search()" />
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
+        <mat-label>Map Scale</mat-label>
+        <input matInput formControlName="mapScale" type="number" min="1" step="any" (keyup.enter)="search()" />
+      </mat-form-field>
+
+      <div class="hidden md:block md:col-span-4"></div>
+
+      <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
+        <mat-label>Publication ID</mat-label>
+        <input matInput formControlName="publicationId" type="number" min="1" step="any" (keyup.enter)="search()" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
+        <mat-label>Issue ID</mat-label>
+        <input matInput formControlName="issueId" (keyup.enter)="search()" />
+      </mat-form-field>
+
+    </div>
+
+    @if (hasQuickAndAdvancedSearch()) {
+    Todo: show alert that quick and advenced filters are both active
+    }
+
+    <div class="flex gap-2 mt-2">
+      <button mat-flat-button class="btn-secondary" [disabled]="!isDirty()" (click)="reset()">Reset</button>
+      <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
+        (triggered)="search()">Search</loading-button>
+    </div>
 
   </div>
-</div>
-
-<div class="flex gap-2 mt-2">
-  <button mat-flat-button class="btn-secondary" [disabled]="!form.dirty" (click)="reset()">Reset</button>
-  <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
-    (triggered)="search()">Search</loading-button>
 </div>

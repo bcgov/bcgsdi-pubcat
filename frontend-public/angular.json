@@ -24,7 +24,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css", "src/material-theme.scss", "src/material-overrides.scss"]
+            "styles": ["src/material-theme.scss", "src/material-overrides.scss", "src/styles.css"]
           },
           "configurations": {
             "production": {
