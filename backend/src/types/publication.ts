@@ -32,6 +32,8 @@ export const publicationFilterableFieldSchema = z.enum([
   "series",
   "keyword",
   "issue_id",
+  //special fields
+  "any",
 ]);
 
 export type PublicationFilterableField = z.infer<
@@ -52,18 +54,29 @@ export const publicationSortFieldSchema = z.enum([
   "title",
   "abstract",
   "publication_year",
+  "author",
   "series",
   "issue_id",
-  "created_timestamp",
-  "updated_timestamp",
+  "create_timestamp",
+  "update_timestamp",
 ]);
 
 export type PublicationSortField = z.infer<typeof publicationSortFieldSchema>;
 
-export const publicationSortSchema = z.object({
-  field: publicationSortFieldSchema,
-  direction: sortDirectionSchema,
-});
+export const publicationSortSchema = z.xor([
+  //single sort expression, OR
+  z.object({
+    field: publicationSortFieldSchema,
+    direction: sortDirectionSchema,
+  }),
+  //array of sort expressions
+  z.array(
+    z.object({
+      field: publicationSortFieldSchema,
+      direction: sortDirectionSchema,
+    }),
+  ),
+]);
 
 export type PublicationSort =
   | z.infer<typeof publicationSortSchema>

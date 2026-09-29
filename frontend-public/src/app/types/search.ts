@@ -142,7 +142,9 @@ export type PublicationFilterableField =
   | 'map_scale'
   | 'series'
   | 'keyword'
-  | 'issue_id';
+  | 'issue_id'
+  //special fields
+  | 'any';
 
 export type PublicationFilterClause = FilterClause<PublicationFilterableField>;
 
@@ -154,6 +156,7 @@ export type PublicationSortField =
   | 'title'
   | 'abstract'
   | 'publication_year'
+  | 'author'
   | 'series'
   | 'issue_id';
 
@@ -165,3 +168,10 @@ export type PublicationSearchParams = {
   offset?: number;
   limit?: number;
 };
+
+export enum SearchFilterType {
+  Single = 'single',
+  AndedListOfSingles = 'andedListOfSingles',
+  LogicalOperatorGroup = 'logicalOperatorGroup',
+  Empty = 'empty',
+}

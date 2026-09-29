@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { Paginator } from '../../components/paginator/paginator';
 import { PublicationsTableView } from '../../components/publications-table-view/publications-table-view';
+import { SearchFilterSummary } from '../../components/search-filter-summary/search-filter-summary';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
 import { PublicationSearchParams } from '../../types/search';
 
@@ -15,7 +16,7 @@ enum ResultsViewType {
 }
 
 @Component({
-  imports: [MatButtonModule, MatIconModule, PublicationsTableView, Paginator],
+  imports: [MatButtonModule, MatIconModule, PublicationsTableView, Paginator, SearchFilterSummary],
   selector: 'search-results',
   styleUrl: './search-results.css',
   templateUrl: './search-results.html',
@@ -25,7 +26,6 @@ export class SearchResults {
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
   readonly publicationSearchStore = inject(PublicationSearchStore);
 
   readonly routeParams = this.route.queryParamMap.pipe(
@@ -89,7 +89,6 @@ export class SearchResults {
         cleanedParams.limit = this.publicationSearchStore.pageSize();
       }
       this.searchParams.set(cleanedParams);
-
       this.publicationSearchStore.search(cleanedParams);
     } catch (err) {
       this.error.set('Search failed');

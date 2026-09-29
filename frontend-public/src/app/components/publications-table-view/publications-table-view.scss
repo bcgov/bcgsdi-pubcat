@@ -10,3 +10,7 @@ table {
     font: var(--typography-bold-body);
   }
 }
+
+th.mat-sort-header-sorted {
+  color: blue;
+}

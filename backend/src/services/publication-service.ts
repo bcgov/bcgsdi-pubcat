@@ -9,6 +9,7 @@ import {
   PublicationFilterableField,
   PublicationFilterClause,
   PublicationSort,
+  PublicationSortField,
   publicationSortFieldSchema,
 } from "../types/publication.js";
 import { SearchHelperService } from "./search-helper-service.js";
@@ -71,7 +72,26 @@ export const PublicationServicePrivate = {
       map_scale: "scale",
       series: "series_name",
       issue_id: "issue_identification",
-      create_timestamp: "created_timestamp",
+      create_timestamp: "create_timestamp",
+      update_timestamp: "update_timestamp",
+    } as any;
+    if (Object.hasOwn(oneToOneMappings, field)) {
+      return oneToOneMappings[field];
+    }
+    return undefined;
+  },
+
+  sortFieldToDbCol(field: PublicationSortField): string | undefined {
+    const oneToOneMappings = {
+      publication_guid: "publication_guid",
+      publication_key: "publication_key",
+      title: "title",
+      abstract: "abstract",
+      publication_year: "publication_year",
+      author: "originator",
+      series: "series_name",
+      issue_id: "issue_identification",
+      create_timestamp: "create_timestamp",
       update_timestamp: "update_timestamp",
     } as any;
     if (Object.hasOwn(oneToOneMappings, field)) {
@@ -113,6 +133,38 @@ export const PublicationServicePrivate = {
 
     // Special cases below...
 
+    if (field == "any") {
+      if (operator != "contains") {
+        throw "unsupported operator for 'any'";
+      }
+      const anyFilterNodes: PublicationFilterClause[] = [
+        { field: "title", operator: "contains", value: value },
+        { field: "abstract", operator: "contains", value: value },
+        { field: "nts_map", operator: "contains", value: value },
+        { field: "publication_year", operator: "contains", value: value },
+        { field: "author", operator: "contains", value: value },
+        { field: "series", operator: "contains", value: value },
+        { field: "issue_id", operator: "contains", value: value },
+        { field: "keyword", operator: "contains", value: value },
+      ];
+
+      if (!Number.isNaN(Number(value))) {
+        anyFilterNodes.push({
+          field: "map_scale",
+          operator: "eq",
+          value: value,
+        });
+        anyFilterNodes.push({
+          field: "publication_key",
+          operator: "eq",
+          value: value,
+        });
+      }
+      return {
+        OR: anyFilterNodes.map((n) => this.filterClauseToWhere(n)),
+      };
+    }
+
     // If filtering by keyword, search against several different columns in the database
     if (field == "keyword") {
       const keywordDbCols = [
@@ -150,9 +202,13 @@ export const PublicationServicePrivate = {
       if (!parsedSort.success) {
         throw new UserInputError("Unsupported sort");
       }
-      return {
-        [sort.field]: sort.direction,
-      };
+      const sortField = this.sortFieldToDbCol(sort.field);
+
+      return sortField
+        ? {
+            [sortField]: sort.direction,
+          }
+        : undefined;
     }
   },
 

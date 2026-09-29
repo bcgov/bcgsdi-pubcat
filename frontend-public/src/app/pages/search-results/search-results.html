@@ -9,6 +9,7 @@
       <h3>Search results</h3>
     </div>
 
+    <!--
     @if(showResults()) {
     <div class="flex items-center gap-2">
       <button matIconButton (click)="setViewType(ResultsViewType.Table)"
@@ -27,17 +28,25 @@
 
     </div>
     }
+    -->
   </div>
 
 
   <div class="min-h-0 flex-1 overflow-auto">
     @if(showResults()) {
+
+    <search-filter-summary [filter]="publicationSearchStore.lastSearchedParams()?.filter"></search-filter-summary>
+
     @if (!publicationSearchStore.results()?.length) {
     @if (publicationSearchStore.pageIndex() == 0){
-    No matches
+    <div class="my-4">
+      No matches
+    </div>
     }
     @else {
-    This page is empty
+    <div class="my-4">
+      This page is empty
+    </div>
     }
     }
     @if(viewType() == ResultsViewType.Table) {
@@ -46,13 +55,17 @@
     @if(viewType() == ResultsViewType.Abstract) {
     Abstract view here
     }
+    @if (publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.length){
     <div class="mt-6 mb-2 flex justify-center">
       <paginator [pageIndex]="publicationSearchStore.pageIndex()" [pageSize]="publicationSearchStore.pageSize()"
         [itemCount]="publicationSearchStore.results()?.length || 0" (pageChange)="onPageChange($event)"></paginator>
     </div>
     }
+    }
     @else {
-    No matches
+    <div class="my-4">
+      No matches
+    </div>
     }
   </div>
 

@@ -19,6 +19,7 @@ import {
   PublicationFilterClause,
   PublicationSearchParams,
 } from '../../types/search';
+import { SearchFilterUtils } from '../../utils/search-filter-utils';
 
 enum SearchType {
   Basic = 'basic',
@@ -55,7 +56,7 @@ export class Search {
 
   readonly form: FormGroup = this.fb.group({
     //basic search fields
-    all: [null],
+    any: [null],
     //advanced search fields
     author: [null],
     title: [null],
@@ -95,57 +96,15 @@ export class Search {
     });
   }
 
-  private buildQuickFilter(): PublicationFilter | undefined {
-    // Prepare filters.  All filters are 'ANDed' together.
-    const filter: PublicationFilterClause[] = [];
-    if (this.form.get('all')?.value) {
-      const searchText = this.form.get('all')?.value;
-      const isNumber = !Number.isNaN(Number(searchText));
-      filter.push({ field: 'author', operator: 'contains', value: searchText });
-      filter.push({ field: 'title', operator: 'contains', value: searchText });
-      filter.push({
-        field: 'keyword',
-        operator: 'contains',
-        value: searchText,
-      });
-      filter.push({
-        field: 'abstract',
-        operator: 'contains',
-        value: searchText,
-      });
-      filter.push({
-        field: 'publication_year',
-        operator: 'contains',
-        value: searchText,
-      });
-      filter.push({
-        field: 'nts_map',
-        operator: 'contains',
-        value: searchText,
-      });
-
-      filter.push({ field: 'series', operator: 'eq', value: searchText });
-      filter.push({ field: 'issue_id', operator: 'eq', value: searchText });
-
-      // Only search the following fields if the search text is numeric
-      if (isNumber) {
-        filter.push({
-          field: 'publication_key',
-          operator: 'eq',
-          value: searchText,
-        });
-        filter.push({
-          field: 'map_scale',
-          operator: 'eq',
-          value: searchText,
-        });
-      }
+  private buildQuickFilter(): PublicationFilterClause | undefined {
+    const quickSearchText = this.form.get('any')?.value;
+    if (quickSearchText) {
+      return { field: 'any', operator: 'contains', value: quickSearchText };
     }
-
-    return filter?.length ? { or: filter } : undefined;
+    return undefined;
   }
 
-  buildAdvancedFilter(): PublicationFilterClause[] | undefined {
+  buildAdvancedFilter(): PublicationFilter | undefined {
     const filter: PublicationFilterClause[] = [];
     if (this.form.get('author')?.value) {
       filter.push({ field: 'author', operator: 'contains', value: this.form.get('author')?.value });
@@ -201,7 +160,7 @@ export class Search {
     if (this.form.get('issueId')?.value) {
       filter.push({ field: 'issue_id', operator: 'eq', value: this.form.get('issueId')?.value });
     }
-    return filter;
+    return filter?.length ? { and: filter } : undefined;
   }
 
   /* 
@@ -222,11 +181,11 @@ export class Search {
     let allFilter: PublicationFilterClause[] | PublicationFilter | undefined = undefined;
     if (quickFilter && advancedFilter) {
       allFilter = {
-        and: [quickFilter, { and: advancedFilter }],
+        and: [quickFilter, advancedFilter],
       };
     } else if (quickFilter) {
       allFilter = quickFilter;
-    } else if (advancedFilter?.length) {
+    } else if (advancedFilter) {
       allFilter = advancedFilter;
     }
 
@@ -254,11 +213,12 @@ export class Search {
   private splitFilterIntoQuickAndAdvanced(
     filter: PublicationFilterClause[] | PublicationFilter | undefined,
   ): {
-    quick: PublicationFilter | undefined;
-    advanced: PublicationFilterClause[] | undefined;
+    quick: PublicationFilterClause | undefined;
+    advanced: PublicationFilterClause[] | PublicationFilter | undefined;
   } {
     let quick = undefined;
     let advanced = undefined;
+    filter = SearchFilterUtils.normalize(filter);
 
     if (Array.isArray(filter)) {
       advanced = filter;
@@ -266,19 +226,25 @@ export class Search {
       const andValue = (filter as any).and;
       if (Array.isArray(andValue)) {
         const hasQuickAndAdvanced =
-          andValue.length == 2 &&
-          andValue.filter((v: any) => Object.hasOwn(v, 'or')).length == 1 &&
-          andValue.filter((v: any) => Object.hasOwn(v, 'and')).length == 1;
+          andValue.length == 2 && andValue.filter((v: any) => v.field == 'any').length == 1;
         const hasOnlyQuick =
-          !hasQuickAndAdvanced &&
-          andValue.filter((v: any) => !!v.field && !!v.operator && !!v.value).length ==
-            andValue.length;
+          andValue.length == 1 && andValue.filter((v: any) => v.field == 'any').length == 1;
         if (hasQuickAndAdvanced) {
-          quick = andValue.find((v: any) => Object.hasOwn(v, 'or')); //get the value of the second-level "or"
-          advanced = andValue.find((v: any) => Object.hasOwn(v, 'and'))?.and; //get the value of the second-level "and"
+          quick = andValue.find((v: any) => v.field == 'any'); // the the node with the field called 'any
+          advanced = andValue.find((v: any) => !v.field || v.field != 'any'); //advanced can have different forms, so be general here
         } else if (hasOnlyQuick) {
           quick = andValue; //get the value of the first-level "and"
+        } else {
+          //advanced only
+          advanced = filter;
         }
+      }
+    } else if (filter) {
+      //single
+      if ((filter as PublicationFilterClause)?.field == 'any') {
+        quick = filter;
+      } else {
+        advanced = [filter];
       }
     }
 
@@ -306,47 +272,44 @@ export class Search {
     }
   }
 
-  private populateQuickForm(quickFilter: PublicationFilter | undefined) {
-    // Parse the search text from the given quickFilter.  If a specified filter
-    // is not in the expected format it will be silently ignored.
-    if (quickFilter && Object.hasOwn(quickFilter, 'or')) {
-      const orValue = (quickFilter as any)['or'];
-      if (
-        Array.isArray(orValue) &&
-        orValue.filter((v) => !!v.field && !!v.operator && !!v.value).length
-      ) {
-        const searchTextValues = [...new Set(orValue.map((v) => v.value))];
-        // A properly-formatted quick search will have the same search text in all specified fields
-        if (searchTextValues.length == 1) {
-          this.form.get('all')?.setValue(searchTextValues[0]);
-        }
-      }
+  private populateQuickForm(quickFilter: PublicationFilterClause | undefined) {
+    if (quickFilter?.field == 'any' && quickFilter?.operator == 'contains') {
+      this.form.get('any')?.setValue(quickFilter.value);
     }
   }
 
-  private populateAdvancedForm(advancedFilter: PublicationFilterClause[] | undefined) {
+  private populateAdvancedForm(
+    advancedFilter: PublicationFilterClause[] | PublicationFilter | undefined,
+  ) {
+    let arr: PublicationFilterClause[] = [];
     if (Array.isArray(advancedFilter)) {
-      for (const f of advancedFilter) {
-        const value = f.value;
-        if (f.field == 'title') {
-          this.form.get('title')?.setValue(value);
-        } else if (f.field == 'abstract') {
-          this.form.get('abstract')?.setValue(value);
-        } else if (f.field == 'author') {
-          this.form.get('author')?.setValue(value);
-        } else if (f.field == 'keyword') {
-          this.form.get('keyword')?.setValue(value);
-        } else if (f.field == 'series') {
-          this.form.get('series')?.setValue(value);
-        } else if (f.field == 'nts_map') {
-          this.form.get('ntsMap')?.setValue(value);
-        } else if (f.field == 'map_scale') {
-          this.form.get('mapScale')?.setValue(value);
-        } else if (f.field == 'publication_key') {
-          this.form.get('publicationId')?.setValue(value);
-        } else if (f.field == 'issue_id') {
-          this.form.get('issueId')?.setValue(value);
-        }
+      arr = advancedFilter;
+    } else if (advancedFilter && Object.hasOwn(advancedFilter, 'and')) {
+      arr = (advancedFilter as any).and;
+    } else if (advancedFilter && Object.hasOwn(advancedFilter, 'field')) {
+      arr = [advancedFilter as PublicationFilterClause];
+    }
+
+    for (const f of arr) {
+      const value = f.value;
+      if (f.field == 'title') {
+        this.form.get('title')?.setValue(value);
+      } else if (f.field == 'abstract') {
+        this.form.get('abstract')?.setValue(value);
+      } else if (f.field == 'author') {
+        this.form.get('author')?.setValue(value);
+      } else if (f.field == 'keyword') {
+        this.form.get('keyword')?.setValue(value);
+      } else if (f.field == 'series') {
+        this.form.get('series')?.setValue(value);
+      } else if (f.field == 'nts_map') {
+        this.form.get('ntsMap')?.setValue(value);
+      } else if (f.field == 'map_scale') {
+        this.form.get('mapScale')?.setValue(value);
+      } else if (f.field == 'publication_key') {
+        this.form.get('publicationId')?.setValue(value);
+      } else if (f.field == 'issue_id') {
+        this.form.get('issueId')?.setValue(value);
       }
     }
   }

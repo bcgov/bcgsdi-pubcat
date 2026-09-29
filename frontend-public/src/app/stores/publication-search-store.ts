@@ -7,7 +7,7 @@ import { PublicationSearchParams } from '../types/search';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-type SimpleSearchParams = Omit<PublicationSearchParams, 'limit' | 'offset'>;
+type StoreSearchParams = Omit<PublicationSearchParams, 'filter'> | { fields: any };
 
 @Service()
 export class PublicationSearchStore {

@@ -1,0 +1,10 @@
+<mat-card appearance="outlined" [ngClass]="cardClass">
+  <mat-card-content [ngClass]="{'py-2!': compact() == true, 'px-2!': compact() == true}">
+    <div class="flex flex-row items-start">
+      @if(showIcon()) {
+      <mat-icon matListItemIcon class="mr-2">{{icon}}</mat-icon>
+      }
+      <span class="flex-1"> <ng-content></ng-content></span>
+    </div>
+  </mat-card-content>
+</mat-card>

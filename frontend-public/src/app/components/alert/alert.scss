@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.alert-error {
+  background-color: var(--support-surface-color-danger);
+  border-color: var(--support-border-color-danger);
+  color: var(--typography-color-secondary);
+}
+.alert-error mat-icon {
+  color: var(--icons-color-danger);
+}
+
+.alert-warn {
+  border-color: var(--support-border-color-warning);
+  background-color: var(--support-surface-color-warning);
+}
+.alert-warn mat-icon {
+  color: var(--icons-color-warning);
+}
+
+.alert-info {
+  background-color: var(--theme-gray-20);
+  border-color: var(--surface-color-border-medium);
+}
+.alert-info mat-icon {
+  color: var(--typography-color-secondary);
+}
+
+.alert-success {
+  background-color: var(--support-surface-color-success);
+  border-color: var(--support-border-color-success);
+}
+.alert-success mat-icon {
+  color: var(--icons-color-success);
+}

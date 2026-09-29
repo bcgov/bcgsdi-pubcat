@@ -1,27 +1,29 @@
 @if(publications()?.length) {
-<table mat-table [dataSource]="publications()!" matSort>
+<table mat-table [dataSource]="publications()!" [matSortActive]="activeSortField"
+  [matSortDirection]="activeSortDirection" matSort matSortDisableClear (matSortChange)="onSortChanged($event)">
   <!-- Author Column -->
   <ng-container matColumnDef="author">
-    <th mat-header-cell *matHeaderCellDef>Author</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by author">Author</th>
     <td mat-cell *matCellDef="let element">{{element.originator}}</td>
   </ng-container>
 
   <!-- Publication Year Column -->
   <ng-container matColumnDef="publication_year">
-    <th mat-header-cell *matHeaderCellDef>Year</th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header start="desc" sortActionDescription="Sort by publication year">
+      Year</th>
     <td mat-cell *matCellDef="let element">{{element.publication_year}}</td>
   </ng-container>
 
   <!-- Title Column -->
   <ng-container matColumnDef="title">
-    <th mat-header-cell *matHeaderCellDef>Title</th>
-    <td mat-cell *matCellDef="let element">{{element.title}}</td>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by title">Title</th>
+    <td mat-cell *matCellDef="let element"><b>{{element.title}}</b></td>
   </ng-container>
 
   <!-- Issue Column -->
   <ng-container matColumnDef="issue_id">
-    <th mat-header-cell *matHeaderCellDef>Issue</th>
-    <td mat-cell *matCellDef="let element">{{element.issue_id}}</td>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by issue identifier">Issue</th>
+    <td mat-cell *matCellDef="let element" class="text-nowrap">{{element.issue_identification}}</td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

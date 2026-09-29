@@ -111,6 +111,7 @@ mat-list.cdk-drop-list-dragging {
 
 mat-form-field {
   @apply mb-2;
+  @include mat.all-component-densities(-2);
 }
 
 mat-form-field > .mdc-text-field--disabled {

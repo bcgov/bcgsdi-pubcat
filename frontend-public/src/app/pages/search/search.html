@@ -6,13 +6,16 @@
   <div class="basic-search mb-6">
     <div class="mb-2">
       <h6>Quick search</h6>
-      Search all fields for the given text
+      Search all publicaiton attributes for the given text.
     </div>
     <div class="grid grid-cols-12 gap-2 mb-2">
       <div class="col-span-12 md:col-span-8 xl:col-span-8 flex gap-2 items-center">
         <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8 mb-0! grow-1">
           <mat-label>Search text</mat-label>
-          <input matInput formControlName="all" (keyup.enter)="search()" />
+          <input matInput formControlName="any" (keyup.enter)="search()" />
+          <button matIconButton matSuffix (click)="form.get('any')?.setValue(undefined)">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
 
         <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
@@ -23,10 +26,10 @@
   <div class="advanced-search">
     <div class="mb-2">
       <h6>Advanced search</h6>
-      Search specific fields. Any fields left blank will not be applied to the search filter
+      Search specific publication attributes. Any fields left blank will not be applied to the search.
     </div>
 
-    <div class="grid grid-cols-12 gap-2 mb-2">
+    <div class="grid grid-cols-12 gap-x-2 mb-2">
 
       <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
         <mat-label>Title</mat-label>
