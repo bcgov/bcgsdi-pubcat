@@ -8,9 +8,9 @@
     "dev": "tsx watch src/api/server.ts",
     "build": "npm run clean && npm run prisma-gen && tsc",
     "clean": "rm -rf dist",
-    "test": "jest",
-    "prisma-gen": "npx prisma generate --schema=prisma/schema.prisma",
-    "job-publish": "tsx src/jobs/publish.ts"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "prisma-gen": "npx prisma generate --schema=prisma/schema.prisma"
   },
   "repository": {
     "type": "git",
@@ -45,9 +45,13 @@
     "@types/nconf": "^0.10.7",
     "@types/node": "^25.9.1",
     "@types/pg": "^8.18.0",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.2",
     "prisma": "^7.4.2",
+    "supertest": "^7.3.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.22.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.2"
   }
 }

@@ -22,24 +22,6 @@ export const SEARCH_FIELD_TYPES = {
 };
 
 export const PublicationServicePrivate = {
-  normalizeEmails(
-    emails: Array<{
-      publication_email_guid: string;
-      email: string;
-      is_primary: boolean;
-    }>,
-  ) {
-    return [...emails]
-      .sort((a, b) => {
-        if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
-        return a.email.localeCompare(b.email);
-      })
-      .map((email) => ({
-        email: email.email,
-        isPrimary: email.is_primary,
-      }));
-  },
-
   validateFieldSupportsOperators(
     field: PublicationFilterableField,
     operator: string,

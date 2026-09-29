@@ -5,6 +5,7 @@ import {
   sendZodErrorResponse,
 } from "../core/error-handling.js";
 import { handleAsync } from "../core/express-middleware.js";
+import { logger } from "../core/logger.js";
 import { PublicationService } from "../services/publication-service.js";
 import { UserInputError } from "../types/error.js";
 import {
@@ -60,7 +61,9 @@ publicationRouter.get(
     });
     const parsedParams = paramsSchema.safeParse(req.params);
     if (!parsedParams.success) {
-      return sendZodErrorResponse(res, parsedParams.error);
+      return sendErrorResponse(res, 404, {
+        userMessage: "Publication not found.",
+      });
     }
 
     const { id } = parsedParams.data;
@@ -74,7 +77,10 @@ publicationRouter.get(
       }
       return res.status(200).json(publication);
     } catch (err: any) {
-      console.log(err);
+      logger.error("Error retrieving publication", {
+        error: err,
+        publicationGuid: id,
+      });
       return sendErrorResponse(res, 500);
     }
   }),

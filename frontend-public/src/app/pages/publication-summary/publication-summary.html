@@ -1,0 +1,97 @@
+<div class="flex flex-col h-full min-h-0">
+  <div class="flex justify-between items-center mb-4 shrink-0">
+    <div class="flex items-center gap-2">
+      @if(navigationService.canGoBack) {
+      <button matIconButton (click)="navigationService.back()">
+        <mat-icon matListItemIcon class="mr-2">
+          chevron_left
+        </mat-icon>
+      </button>
+      }
+      <h3>Publication Summary</h3>
+    </div>
+
+    <button mat-flat-button class="btn-secondary" (click)="newSearch()">Search the catalogue
+    </button>
+  </div>
+  @if (publication.isLoading()) {
+  <p>Loading...</p>
+  } @else if (publication.error()) {
+  <p>Unable to load publication.</p>
+  } @else if (publication.value(); as item) {
+
+
+  @if(item.thumbnail_link) {
+  <div class="flex justify-start mb-2">
+    <img [src]="item.thumbnail_link" class="pr-2 max-w-32">
+  </div>
+  }
+
+  <div class="grid grid-cols-12 gap-1">
+    @if(item.issue_identification) {
+    <div class="col-span-2 font-bold min-h-8">Issue ID:</div>
+    <div class="col-span-10">{{item.issue_identification}}</div>
+    }
+    @if(item.title) {
+    <div class="col-span-2 min-h-8 font-bold">Title:</div>
+    <div class="col-span-10 font-bold">{{item.title}}</div>
+    }
+    @if(item.originator) {
+    <div class="col-span-2 min-h-8 font-bold">Author(s):</div>
+    <div class="col-span-10">{{item.originator}}</div>
+    }
+    @if(item.series_name) {
+    <div class="col-span-2 min-h-8 font-bold">Series Name:</div>
+    <div class="col-span-10">{{item.series_name}}</div>
+    }
+    @if(item.publication_year) {
+    <div class="col-span-2 min-h-8 font-bold">Publication Year:</div>
+    <div class="col-span-10">{{item.publication_year}}</div>
+    }
+    @if(placeKeywords().length) {
+    <div class="col-span-2 min-h-8 font-bold">Place Keywords:</div>
+    <div class="col-span-10">
+      <mat-chip-set aria-label="Place keywords">
+        @for(keyword of placeKeywords(); track keyword) {
+        <mat-chip>{{keyword}}</mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+    }
+    @if(themeKeywords().length) {
+    <div class="col-span-2 min-h-8 font-bold">Theme Keywords:</div>
+    <div class="col-span-10"><mat-chip-set aria-label="Theme keywords">
+        @for(keyword of themeKeywords(); track keyword) {
+        <mat-chip>{{keyword}}</mat-chip>
+        }
+      </mat-chip-set></div>
+    }
+    @if (item.pdf_link || item.zip_link) {
+    <div class="col-span-2 min-h-8 font-bold">Downloads</div>
+    <div class="col-span-10 flex gap-x-2">
+      @if(item.pdf_link) {
+      <a [href]="item.pdf_link" target="_blank">PDF</a>
+      }
+      @if(item.zip_link) {
+      <a [href]="item.zip_link" target="_blank">ZIP</a>
+      }
+    </div>
+    }
+    @if (item.bcgs_link) {
+    <div class="col-span-2 min-h-8 font-bold">Links</div>
+    <div class="col-span-10 flex gap-x-2">
+      @if(item.bcgs_link) {
+      <a [href]="item.bcgs_link" target="_blank">More information</a>
+      }
+    </div>
+    }
+    @if(item.abstract) {
+    <div class="col-span-2 min-h-8 font-bold">
+      Abstract
+    </div>
+    <div class="col-span-10 flex gap-x-2">{{item.abstract}}</div>
+    }
+  </div>
+  }
+
+</div>

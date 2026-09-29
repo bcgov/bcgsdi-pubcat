@@ -20,6 +20,15 @@ export class PublicationService {
       .pipe(catchError((err) => throwError(() => ErrorHandler.toApiError(err))));
   }
 
+  public getPublication(publicationGuid: string): Observable<Publication | undefined> {
+    return this.http
+      .get<Publication>(`${environment.pubCatApi}/publications/${publicationGuid}`)
+      .pipe(catchError((err) => throwError(() => ErrorHandler.toApiError(err))));
+  }
+
+  // Private
+  // --------------------------------------------------------------------------
+
   private normalizeSort(sort: PublicationSort | undefined): PublicationSort {
     const result: PublicationSort = [];
     if (Array.isArray(sort)) {

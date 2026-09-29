@@ -62,7 +62,7 @@ export class Search {
     title: [null],
     keyword: [null],
     abstract: [null],
-    year: [null],
+    publicationYear: [null],
     ntsMap: [null],
     mapScale: [null],
     series: [null],
@@ -126,11 +126,11 @@ export class Search {
         value: this.form.get('abstract')?.value,
       });
     }
-    if (this.form.get('year')?.value) {
+    if (this.form.get('publicationYear')?.value) {
       filter.push({
         field: 'publication_year',
         operator: 'contains',
-        value: this.form.get('year')?.value,
+        value: this.form.get('publicationYear')?.value,
       });
     }
     if (this.form.get('ntsMap')?.value) {
@@ -158,7 +158,11 @@ export class Search {
       });
     }
     if (this.form.get('issueId')?.value) {
-      filter.push({ field: 'issue_id', operator: 'eq', value: this.form.get('issueId')?.value });
+      filter.push({
+        field: 'issue_id',
+        operator: 'contains',
+        value: this.form.get('issueId')?.value,
+      });
     }
     return filter?.length ? { and: filter } : undefined;
   }
@@ -298,6 +302,8 @@ export class Search {
         this.form.get('abstract')?.setValue(value);
       } else if (f.field == 'author') {
         this.form.get('author')?.setValue(value);
+      } else if (f.field == 'publication_year') {
+        this.form.get('publicationYear')?.setValue(value);
       } else if (f.field == 'keyword') {
         this.form.get('keyword')?.setValue(value);
       } else if (f.field == 'series') {
