@@ -42,7 +42,9 @@ export class SearchFilterSummary {
     return 'or' in filter;
   }
 
-  readonly isEmptyFilter = computed<boolean>(() => !this.filter());
+  readonly isEmptyFilter = computed<boolean>(() => {
+    return SearchFilterUtils.normalize(this.filter()) === undefined;
+  });
 
   protected fieldLabel(field: PublicationFilterableField): string {
     const labels: Partial<Record<PublicationFilterableField, string>> = {

@@ -57,12 +57,12 @@ describe('LoadingButton', () => {
     expect(button.disabled).toBe(true);
   });
 
-  it('should not emit clicked event when loading', () => {
+  it('should not emit triggered event when loading', () => {
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
 
     const clickSpy = vi.fn();
-    component.clicked.subscribe(clickSpy);
+    component.triggered.subscribe(clickSpy);
 
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();
@@ -70,12 +70,12 @@ describe('LoadingButton', () => {
     expect(clickSpy).not.toHaveBeenCalled();
   });
 
-  it('should not emit clicked event when disabled', () => {
+  it('should not emit triggered event when disabled', () => {
     fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
 
     const clickSpy = vi.fn();
-    component.clicked.subscribe(clickSpy);
+    component.triggered.subscribe(clickSpy);
 
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();
@@ -83,13 +83,13 @@ describe('LoadingButton', () => {
     expect(clickSpy).not.toHaveBeenCalled();
   });
 
-  it('should emit clicked event when not loading and not disabled', () => {
+  it('should emit triggered event when not loading and not disabled', () => {
     fixture.componentRef.setInput('loading', false);
     fixture.componentRef.setInput('disabled', false);
     fixture.detectChanges();
 
     const clickSpy = vi.fn();
-    component.clicked.subscribe(clickSpy);
+    component.triggered.subscribe(clickSpy);
 
     const button = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
     button.click();

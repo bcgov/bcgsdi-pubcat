@@ -10,7 +10,7 @@ import { SearchFilterSummary } from '../../components/search-filter-summary/sear
 import { PublicationSearchStore } from '../../stores/publication-search-store';
 import { PublicationSearchParams } from '../../types/search';
 
-enum ResultsViewType {
+export enum ResultsViewType {
   Table = 'table',
   Abstract = 'abstract',
 }
