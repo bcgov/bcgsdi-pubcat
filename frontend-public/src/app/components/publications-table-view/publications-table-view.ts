@@ -2,13 +2,13 @@ import { Component, inject, input, ViewChild } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
 import { Publication } from '../../types/publication';
 import { PublicationSortField, SearchSort } from '../../types/search';
 
 @Component({
-  imports: [MatPaginatorModule, MatTableModule, MatSort, MatSortModule, RouterLink],
+  imports: [MatPaginatorModule, MatTableModule, MatSort, MatSortModule /*RouterLink*/],
   selector: 'publications-table-view',
   styleUrl: './publications-table-view.scss',
   templateUrl: './publications-table-view.html',

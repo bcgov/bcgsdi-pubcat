@@ -1,17 +1,14 @@
-import { HttpClient } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { DEFAULT_PAGE_SIZE_OPTIONS } from '../components/paginator/paginator';
 import { PublicationService } from '../services/publication-service';
 import { Publication } from '../types/publication';
 import { PublicationSearchParams } from '../types/search';
 
-const DEFAULT_PAGE_SIZE = 10;
-
-type StoreSearchParams = Omit<PublicationSearchParams, 'filter'> | { fields: any };
+const DEFAULT_PAGE_SIZE = DEFAULT_PAGE_SIZE_OPTIONS.length ? DEFAULT_PAGE_SIZE_OPTIONS[0] : 10;
 
 @Service()
 export class PublicationSearchStore {
-  private readonly http = inject(HttpClient);
   private readonly publicationService = inject(PublicationService);
 
   readonly isLoading = signal<boolean>(false);

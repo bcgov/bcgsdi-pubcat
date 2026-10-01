@@ -12,7 +12,7 @@ export interface PageChangeEvent {
   itemOffset: number;
 }
 
-const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20];
+export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 @Component({
   imports: [
