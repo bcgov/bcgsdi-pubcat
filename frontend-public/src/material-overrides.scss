@@ -58,19 +58,26 @@ mat-list.cdk-drop-list-dragging {
 
 @include mat.chips-overrides(
   (
-    container-height: 22px,
-    label-text-size: 0.7rem,
+    container-height: 24px,
+    label-text-size: 0.75rem,
     label-text-line-height: 12px,
     label-text-weight: 400,
     with-icon-icon-size: 14px,
     //no color change on hover
     hover-state-layer-opacity: 0,
+    elevated-container-color: var(--theme-gray-10),
+    label-text-color: var(--theme-gray-100),
+    outline-color: var(--theme-gray-80),
   )
 );
 
 .mdc-evolution-chip__action--primary {
   padding-left: 8px !important;
   padding-right: 8px !important;
+}
+
+.mdc-evolution-chip__text-label {
+  line-height: normal !important; /* fix the truncated line height */
 }
 
 /* Button -- less rounding to corners, and use a bold font */

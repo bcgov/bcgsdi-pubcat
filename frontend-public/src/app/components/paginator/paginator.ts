@@ -34,14 +34,23 @@ export class Paginator {
   readonly pageSize = input<number>(DEFAULT_PAGE_SIZE_OPTIONS[0]);
   readonly pageSizeOptions = input<number[]>(DEFAULT_PAGE_SIZE_OPTIONS);
   readonly itemCount = input(0);
+  readonly total = input<number | undefined>(undefined);
   readonly pageChange = output<PageChangeEvent>();
 
-  readonly itemOffset = computed(() =>
+  readonly pageStartOffset = computed(() =>
     Paginator.pageIndexToItemOffset(this.pageIndex(), this.pageSize()),
   );
+
+  readonly pageEndOffset = computed(() => this.pageStartOffset() + this.itemCount());
   readonly hasPreviousPage = computed(() => this.pageIndex() > 0);
-  readonly hasNextPage = computed(() => this.itemCount() === this.pageSize());
-  readonly rangeStart = computed(() => this.itemOffset() + 1);
+  readonly hasNextPage = computed(() => {
+    const total = this.total();
+    if (!!total) {
+      return this.pageEndOffset() < total;
+    }
+    return this.itemCount() === this.pageSize();
+  });
+  readonly rangeStart = computed(() => this.pageStartOffset() + 1);
   readonly rangeEnd = computed(() =>
     this.itemCount() ? this.rangeStart() + this.itemCount() - 1 : undefined,
   );

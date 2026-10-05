@@ -4,19 +4,24 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ErrorHandler } from '../core/error-handler';
 import { Publication } from '../types/publication';
-import { PublicationSearchParams, PublicationSort } from '../types/search';
+import { PublicationSearchParams, PublicationSort, SearchResponse } from '../types/search';
 
 @Service()
 export class PublicationService {
   private readonly http = inject(HttpClient);
 
-  public searchPublications(params: PublicationSearchParams = {}): Observable<Publication[]> {
+  public searchPublications(
+    params: PublicationSearchParams = {},
+  ): Observable<SearchResponse<Publication>> {
     const paramsCleaned = {
       ...params,
       sort: this.normalizeSort(params.sort),
     };
     return this.http
-      .post<Publication[]>(`${environment.pubCatApi}/publications/search`, paramsCleaned)
+      .post<SearchResponse<Publication>>(
+        `${environment.pubCatApi}/publications/search`,
+        paramsCleaned,
+      )
       .pipe(catchError((err) => throwError(() => ErrorHandler.toApiError(err))));
   }
 

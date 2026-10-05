@@ -2,8 +2,9 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+import { Alert } from '../../components/alert/alert';
 import { Paginator } from '../../components/paginator/paginator';
 import { PublicationsTableView } from '../../components/publications-table-view/publications-table-view';
 import { SearchFilterSummary } from '../../components/search-filter-summary/search-filter-summary';
@@ -16,7 +17,15 @@ export enum ResultsViewType {
 }
 
 @Component({
-  imports: [MatButtonModule, MatIconModule, PublicationsTableView, Paginator, SearchFilterSummary],
+  imports: [
+    MatButtonModule,
+    MatIconModule,
+    PublicationsTableView,
+    Paginator,
+    SearchFilterSummary,
+    Alert,
+    RouterLink,
+  ],
   selector: 'search-results',
   styleUrl: './search-results.css',
   templateUrl: './search-results.html',

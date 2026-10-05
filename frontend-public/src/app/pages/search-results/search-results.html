@@ -35,9 +35,17 @@
   <div class="min-h-0 flex-1 overflow-auto">
     @if(showResults()) {
 
-    <search-filter-summary [filter]="publicationSearchStore.lastSearchedParams()?.filter"></search-filter-summary>
+    <div class="mb-4">
+      <alert [showIcon]="false" [compact]="true" class="text-xs md:text-sm">
+        <div class="flex items-center">
+          <search-filter-summary [filter]="publicationSearchStore.lastSearchedParams()?.filter"
+            class="grow-1"></search-filter-summary>
+          <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">Modify search</button>
+        </div>
+      </alert>
+    </div>
 
-    @if (!publicationSearchStore.results()?.length) {
+    @if (!publicationSearchStore.results()?.items?.length) {
     @if (publicationSearchStore.pageIndex() == 0){
     <div class="my-4">
       No matches
@@ -50,15 +58,17 @@
     }
     }
     @if(viewType() == ResultsViewType.Table) {
-    <publications-table-view [publications]="publicationSearchStore.results()"></publications-table-view>
+    <publications-table-view [publications]="publicationSearchStore.results()?.items"></publications-table-view>
     }
     @if(viewType() == ResultsViewType.Abstract) {
     Abstract view here
     }
-    @if (publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.length){
+    @if (publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.items?.length){
     <div class="mt-6 mb-2 flex justify-center">
       <paginator [pageIndex]="publicationSearchStore.pageIndex()" [pageSize]="publicationSearchStore.pageSize()"
-        [itemCount]="publicationSearchStore.results()?.length || 0" (pageChange)="onPageChange($event)"></paginator>
+        [itemCount]="publicationSearchStore.results()?.items?.length || 0"
+        [total]="publicationSearchStore.results()?.total" (pageChange)="onPageChange($event)">
+      </paginator>
     </div>
     }
     }

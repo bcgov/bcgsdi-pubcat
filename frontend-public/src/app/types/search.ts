@@ -175,3 +175,10 @@ export enum SearchFilterType {
   LogicalOperatorGroup = 'logicalOperatorGroup',
   Empty = 'empty',
 }
+
+export type SearchResponse<TField> = {
+  items: TField[];
+  offset: number;
+  limit: number;
+  total: number;
+};

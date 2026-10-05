@@ -64,8 +64,8 @@
 
       <mat-form-field appearance="outline" class="col-span-12 sm:col-span-6 md:col-span-4" [floatLabel]="'always'">
         <mat-label>Series</mat-label>
-        <mat-select formControlName="series" placeholder="All">
-          <mat-option [value]="null">-- All --</mat-option>
+        <mat-select formControlName="series" placeholder="Any">
+          <mat-option [value]="null">-- Any --</mat-option>
           @for (option of publicationSeriesOptions(); track option.code) {
           <mat-option [value]="option.code">
             {{ option.title }}

@@ -1,69 +1,54 @@
-@if(isRoot()) {
-<alert [showIcon]="false" [compact]="true" class="text-xs">
-  <ng-container *ngTemplateOutlet="content"></ng-container>
-</alert>
-}
-@else {
-<ng-container *ngTemplateOutlet="content"></ng-container>
-}
+<div class="inline-block">
 
-<ng-template #content>
-  <div class="flex gap-1 justify-between items-center">
-    <div class="flex gap-1">
-      @if(isRoot()) {
-      @if(isEmptyFilter()) {
-      <div class="font-bold">No search filters were applied</div>
-      }
-      @else {
-      <div class="font-bold">Search filter(s) applied:</div>
-      }
-      }
-      <div class="flex gap-1">
-        @if (normalizedFilter; as filter) {
-        @if (isClause(filter)) {
-        <span class="font-medium">
-          {{ fieldLabel(filter.field) }}
-        </span>
+  @if(isRoot()) {
+  @if(isEmptyFilter()) {
+  <div class="font-bold inline">No search filters were applied</div>
+  }
+  @else {
+  <div class="font-bold inline-block">Search filter(s):</div>
+  }
+  }
+  <div class="">
+    @if (normalizedFilter; as filter) {
+    @if (isClause(filter)) {
 
-        <span>
-          {{ operatorLabel(filter.operator) }}
-        </span>
+    {{ fieldLabel(filter.field) }}
 
-        @if (filter.operator !== 'isNull' && filter.operator !== 'isNotNull') {
-        <span>
-          {{ formatValue(filter.value) }}
-        </span>
-        }
-        } @else if (isAnd(filter)) {
-        @for (child of filter.and; track $index) {
-        @if (!$first) {
-        <span class="font-medium">AND</span>
-        }
 
-        <search-filter-summary [filter]="child" [isRoot]="false" />
-        }
-        } @else if (isOr(filter)) {
 
-        <span class="mx-1">(</span>
+    {{ operatorLabel(filter.operator) }}
 
-        @for (child of filter.or; track $index) {
-        @if (!$first) {
-        <span class="font-medium">OR</span>
-        }
 
-        <search-filter-summary [filter]="child" [isRoot]="false" />
-        }
+    @if (filter.operator !== 'isNull' && filter.operator !== 'isNotNull') {
 
-        <span class="mx-1">)</span>
+    {{ formatValue(filter.value) }}
 
-        }
-        }
-      </div>
-    </div>
-    @if(isRoot()) {
-    @if(showModifySearchButton()) {
-    <button mat-flat-button class="btn-secondary" routerLink="/search">Modify search</button>
+    }
+    } @else if (isAnd(filter)) {
+    @for (child of filter.and; track $index) {
+    @if (!$first) {
+    AND
+    }
+
+    <search-filter-summary [filter]="child" [isRoot]="false" />
+    }
+    } @else if (isOr(filter)) {
+
+    <span class="mx-1">(</span>
+
+    @for (child of filter.or; track $index) {
+    @if (!$first) {
+    OR
+    }
+
+    <search-filter-summary [filter]="child" [isRoot]="false" />
+    }
+
+    <span class="mx-1">)</span>
+
     }
     }
   </div>
-</ng-template>
+
+
+</div>

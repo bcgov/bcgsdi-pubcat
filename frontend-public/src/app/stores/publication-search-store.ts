@@ -3,7 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '../components/paginator/paginator';
 import { PublicationService } from '../services/publication-service';
 import { Publication } from '../types/publication';
-import { PublicationSearchParams } from '../types/search';
+import { PublicationSearchParams, SearchResponse } from '../types/search';
 
 const DEFAULT_PAGE_SIZE = DEFAULT_PAGE_SIZE_OPTIONS.length ? DEFAULT_PAGE_SIZE_OPTIONS[0] : 10;
 
@@ -13,7 +13,7 @@ export class PublicationSearchStore {
 
   readonly isLoading = signal<boolean>(false);
   readonly lastSearchedParams = signal<PublicationSearchParams | undefined>(undefined);
-  readonly results = signal<Publication[] | undefined>(undefined);
+  readonly results = signal<SearchResponse<Publication> | undefined>(undefined);
 
   readonly pageSize = computed(() => this.lastSearchedParams()?.limit || DEFAULT_PAGE_SIZE);
   readonly pageIndex = computed(() => (this.lastSearchedParams()?.offset || 0) / this.pageSize());

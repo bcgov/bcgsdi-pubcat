@@ -11,6 +11,24 @@ table {
   }
 }
 
-th.mat-sort-header-sorted {
-  color: blue;
+tr.mat-mdc-row {
+  cursor: pointer;
+}
+tr.mat-mdc-row:hover {
+  background-color: var(--theme-blue-10);
+}
+
+/* override table padding for small screens */
+@media (max-width: 767px) {
+  .mat-mdc-cell,
+  .mat-mdc-header-cell {
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: var(--typography-font-size-label); /* text-xs */
+  }
+
+  .mat-mdc-row,
+  .mat-mdc-header-row {
+    height: 38px;
+  }
 }

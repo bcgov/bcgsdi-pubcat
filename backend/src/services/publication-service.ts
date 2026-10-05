@@ -12,6 +12,7 @@ import {
   PublicationSortField,
   publicationSortFieldSchema,
 } from "../types/publication.js";
+import { SearchResponse } from "../types/search.js";
 import { SearchHelperService } from "./search-helper-service.js";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -235,7 +236,7 @@ export const PublicationService = {
     sort: PublicationSort = { field: "title", direction: "asc" },
     offset = 0,
     limit = 20,
-  ) {
+  ): Promise<SearchResponse<ApiPublication>> {
     try {
       const where = SearchHelperService.searchFilterToWhere(
         filter,
@@ -245,16 +246,22 @@ export const PublicationService = {
 
       const orderBy = PublicationServicePrivate.sortToOrderBy(sort);
 
-      const query = {
-        where: where,
-        orderBy: orderBy,
+      const countQuery = { where: where, orderBy: orderBy };
+      const publicationsQuery = {
+        ...countQuery,
         skip: offset,
         take: limit,
       };
 
-      const publication = await prisma.publication.findMany(query);
+      const publications = await prisma.publication.findMany(publicationsQuery);
+      const count = await prisma.publication.count(countQuery);
 
-      return publication.map(PublicationAdapter.toApi);
+      return {
+        items: publications.map(PublicationAdapter.toApi),
+        total: count,
+        offset: offset,
+        limit: limit,
+      };
     } catch (err) {
       throw err;
     }

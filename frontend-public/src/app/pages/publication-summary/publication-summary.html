@@ -11,7 +11,14 @@
       <h3>Publication Summary</h3>
     </div>
 
-    <button mat-flat-button class="btn-secondary" (click)="newSearch()">Search the catalogue
+    <button mat-flat-button class="hidden! sm:block! btn-secondary" (click)="newSearch()">
+      <span>Search the catalogue</span>
+    </button>
+
+    <button matIconButton class="block! sm:hidden! mr-2" (click)="newSearch()">
+      <mat-icon matListItemIcon>
+        search
+      </mat-icon>
     </button>
   </div>
   @if (publication.isLoading()) {
@@ -20,37 +27,30 @@
   <p>Unable to load publication.</p>
   } @else if (publication.value(); as item) {
 
-
-  @if(item.thumbnail_link) {
-  <div class="flex justify-start mb-2">
-    <img [src]="item.thumbnail_link" class="pr-2 max-w-32">
-  </div>
-  }
-
   <div class="grid grid-cols-12 gap-1">
     @if(item.issue_identification) {
-    <div class="col-span-2 font-bold min-h-8">Issue ID:</div>
-    <div class="col-span-10">{{item.issue_identification}}</div>
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 font-bold sm:min-h-8">Issue ID:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">{{item.issue_identification}}</div>
     }
     @if(item.title) {
-    <div class="col-span-2 min-h-8 font-bold">Title:</div>
-    <div class="col-span-10 font-bold">{{item.title}}</div>
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Title:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 sm:font-bold mb-2 sm:mb-0">{{item.title}}</div>
     }
     @if(item.originator) {
-    <div class="col-span-2 min-h-8 font-bold">Author(s):</div>
-    <div class="col-span-10">{{item.originator}}</div>
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Author(s):</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">{{item.originator}}</div>
     }
     @if(item.series_name) {
-    <div class="col-span-2 min-h-8 font-bold">Series Name:</div>
-    <div class="col-span-10">{{item.series_name}}</div>
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Series Name:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">{{item.series_name}}</div>
     }
     @if(item.publication_year) {
-    <div class="col-span-2 min-h-8 font-bold">Publication Year:</div>
-    <div class="col-span-10">{{item.publication_year}}</div>
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Publication Year:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">{{item.publication_year}}</div>
     }
     @if(placeKeywords().length) {
-    <div class="col-span-2 min-h-8 font-bold">Place Keywords:</div>
-    <div class="col-span-10">
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Place Keywords:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
       <mat-chip-set aria-label="Place keywords">
         @for(keyword of placeKeywords(); track keyword) {
         <mat-chip>{{keyword}}</mat-chip>
@@ -59,16 +59,16 @@
     </div>
     }
     @if(themeKeywords().length) {
-    <div class="col-span-2 min-h-8 font-bold">Theme Keywords:</div>
-    <div class="col-span-10"><mat-chip-set aria-label="Theme keywords">
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Theme Keywords:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0"><mat-chip-set aria-label="Theme keywords">
         @for(keyword of themeKeywords(); track keyword) {
         <mat-chip>{{keyword}}</mat-chip>
         }
       </mat-chip-set></div>
     }
     @if (item.pdf_link || item.zip_link) {
-    <div class="col-span-2 min-h-8 font-bold">Downloads</div>
-    <div class="col-span-10 flex gap-x-2">
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Downloads</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
       @if(item.pdf_link) {
       <a [href]="item.pdf_link" target="_blank">PDF</a>
       }
@@ -77,21 +77,39 @@
       }
     </div>
     }
+    <!--
     @if (item.bcgs_link) {
-    <div class="col-span-2 min-h-8 font-bold">Links</div>
-    <div class="col-span-10 flex gap-x-2">
+    <div class="col-span-4 sm:col-span-3 md:col-span-2 min-h-8 font-bold">Links</div>
+    <div class="col-span-8 sm:col-span-9 md:col-span-10 flex gap-x-2">
       @if(item.bcgs_link) {
       <a [href]="item.bcgs_link" target="_blank">More information</a>
       }
     </div>
     }
+    -->
     @if(item.abstract) {
-    <div class="col-span-2 min-h-8 font-bold">
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">
       Abstract
     </div>
-    <div class="col-span-10 flex gap-x-2">{{item.abstract}}</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
+      {{item.abstract}}
+    </div>
+    }
+
+    @if(item.thumbnail_link) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2">
+    </div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
+      <img [src]="item.thumbnail_link" class="self-start max-w-32">
+    </div>
+
+
     }
   </div>
+
+
+
+
   }
 
 </div>

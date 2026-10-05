@@ -1,7 +1,5 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
 import {
   FilterClause,
   FilterOperator,
@@ -11,19 +9,17 @@ import {
   PublicationFilterClause,
 } from '../../types/search';
 import { SearchFilterUtils } from '../../utils/search-filter-utils';
-import { Alert } from '../alert/alert';
 
 @Component({
   selector: 'search-filter-summary',
   standalone: true,
-  imports: [SearchFilterSummary, Alert, NgTemplateOutlet, MatButtonModule, RouterLink],
+  imports: [SearchFilterSummary, MatButtonModule],
   styleUrl: './search-filter-summary.css',
   templateUrl: './search-filter-summary.html',
 })
 export class SearchFilterSummary {
   readonly filter = input<PublicationFilter | PublicationFilterClause[] | undefined>();
   readonly isRoot = input<boolean>(true);
-  readonly showModifySearchButton = input<boolean>(true);
 
   protected get normalizedFilter(): PublicationFilter | undefined {
     const n = SearchFilterUtils.normalize(this.filter());
@@ -57,6 +53,7 @@ export class SearchFilterSummary {
       publication_year: 'Year',
       abstract: 'Abstract',
       keyword: 'Keyword',
+      series: 'Series',
       any: 'Any field',
     };
 

@@ -21,6 +21,9 @@
     @else if(!!rangeStart()) {
     {{ rangeStart() }} – {{ rangeStart() + pageSize() - 1}}
     }
+    @if(total()) {
+    of {{total()}}
+    }
   </div>
 
   <div class="flex items-center gap-2">
