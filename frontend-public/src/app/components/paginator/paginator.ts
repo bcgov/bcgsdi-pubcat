@@ -23,7 +23,7 @@ export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50];
     MatInputModule,
     MatSelectModule,
   ],
-  selector: 'paginator',
+  selector: 'pubcat-paginator',
   styleUrl: './paginator.css',
   templateUrl: './paginator.html',
 })
@@ -45,7 +45,7 @@ export class Paginator {
   readonly hasPreviousPage = computed(() => this.pageIndex() > 0);
   readonly hasNextPage = computed(() => {
     const total = this.total();
-    if (!!total) {
+    if (total) {
       return this.pageEndOffset() < total;
     }
     return this.itemCount() === this.pageSize();

@@ -42,6 +42,14 @@ describe('PublicationSummary', () => {
       getPublication: vi.fn(),
     };
 
+    navigationService = {
+      previousUrl: '',
+      currentUrl: '',
+      canGoBack: true,
+      getPreviousUrl: vi.fn(),
+      back: vi.fn(),
+    } as unknown as NavigationService;
+
     publicationSearchStore = {
       reset: vi.fn(),
     };
@@ -65,7 +73,7 @@ describe('PublicationSummary', () => {
         },
         {
           provide: NavigationService,
-          useValue: {},
+          useValue: navigationService,
         },
         {
           provide: PublicationSearchStore,

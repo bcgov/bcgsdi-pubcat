@@ -18,8 +18,8 @@
           </button>
         </mat-form-field>
 
-        <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
-          (triggered)="search()">Search</loading-button>
+        <pubcat-loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
+          (triggered)="search()">Search</pubcat-loading-button>
       </div>
     </div>
   </div>
@@ -106,8 +106,8 @@
 
     <div class="flex gap-2 mt-2">
       <button mat-flat-button class="btn-secondary" [disabled]="!isDirty()" (click)="reset()">Reset</button>
-      <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
-        (triggered)="search()">Search</loading-button>
+      <pubcat-loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
+        (triggered)="search()">Search</pubcat-loading-button>
     </div>
 
   </div>

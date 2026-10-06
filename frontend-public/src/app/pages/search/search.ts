@@ -39,7 +39,7 @@ enum SearchType {
     MatPaginatorModule,
     MatSelectModule,
   ],
-  selector: 'search',
+  selector: 'pubcat-search',
   styleUrl: './search.css',
   templateUrl: './search.html',
 })

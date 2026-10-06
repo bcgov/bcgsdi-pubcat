@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { Alert } from '../../components/alert/alert';
-import { Paginator } from '../../components/paginator/paginator';
+import { PageChangeEvent, Paginator } from '../../components/paginator/paginator';
 import { PublicationsTableView } from '../../components/publications-table-view/publications-table-view';
 import { SearchFilterSummary } from '../../components/search-filter-summary/search-filter-summary';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
@@ -26,7 +26,7 @@ export enum ResultsViewType {
     Alert,
     RouterLink,
   ],
-  selector: 'search-results',
+  selector: 'pubcat-search-results',
   styleUrl: './search-results.css',
   templateUrl: './search-results.html',
 })
@@ -42,7 +42,7 @@ export class SearchResults {
       let query;
       try {
         query = JSON.parse(params.get('query')!);
-      } catch (err) {
+      } catch {
         query = undefined;
       }
       return {
@@ -99,7 +99,7 @@ export class SearchResults {
       }
       this.searchParams.set(cleanedParams);
       this.publicationSearchStore.search(cleanedParams);
-    } catch (err) {
+    } catch {
       this.error.set('Search failed');
       this.publicationSearchStore.reset();
     }
@@ -159,7 +159,7 @@ export class SearchResults {
   // Event handlers
   // --------------------------------------------------------------------------
 
-  onPageChange(event: any) {
+  onPageChange(event: PageChangeEvent) {
     this.goToPage(event.itemOffset, event.pageSize);
   }
 }

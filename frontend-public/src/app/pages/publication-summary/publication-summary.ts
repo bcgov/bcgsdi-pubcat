@@ -12,7 +12,7 @@ import { PublicationSearchStore } from '../../stores/publication-search-store';
 
 @Component({
   imports: [MatButtonModule, MatIconModule, MatChipsModule],
-  selector: 'publication',
+  selector: 'pubcat-publication',
   styleUrl: './publication-summary.css',
   templateUrl: './publication-summary.html',
 })

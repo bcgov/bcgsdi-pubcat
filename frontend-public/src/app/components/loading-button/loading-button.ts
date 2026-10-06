@@ -1,14 +1,13 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export type LoadingButtonVariant = 'text' | 'filled' | 'elevated' | 'tonal' | 'outlined';
 
 @Component({
-  selector: 'loading-button',
+  selector: 'pubcat-loading-button',
   imports: [MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './loading-button.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './loading-button.scss',
 })
 export class LoadingButton {
