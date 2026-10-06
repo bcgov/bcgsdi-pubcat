@@ -1,19 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import { AuthService } from "../services/auth-service.js";
-import { sendErrorResponse } from "./error-handling.js";
-import { logger } from "./logger.js";
+import { NextFunction, Request, Response } from 'express';
+import { AuthService } from '../services/auth-service.js';
+import { sendErrorResponse } from './error-handling.js';
+import { logger } from './logger.js';
 
-export const handleAsync =
-  (fn: any) => (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
+export const handleAsync = (fn: any) => (req: Request, res: Response, next: NextFunction) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
-export const logRequests = async function (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const excludedPaths = ["/api/metrics", "/api/health"];
+export const logRequests = async function (req: Request, res: Response, next: NextFunction) {
+  const excludedPaths = ['/api/metrics', '/api/health'];
 
   //only log requests that don't match any 'excludedPaths'
   if (!excludedPaths.some((prefix) => req.path.startsWith(prefix))) {
@@ -22,12 +17,7 @@ export const logRequests = async function (
   next();
 };
 
-export const handleErrors = function (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export const handleErrors = function (err: any, req: Request, res: Response, next: NextFunction) {
   logger.error(err.stack);
   sendErrorResponse(res, 500);
   next();
@@ -50,11 +40,7 @@ Usage:
     ...
   })
 */
-export const checkIsAuthenticated = async function (
-  req: Request,
-  res: Response,
-  next: any,
-) {
+export const checkIsAuthenticated = async function (req: Request, res: Response, next: any) {
   try {
     await AuthService.ensureReqIsAuthenticated(req);
   } catch {
@@ -84,11 +70,7 @@ Returns a middleware function which does the following:
   one of the given roles
 */
 export const hasOneOfRoles = function (rolesToCheck: string[]) {
-  const onCheckAuthorizedComplete = async (
-    req: Request,
-    res: Response,
-    next: any,
-  ) => {
+  const onCheckAuthorizedComplete = async (req: Request, res: Response, next: any) => {
     let hasAtLeastOneRole = false;
     for (const roleToCheck of rolesToCheck) {
       if (AuthService.doesReqHaveRole(req, roleToCheck)) {

@@ -1,11 +1,7 @@
-import { z } from "zod";
-import { publication } from "../generated/prisma/client.js";
-import type { FilterClause, SearchFilter } from "./search.js";
-import {
-  filterOperatorSchema,
-  filterValueSchema,
-  sortDirectionSchema,
-} from "./search.js";
+import { z } from 'zod';
+import { publication } from '../generated/prisma/client.js';
+import type { FilterClause, SearchFilter } from './search.js';
+import { filterOperatorSchema, filterValueSchema, sortDirectionSchema } from './search.js';
 
 // ---------------------------------------------------------------------------
 // Service layer types
@@ -21,24 +17,22 @@ export type ApiPublication = publication & {
 
 // Zod schema is the single source of truth; the TypeScript type is derived from it.
 export const publicationFilterableFieldSchema = z.enum([
-  "publication_guid",
-  "publication_key",
-  "title",
-  "abstract",
-  "publication_year",
-  "author",
-  "nts_map",
-  "map_scale",
-  "series",
-  "keyword",
-  "issue_id",
+  'publication_guid',
+  'publication_key',
+  'title',
+  'abstract',
+  'publication_year',
+  'author',
+  'nts_map',
+  'map_scale',
+  'series',
+  'keyword',
+  'issue_id',
   //special fields
-  "any",
+  'any',
 ]);
 
-export type PublicationFilterableField = z.infer<
-  typeof publicationFilterableFieldSchema
->;
+export type PublicationFilterableField = z.infer<typeof publicationFilterableFieldSchema>;
 
 export type PublicationFilterClause = FilterClause<PublicationFilterableField>;
 
@@ -49,16 +43,16 @@ export type PublicationFilter = SearchFilter<PublicationFilterableField>;
 // ---------------------------------------------------------------------------
 
 export const publicationSortFieldSchema = z.enum([
-  "publication_guid",
-  "publication_key",
-  "title",
-  "abstract",
-  "publication_year",
-  "author",
-  "series",
-  "issue_id",
-  "create_timestamp",
-  "update_timestamp",
+  'publication_guid',
+  'publication_key',
+  'title',
+  'abstract',
+  'publication_year',
+  'author',
+  'series',
+  'issue_id',
+  'create_timestamp',
+  'update_timestamp',
 ]);
 
 export type PublicationSortField = z.infer<typeof publicationSortFieldSchema>;
@@ -79,8 +73,7 @@ export const publicationSortSchema = z.xor([
 ]);
 
 export type PublicationSort =
-  | z.infer<typeof publicationSortSchema>
-  | z.infer<typeof publicationSortSchema>[];
+  z.infer<typeof publicationSortSchema> | z.infer<typeof publicationSortSchema>[];
 
 // ---------------------------------------------------------------------------
 // Zod schemas
@@ -97,19 +90,16 @@ type PublicationFilterInput =
   | { and: PublicationFilterInput[] }
   | { or: PublicationFilterInput[] };
 
-export const publicationFilterSchema: z.ZodType<PublicationFilterInput> =
-  z.lazy(() =>
-    z.union([
-      publicationFilterClauseSchema,
-      z.object({ and: z.array(publicationFilterSchema) }),
-      z.object({ or: z.array(publicationFilterSchema) }),
-    ]),
-  );
+export const publicationFilterSchema: z.ZodType<PublicationFilterInput> = z.lazy(() =>
+  z.union([
+    publicationFilterClauseSchema,
+    z.object({ and: z.array(publicationFilterSchema) }),
+    z.object({ or: z.array(publicationFilterSchema) }),
+  ]),
+);
 
 export const publicationSearchBodySchema = z.object({
-  filter: z
-    .union([publicationFilterSchema, z.array(publicationFilterClauseSchema)])
-    .optional(),
+  filter: z.union([publicationFilterSchema, z.array(publicationFilterClauseSchema)]).optional(),
   sort: publicationSortSchema.optional(),
   offset: z.number().int().nonnegative().optional(),
   limit: z.number().int().positive().optional(),

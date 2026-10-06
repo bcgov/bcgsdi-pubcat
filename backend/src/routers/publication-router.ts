@@ -1,18 +1,15 @@
-import express, { Request, Response } from "express";
-import { z } from "zod";
-import {
-  sendErrorResponse,
-  sendZodErrorResponse,
-} from "../core/error-handling.js";
-import { handleAsync } from "../core/express-middleware.js";
-import { logger } from "../core/logger.js";
-import { PublicationService } from "../services/publication-service.js";
-import { UserInputError } from "../types/error.js";
+import express, { Request, Response } from 'express';
+import { z } from 'zod';
+import { sendErrorResponse, sendZodErrorResponse } from '../core/error-handling.js';
+import { handleAsync } from '../core/express-middleware.js';
+import { logger } from '../core/logger.js';
+import { PublicationService } from '../services/publication-service.js';
+import { UserInputError } from '../types/error.js';
 import {
   PublicationFilter,
   PublicationFilterClause,
   publicationSearchBodySchema,
-} from "../types/publication.js";
+} from '../types/publication.js';
 
 const publicationRouter = express.Router({ mergeParams: true });
 
@@ -22,7 +19,7 @@ const publicationRouter = express.Router({ mergeParams: true });
  * Returns a paginated list of publications matching the provided criteria.
  */
 publicationRouter.post(
-  "/search",
+  '/search',
   handleAsync(async (req: Request, res: Response) => {
     const parsed = publicationSearchBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) {
@@ -54,15 +51,15 @@ publicationRouter.post(
  * Returns the publication with the given GUID.
  */
 publicationRouter.get(
-  "/:id",
+  '/:id',
   handleAsync(async (req: Request, res: Response) => {
     const paramsSchema = z.object({
-      id: z.string().uuid({ message: "id must be a valid UUID." }),
+      id: z.string().uuid({ message: 'id must be a valid UUID.' }),
     });
     const parsedParams = paramsSchema.safeParse(req.params);
     if (!parsedParams.success) {
       return sendErrorResponse(res, 404, {
-        userMessage: "Publication not found.",
+        userMessage: 'Publication not found.',
       });
     }
 
@@ -72,12 +69,12 @@ publicationRouter.get(
       const publication = await PublicationService.getPublication(id);
       if (!publication) {
         return sendErrorResponse(res, 404, {
-          userMessage: "Publication not found.",
+          userMessage: 'Publication not found.',
         });
       }
       return res.status(200).json(publication);
     } catch (err: any) {
-      logger.error("Error retrieving publication", {
+      logger.error('Error retrieving publication', {
         error: err,
         publicationGuid: id,
       });

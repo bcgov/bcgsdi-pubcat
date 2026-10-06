@@ -1,8 +1,8 @@
-import express, { Request, Response } from "express";
-import { sendErrorResponse } from "../core/error-handling.js";
-import { handleAsync } from "../core/express-middleware.js";
-import { ReferenceService } from "../services/reference-service.js";
-import { CodeTableEntry } from "../types/reference.js";
+import express, { Request, Response } from 'express';
+import { sendErrorResponse } from '../core/error-handling.js';
+import { handleAsync } from '../core/express-middleware.js';
+import { ReferenceService } from '../services/reference-service.js';
+import { CodeTableEntry } from '../types/reference.js';
 
 /**
  * Reference router ("references" == "data from code tables in the DB")
@@ -48,7 +48,7 @@ function referenceHandler(serviceFn: () => Promise<CodeTableEntry[]>) {
 // ---------------------------------------------------------------------------
 
 referenceRouter.get(
-  "/publication-series",
+  '/publication-series',
   referenceHandler(() => ReferenceService.getPublicationSeries()),
 );
 
