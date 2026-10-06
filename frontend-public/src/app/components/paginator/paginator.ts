@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 export interface PageChangeEvent {
   pageIndex: number;
   pageSize: number;
-  itemOffset: number;
+  pageStartOffset: number;
 }
 
 export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50];
@@ -76,7 +76,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: newPageIndex,
       pageSize: this.pageSize(),
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   }
 
@@ -89,7 +89,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: newPageIndex,
       pageSize: this.pageSize(),
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   }
 
@@ -105,7 +105,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: 0,
       pageSize,
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   };
 }

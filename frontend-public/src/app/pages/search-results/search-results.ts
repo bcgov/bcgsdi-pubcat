@@ -160,6 +160,6 @@ export class SearchResults {
   // --------------------------------------------------------------------------
 
   onPageChange(event: PageChangeEvent) {
-    this.goToPage(event.itemOffset, event.pageSize);
+    this.goToPage(event.pageStartOffset, event.pageSize);
   }
 }
