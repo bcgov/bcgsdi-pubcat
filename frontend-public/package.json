@@ -9,7 +9,8 @@
     "test:unit": "ng test",
     "test:cov": "ng test --coverage",
     "lint": "ng lint",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,html,scss,css}\"",
+    "format:fix": "prettier --check \"src/**/*.{ts,tsx,html,scss,css}\" --write"
   },
   "private": true,
   "packageManager": "npm@9.8.0",
