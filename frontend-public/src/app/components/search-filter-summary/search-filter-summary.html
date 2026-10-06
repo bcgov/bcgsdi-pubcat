@@ -1,54 +1,42 @@
 <div class="inline-block">
-
-  @if(isRoot()) {
-  @if(isEmptyFilter()) {
-  <div class="font-bold inline">No search filters were applied</div>
-  }
-  @else {
-  <div class="font-bold inline-block">Search filter(s):</div>
-  }
+  @if (isRoot()) {
+    @if (isEmptyFilter()) {
+      <div class="font-bold inline">No search filters were applied</div>
+    } @else {
+      <div class="font-bold inline-block">Search filter(s):</div>
+    }
   }
   <div class="">
     @if (normalizedFilter; as filter) {
-    @if (isClause(filter)) {
+      @if (isClause(filter)) {
+        {{ fieldLabel(filter.field) }}
 
-    {{ fieldLabel(filter.field) }}
+        {{ operatorLabel(filter.operator) }}
 
+        @if (filter.operator !== 'isNull' && filter.operator !== 'isNotNull') {
+          {{ formatValue(filter.value) }}
+        }
+      } @else if (isAnd(filter)) {
+        @for (child of filter.and; track $index) {
+          @if (!$first) {
+            AND
+          }
 
+          <pubcat-search-filter-summary [filter]="child" [isRoot]="false" />
+        }
+      } @else if (isOr(filter)) {
+        <span class="mx-1">(</span>
 
-    {{ operatorLabel(filter.operator) }}
+        @for (child of filter.or; track $index) {
+          @if (!$first) {
+            OR
+          }
 
+          <pubcat-search-filter-summary [filter]="child" [isRoot]="false" />
+        }
 
-    @if (filter.operator !== 'isNull' && filter.operator !== 'isNotNull') {
-
-    {{ formatValue(filter.value) }}
-
-    }
-    } @else if (isAnd(filter)) {
-    @for (child of filter.and; track $index) {
-    @if (!$first) {
-    AND
-    }
-
-    <pubcat-search-filter-summary [filter]="child" [isRoot]="false" />
-    }
-    } @else if (isOr(filter)) {
-
-    <span class="mx-1">(</span>
-
-    @for (child of filter.or; track $index) {
-    @if (!$first) {
-    OR
-    }
-
-    <pubcat-search-filter-summary [filter]="child" [isRoot]="false" />
-    }
-
-    <span class="mx-1">)</span>
-
-    }
+        <span class="mx-1">)</span>
+      }
     }
   </div>
-
-
 </div>

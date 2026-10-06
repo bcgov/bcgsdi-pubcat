@@ -2,15 +2,13 @@
   <pubcat-header class="shrink-0 sticky top-0 z-50 md:relative"></pubcat-header>
 
   <div class="sm:overflow-auto flex-1 pb-2">
-    <div class="container mx-auto flex min-h-0 max-w-5xl flex-col  px-4 pt-4">
+    <div class="container mx-auto flex min-h-0 max-w-5xl flex-col px-4 pt-4">
       <ng-container *ngTemplateOutlet="content"></ng-container>
     </div>
   </div>
 
-  <pubcat-footer class="shrink-0">
-  </pubcat-footer>
+  <pubcat-footer class="shrink-0"> </pubcat-footer>
 </div>
-
 
 <ng-template #content>
   <router-outlet></router-outlet>

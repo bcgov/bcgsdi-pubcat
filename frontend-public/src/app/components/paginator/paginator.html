@@ -5,9 +5,9 @@
       <mat-form-field appearance="outline" class="page-size min-w-18! mb-0!">
         <mat-select formControlName="pageSize" placeholder="Page size">
           @for (option of pageSizeOptions(); track option) {
-          <mat-option [value]="option">
-            {{ option }}
-          </mat-option>
+            <mat-option [value]="option">
+              {{ option }}
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -15,14 +15,13 @@
   </div>
 
   <div class="mx-2 min-w-20 flex justify-center">
-    @if(!!rangeStart() && !!rangeEnd() ) {
-    {{ rangeStart() }} – {{ rangeEnd() }}
+    @if (!!rangeStart() && !!rangeEnd()) {
+      {{ rangeStart() }} – {{ rangeEnd() }}
+    } @else if (!!rangeStart()) {
+      {{ rangeStart() }} – {{ rangeStart() + pageSize() - 1 }}
     }
-    @else if(!!rangeStart()) {
-    {{ rangeStart() }} – {{ rangeStart() + pageSize() - 1}}
-    }
-    @if(total()) {
-    of {{total()}}
+    @if (total()) {
+      of {{ total() }}
     }
   </div>
 

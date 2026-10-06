@@ -2,9 +2,7 @@
   <div class="flex justify-between items-center mb-4 shrink-0">
     <div class="flex items-center gap-2">
       <button matIconButton (click)="back()">
-        <mat-icon matListItemIcon class="mr-2">
-          chevron_left
-        </mat-icon>
+        <mat-icon matListItemIcon class="mr-2"> chevron_left </mat-icon>
       </button>
       <h3>Search results</h3>
     </div>
@@ -31,55 +29,53 @@
     -->
   </div>
 
-
   <div class="min-h-0 flex-1 overflow-auto">
-    @if(showResults()) {
+    @if (showResults()) {
+      <div class="mb-4">
+        <pubcat-alert [showIcon]="false" [compact]="true" class="text-xs md:text-sm">
+          <div class="flex items-center">
+            <pubcat-search-filter-summary
+              [filter]="publicationSearchStore.lastSearchedParams()?.filter"
+              class="grow-1"
+            ></pubcat-search-filter-summary>
+            <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">
+              Modify search
+            </button>
+          </div>
+        </pubcat-alert>
+      </div>
 
-    <div class="mb-4">
-      <pubcat-alert [showIcon]="false" [compact]="true" class="text-xs md:text-sm">
-        <div class="flex items-center">
-          <pubcat-search-filter-summary [filter]="publicationSearchStore.lastSearchedParams()?.filter"
-            class="grow-1"></pubcat-search-filter-summary>
-          <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">Modify search</button>
+      @if (!publicationSearchStore.results()?.items?.length) {
+        @if (publicationSearchStore.pageIndex() === 0) {
+          <div class="my-4">No matches</div>
+        } @else {
+          <div class="my-4">This page is empty</div>
+        }
+      }
+      @if (viewType() === ResultsViewType.Table) {
+        <pubcat-publications-table-view
+          [publications]="publicationSearchStore.results()?.items"
+        ></pubcat-publications-table-view>
+      }
+      @if (viewType() === ResultsViewType.Abstract) {
+        Abstract view here
+      }
+      @if (
+        publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.items?.length
+      ) {
+        <div class="mt-6 mb-2 flex justify-center">
+          <pubcat-paginator
+            [pageIndex]="publicationSearchStore.pageIndex()"
+            [pageSize]="publicationSearchStore.pageSize()"
+            [itemCount]="publicationSearchStore.results()?.items?.length || 0"
+            [total]="publicationSearchStore.results()?.total"
+            (pageChange)="onPageChange($event)"
+          >
+          </pubcat-paginator>
         </div>
-      </pubcat-alert>
-    </div>
-
-    @if (!publicationSearchStore.results()?.items?.length) {
-    @if (publicationSearchStore.pageIndex() === 0){
-    <div class="my-4">
-      No matches
-    </div>
-    }
-    @else {
-    <div class="my-4">
-      This page is empty
-    </div>
-    }
-    }
-    @if(viewType() === ResultsViewType.Table) {
-    <pubcat-publications-table-view
-      [publications]="publicationSearchStore.results()?.items"></pubcat-publications-table-view>
-    }
-    @if(viewType() === ResultsViewType.Abstract) {
-    Abstract view here
-    }
-    @if (publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.items?.length){
-    <div class="mt-6 mb-2 flex justify-center">
-      <pubcat-paginator [pageIndex]="publicationSearchStore.pageIndex()" [pageSize]="publicationSearchStore.pageSize()"
-        [itemCount]="publicationSearchStore.results()?.items?.length || 0"
-        [total]="publicationSearchStore.results()?.total" (pageChange)="onPageChange($event)">
-      </pubcat-paginator>
-    </div>
-    }
-    }
-    @else {
-    <div class="my-4">
-      No matches
-    </div>
+      }
+    } @else {
+      <div class="my-4">No matches</div>
     }
   </div>
-
-
-
 </div>
