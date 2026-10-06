@@ -52,7 +52,12 @@ describe("POST /publications/search", () => {
   });
 
   it("returns 200 with an empty array when there are no matches", async () => {
-    vi.spyOn(PublicationService, "searchPublications").mockResolvedValue([]);
+    vi.spyOn(PublicationService, "searchPublications").mockResolvedValue({
+      items: [],
+      total: 0,
+      offset: 0,
+      limit: 25,
+    });
 
     const response = await request(app).post("/publications/search").send({
       offset: 0,
