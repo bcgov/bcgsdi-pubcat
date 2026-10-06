@@ -112,6 +112,4 @@ h6,
   color: #cccccc;
 }
 
-.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label {
-  line-height: normal !important;
-}
+
