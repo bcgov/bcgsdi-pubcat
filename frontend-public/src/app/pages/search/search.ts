@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,7 +43,7 @@ enum SearchType {
   styleUrl: './search.css',
   templateUrl: './search.html',
 })
-export class Search {
+export class Search implements OnInit {
   SearchType = SearchType;
 
   private readonly fb = inject(FormBuilder);
