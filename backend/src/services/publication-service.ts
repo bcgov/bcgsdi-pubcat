@@ -237,34 +237,30 @@ export const PublicationService = {
     offset = 0,
     limit = 20,
   ): Promise<SearchResponse<ApiPublication>> {
-    try {
-      const where = SearchHelperService.searchFilterToWhere(
-        filter,
-        (clause: PublicationFilterClause) =>
-          PublicationServicePrivate.filterClauseToWhere(clause),
-      );
+    const where = SearchHelperService.searchFilterToWhere(
+      filter,
+      (clause: PublicationFilterClause) =>
+        PublicationServicePrivate.filterClauseToWhere(clause),
+    );
 
-      const orderBy = PublicationServicePrivate.sortToOrderBy(sort);
+    const orderBy = PublicationServicePrivate.sortToOrderBy(sort);
 
-      const countQuery = { where: where, orderBy: orderBy };
-      const publicationsQuery = {
-        ...countQuery,
-        skip: offset,
-        take: limit,
-      };
+    const countQuery = { where: where, orderBy: orderBy };
+    const publicationsQuery = {
+      ...countQuery,
+      skip: offset,
+      take: limit,
+    };
 
-      const publications = await prisma.publication.findMany(publicationsQuery);
-      const count = await prisma.publication.count(countQuery);
+    const publications = await prisma.publication.findMany(publicationsQuery);
+    const count = await prisma.publication.count(countQuery);
 
-      return {
-        items: publications.map(PublicationAdapter.toApi),
-        total: count,
-        offset: offset,
-        limit: limit,
-      };
-    } catch (err) {
-      throw err;
-    }
+    return {
+      items: publications.map(PublicationAdapter.toApi),
+      total: count,
+      offset: offset,
+      limit: limit,
+    };
   },
 
   async getPublication(

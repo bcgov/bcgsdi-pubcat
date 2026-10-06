@@ -40,7 +40,7 @@ const server = app.listen(port, async () => {
     logger.info(`Connected to database`);
     const dbSearchPath = await DbService.getDbSearchPath();
     logger.info(`Database search path is: ${dbSearchPath}`);
-  } catch (e) {
+  } catch {
     logger.error(
       `Unable to connect to database: ${config.get("db:urlObfuscatedPassword")}`,
     );
