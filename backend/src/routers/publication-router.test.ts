@@ -52,12 +52,15 @@ describe("POST /publications/search", () => {
   });
 
   it("returns 200 with an empty array when there are no matches", async () => {
-    vi.spyOn(PublicationService, "searchPublications").mockResolvedValue({
+    const searchReturnVal = {
       items: [],
       total: 0,
       offset: 0,
       limit: 25,
-    });
+    };
+    vi.spyOn(PublicationService, "searchPublications").mockResolvedValue(
+      searchReturnVal,
+    );
 
     const response = await request(app).post("/publications/search").send({
       offset: 0,
@@ -65,7 +68,7 @@ describe("POST /publications/search", () => {
     });
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([]);
+    expect(response.body).toEqual(searchReturnVal);
   });
 
   it("returns 200 when a filter is provided", async () => {
