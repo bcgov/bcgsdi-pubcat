@@ -1,7 +1,9 @@
 import dotenv from 'dotenv';
 import config from 'nconf';
 
-dotenv.config();
+dotenv.config({
+  path: process.env.NODE_ENV === 'test' ? '.env.unit-test' : '.env',
+});
 
 // Search path must include the application schema and "public" (for objects related to the PostGIS extension)
 const encodedDbUrlOptions = encodeURIComponent(`-csearch_path=${process.env.DB_SCHEMA},public`);

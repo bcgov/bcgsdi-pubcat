@@ -1,7 +1,7 @@
 dist
 node_modules
-# Keep environment variables out of version control
-.env
+# Keep .env (needed for local testing)out of version control, but allow .env.test, which is needed for unit tests
+/.env
 
 /src/generated/prisma
 # JS build artifacts
