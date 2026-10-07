@@ -11,7 +11,7 @@ export const ErrorHandler = {
    * this._error.set(apiError);
    * throw apiError;
    */
-  toApiError: function (err: any): Error {
+  toApiError: function (err: Error): Error {
     if (err instanceof HttpErrorResponse) {
       if (err.status == 400 || err.status == 409) {
         if (err.error?.error?.userMessage) {
@@ -34,7 +34,7 @@ export const ErrorHandler = {
    *   throw ErrorHandler.throwApiError(err);
    * }
    */
-  throwApiError: function (err: any): never {
+  throwApiError: function (err: Error): never {
     throw ErrorHandler.toApiError(err);
   },
 };

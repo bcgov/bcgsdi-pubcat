@@ -6,7 +6,7 @@ import { Header } from './components/header/header';
 
 @Component({
   imports: [RouterOutlet, NgTemplateOutlet, Header, Footer],
-  selector: 'app-root',
+  selector: 'pubcat-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })

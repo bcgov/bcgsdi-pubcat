@@ -1,27 +1,27 @@
-import { NextFunction, Request, Response } from 'express'
-import { AuthService } from '../services/auth-service.js'
-import { sendErrorResponse } from './error-handling.js'
-import { logger } from './logger.js'
+import { NextFunction, Request, Response } from 'express';
+import { AuthService } from '../services/auth-service.js';
+import { sendErrorResponse } from './error-handling.js';
+import { logger } from './logger.js';
 
 export const handleAsync = (fn: any) => (req: Request, res: Response, next: NextFunction) => {
-  Promise.resolve(fn(req, res, next)).catch(next)
-}
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
 export const logRequests = async function (req: Request, res: Response, next: NextFunction) {
-  const excludedPaths = ['/api/metrics', '/api/health']
+  const excludedPaths = ['/api/metrics', '/api/health'];
 
   //only log requests that don't match any 'excludedPaths'
   if (!excludedPaths.some((prefix) => req.path.startsWith(prefix))) {
-    logger.info(`${req.method} ${req.path}`, {})
+    logger.info(`${req.method} ${req.path}`, {});
   }
-  next()
-}
+  next();
+};
 
 export const handleErrors = function (err: any, req: Request, res: Response, next: NextFunction) {
-  logger.error(err.stack)
-  sendErrorResponse(res, 500)
-  next()
-}
+  logger.error(err.stack);
+  sendErrorResponse(res, 500);
+  next();
+};
 
 /*
 A middleware function to perform various checks of the user's session
@@ -42,17 +42,17 @@ Usage:
 */
 export const checkIsAuthenticated = async function (req: Request, res: Response, next: any) {
   try {
-    await AuthService.ensureReqIsAuthenticated(req)
-  } catch (e) {
-    logger.debug(`Request does not have a valid session.`)
+    await AuthService.ensureReqIsAuthenticated(req);
+  } catch {
+    logger.debug(`Request does not have a valid session.`);
 
-    return sendErrorResponse(res, 401)
+    return sendErrorResponse(res, 401);
   }
   //at this point, we've confirmed that the session is authorized.
   //proceed to the next handler.
 
-  next()
-}
+  next();
+};
 
 /*
 Returns a middleware function which does the following:
@@ -60,8 +60,8 @@ Returns a middleware function which does the following:
 - (if checkIsAuthenticated passes), confirms that the user has the given role
 */
 export const hasRole = function (roleToCheck: string) {
-  return hasOneOfRoles([roleToCheck])
-}
+  return hasOneOfRoles([roleToCheck]);
+};
 
 /*
 Returns a middleware function which does the following:
@@ -71,21 +71,21 @@ Returns a middleware function which does the following:
 */
 export const hasOneOfRoles = function (rolesToCheck: string[]) {
   const onCheckAuthorizedComplete = async (req: Request, res: Response, next: any) => {
-    let hasAtLeastOneRole = false
+    let hasAtLeastOneRole = false;
     for (const roleToCheck of rolesToCheck) {
       if (AuthService.doesReqHaveRole(req, roleToCheck)) {
-        hasAtLeastOneRole = true
-        break
+        hasAtLeastOneRole = true;
+        break;
       }
     }
     if (!hasAtLeastOneRole) {
-      return sendErrorResponse(res, 401)
+      return sendErrorResponse(res, 401);
     }
 
-    next()
-  }
+    next();
+  };
   return async (req: Request, res: Response, next: any) =>
     checkIsAuthenticated(req, res, () => {
-      onCheckAuthorizedComplete(req, res, next)
-    })
-}
+      onCheckAuthorizedComplete(req, res, next);
+    });
+};

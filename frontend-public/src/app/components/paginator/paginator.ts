@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 export interface PageChangeEvent {
   pageIndex: number;
   pageSize: number;
-  itemOffset: number;
+  pageStartOffset: number;
 }
 
 export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50];
@@ -23,7 +23,7 @@ export const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50];
     MatInputModule,
     MatSelectModule,
   ],
-  selector: 'paginator',
+  selector: 'pubcat-paginator',
   styleUrl: './paginator.css',
   templateUrl: './paginator.html',
 })
@@ -45,7 +45,7 @@ export class Paginator {
   readonly hasPreviousPage = computed(() => this.pageIndex() > 0);
   readonly hasNextPage = computed(() => {
     const total = this.total();
-    if (!!total) {
+    if (total) {
       return this.pageEndOffset() < total;
     }
     return this.itemCount() === this.pageSize();
@@ -76,7 +76,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: newPageIndex,
       pageSize: this.pageSize(),
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   }
 
@@ -89,7 +89,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: newPageIndex,
       pageSize: this.pageSize(),
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   }
 
@@ -105,7 +105,7 @@ export class Paginator {
     this.pageChange.emit({
       pageIndex: 0,
       pageSize,
-      itemOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
+      pageStartOffset: Paginator.pageIndexToItemOffset(newPageIndex, this.pageSize()),
     });
   };
 }

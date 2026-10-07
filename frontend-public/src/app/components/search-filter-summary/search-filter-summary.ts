@@ -11,7 +11,7 @@ import {
 import { SearchFilterUtils } from '../../utils/search-filter-utils';
 
 @Component({
-  selector: 'search-filter-summary',
+  selector: 'pubcat-search-filter-summary',
   standalone: true,
   imports: [SearchFilterSummary, MatButtonModule],
   styleUrl: './search-filter-summary.css',

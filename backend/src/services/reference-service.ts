@@ -1,5 +1,5 @@
-import { prisma } from "../core/prisma.js";
-import { CodeTableEntry } from "../types/reference.js";
+import { prisma } from '../core/prisma.js';
+import { CodeTableEntry } from '../types/reference.js';
 
 /**
  * Reference service.
@@ -13,8 +13,8 @@ export const ReferenceService = {
     // Get publication series list as distinct values from publication.series_name
     const result = await prisma.publication.findMany({
       select: { series_name: true },
-      distinct: ["series_name"],
-      orderBy: { series_name: "asc" },
+      distinct: ['series_name'],
+      orderBy: { series_name: 'asc' },
     });
     // Transform into the CodeTableEntry shape
     return result

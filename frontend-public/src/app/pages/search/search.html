@@ -10,7 +10,10 @@
     </div>
     <div class="grid grid-cols-12 gap-2 mb-2">
       <div class="col-span-12 md:col-span-8 xl:col-span-8 flex gap-2 items-center">
-        <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8 mb-0! grow-1">
+        <mat-form-field
+          appearance="outline"
+          class="col-span-12 md:col-span-8 xl:col-span-8 mb-0! grow-1"
+        >
           <mat-label>Search text</mat-label>
           <input matInput formControlName="any" (keyup.enter)="search()" />
           <button matIconButton matSuffix (click)="form.get('any')?.setValue(undefined)">
@@ -18,19 +21,24 @@
           </button>
         </mat-form-field>
 
-        <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
-          (triggered)="search()">Search</loading-button>
+        <pubcat-loading-button
+          mat-flat-button
+          class="btn-primary"
+          [loading]="publicationSearchStore.isLoading()"
+          (triggered)="search()"
+          >Search</pubcat-loading-button
+        >
       </div>
     </div>
   </div>
   <div class="advanced-search">
     <div class="mb-2">
       <h6>Advanced search</h6>
-      Search specific publication attributes. Any fields left blank will not be applied to the search.
+      Search specific publication attributes. Any fields left blank will not be applied to the
+      search.
     </div>
 
     <div class="grid grid-cols-12 gap-x-2 mb-2">
-
       <mat-form-field appearance="outline" class="col-span-12 md:col-span-8 xl:col-span-8">
         <mat-label>Title</mat-label>
         <input matInput formControlName="title" (keyup.enter)="search()" />
@@ -57,19 +65,26 @@
 
       <div class="hidden md:block md:col-span-4 xl:col-span-4"></div>
 
-      <mat-form-field appearance="outline" class="col-span-12 sm:col-span-6 col-span-6 md:col-span-4">
+      <mat-form-field
+        appearance="outline"
+        class="col-span-12 sm:col-span-6 col-span-6 md:col-span-4"
+      >
         <mat-label>Keyword</mat-label>
         <input matInput formControlName="keyword" (keyup.enter)="search()" />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="col-span-12 sm:col-span-6 md:col-span-4" [floatLabel]="'always'">
+      <mat-form-field
+        appearance="outline"
+        class="col-span-12 sm:col-span-6 md:col-span-4"
+        [floatLabel]="'always'"
+      >
         <mat-label>Series</mat-label>
         <mat-select formControlName="series" placeholder="Any">
           <mat-option [value]="null">-- Any --</mat-option>
           @for (option of publicationSeriesOptions(); track option.code) {
-          <mat-option [value]="option.code">
-            {{ option.title }}
-          </mat-option>
+            <mat-option [value]="option.code">
+              {{ option.title }}
+            </mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -83,32 +98,51 @@
 
       <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
         <mat-label>Map Scale</mat-label>
-        <input matInput formControlName="mapScale" type="number" min="1" step="any" (keyup.enter)="search()" />
+        <input
+          matInput
+          formControlName="mapScale"
+          type="number"
+          min="1"
+          step="any"
+          (keyup.enter)="search()"
+        />
       </mat-form-field>
 
       <div class="hidden md:block md:col-span-4"></div>
 
       <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
         <mat-label>Publication ID</mat-label>
-        <input matInput formControlName="publicationId" type="number" min="1" step="any" (keyup.enter)="search()" />
+        <input
+          matInput
+          formControlName="publicationId"
+          type="number"
+          min="1"
+          step="any"
+          (keyup.enter)="search()"
+        />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="col-span-6 md:col-span-4">
         <mat-label>Issue ID</mat-label>
         <input matInput formControlName="issueId" (keyup.enter)="search()" />
       </mat-form-field>
-
     </div>
 
     @if (hasQuickAndAdvancedSearch()) {
-    Todo: show alert that quick and advenced filters are both active
+      Todo: show alert that quick and advenced filters are both active
     }
 
     <div class="flex gap-2 mt-2">
-      <button mat-flat-button class="btn-secondary" [disabled]="!isDirty()" (click)="reset()">Reset</button>
-      <loading-button mat-flat-button class="btn-primary" [loading]="publicationSearchStore.isLoading()"
-        (triggered)="search()">Search</loading-button>
+      <button mat-flat-button class="btn-secondary" [disabled]="!isDirty()" (click)="reset()">
+        Reset
+      </button>
+      <pubcat-loading-button
+        mat-flat-button
+        class="btn-primary"
+        [loading]="publicationSearchStore.isLoading()"
+        (triggered)="search()"
+        >Search</pubcat-loading-button
+      >
     </div>
-
   </div>
 </div>

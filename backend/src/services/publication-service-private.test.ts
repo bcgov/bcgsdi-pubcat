@@ -1,10 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { prisma } from "../core/prisma.js";
-import { UserInputError } from "../types/error.js";
-import { PublicationServicePrivate } from "./publication-service.js";
+import { prisma } from '../core/prisma.js';
+import { UserInputError } from '../types/error.js';
+import { PublicationServicePrivate } from './publication-service.js';
 
-describe("PublicationServicePrivate", () => {
+describe('PublicationServicePrivate', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -13,40 +13,28 @@ describe("PublicationServicePrivate", () => {
   // validateFieldSupportsOperators
   // --------------------------------------------------
 
-  describe("validateFieldSupportsOperators", () => {
-    it("allows eq for map_scale", () => {
+  describe('validateFieldSupportsOperators', () => {
+    it('allows eq for map_scale', () => {
       expect(() =>
-        PublicationServicePrivate.validateFieldSupportsOperators(
-          "map_scale",
-          "eq",
-        ),
+        PublicationServicePrivate.validateFieldSupportsOperators('map_scale', 'eq'),
       ).not.toThrow();
     });
 
-    it("rejects contains for map_scale", () => {
+    it('rejects contains for map_scale', () => {
       expect(() =>
-        PublicationServicePrivate.validateFieldSupportsOperators(
-          "map_scale",
-          "contains",
-        ),
+        PublicationServicePrivate.validateFieldSupportsOperators('map_scale', 'contains'),
       ).toThrow(UserInputError);
     });
 
-    it("rejects unsupported operators for map_scale", () => {
+    it('rejects unsupported operators for map_scale', () => {
       expect(() =>
-        PublicationServicePrivate.validateFieldSupportsOperators(
-          "map_scale",
-          "gt",
-        ),
+        PublicationServicePrivate.validateFieldSupportsOperators('map_scale', 'gt'),
       ).toThrow("field 'map_scale' does not support operator 'gt'");
     });
 
-    it("allows operators for fields without explicit restrictions", () => {
+    it('allows operators for fields without explicit restrictions', () => {
       expect(() =>
-        PublicationServicePrivate.validateFieldSupportsOperators(
-          "title",
-          "contains",
-        ),
+        PublicationServicePrivate.validateFieldSupportsOperators('title', 'contains'),
       ).not.toThrow();
     });
   });
@@ -55,34 +43,28 @@ describe("PublicationServicePrivate", () => {
   // searchFieldToDbCol
   // --------------------------------------------------
 
-  describe("searchFieldToDbCol", () => {
+  describe('searchFieldToDbCol', () => {
     it.each([
-      ["publication_guid", "publication_guid"],
-      ["publication_key", "publication_key"],
-      ["title", "title"],
-      ["abstract", "abstract"],
-      ["publication_year", "publication_year"],
-      ["author", "originator"],
-      ["nts_map", "nts_maps"],
-      ["map_scale", "scale"],
-      ["series", "series_name"],
-      ["issue_id", "issue_identification"],
-      ["create_timestamp", "create_timestamp"],
-      ["update_timestamp", "update_timestamp"],
-    ])("maps %s to %s", (field, expected) => {
-      expect(PublicationServicePrivate.searchFieldToDbCol(field as any)).toBe(
-        expected,
-      );
+      ['publication_guid', 'publication_guid'],
+      ['publication_key', 'publication_key'],
+      ['title', 'title'],
+      ['abstract', 'abstract'],
+      ['publication_year', 'publication_year'],
+      ['author', 'originator'],
+      ['nts_map', 'nts_maps'],
+      ['map_scale', 'scale'],
+      ['series', 'series_name'],
+      ['issue_id', 'issue_identification'],
+      ['create_timestamp', 'create_timestamp'],
+      ['update_timestamp', 'update_timestamp'],
+    ])('maps %s to %s', (field, expected) => {
+      expect(PublicationServicePrivate.searchFieldToDbCol(field as any)).toBe(expected);
     });
 
-    it("returns undefined for special fields", () => {
-      expect(
-        PublicationServicePrivate.searchFieldToDbCol("keyword"),
-      ).toBeUndefined();
+    it('returns undefined for special fields', () => {
+      expect(PublicationServicePrivate.searchFieldToDbCol('keyword')).toBeUndefined();
 
-      expect(
-        PublicationServicePrivate.searchFieldToDbCol("any"),
-      ).toBeUndefined();
+      expect(PublicationServicePrivate.searchFieldToDbCol('any')).toBeUndefined();
     });
   });
 
@@ -90,27 +72,25 @@ describe("PublicationServicePrivate", () => {
   // sortFieldToDbCol
   // --------------------------------------------------
 
-  describe("sortFieldToDbCol", () => {
+  describe('sortFieldToDbCol', () => {
     it.each([
-      ["publication_guid", "publication_guid"],
-      ["publication_key", "publication_key"],
-      ["title", "title"],
-      ["abstract", "abstract"],
-      ["publication_year", "publication_year"],
-      ["author", "originator"],
-      ["series", "series_name"],
-      ["issue_id", "issue_identification"],
-      ["create_timestamp", "create_timestamp"],
-      ["update_timestamp", "update_timestamp"],
-    ])("maps %s to %s", (field, expected) => {
-      expect(PublicationServicePrivate.sortFieldToDbCol(field as any)).toBe(
-        expected,
-      );
+      ['publication_guid', 'publication_guid'],
+      ['publication_key', 'publication_key'],
+      ['title', 'title'],
+      ['abstract', 'abstract'],
+      ['publication_year', 'publication_year'],
+      ['author', 'originator'],
+      ['series', 'series_name'],
+      ['issue_id', 'issue_identification'],
+      ['create_timestamp', 'create_timestamp'],
+      ['update_timestamp', 'update_timestamp'],
+    ])('maps %s to %s', (field, expected) => {
+      expect(PublicationServicePrivate.sortFieldToDbCol(field as any)).toBe(expected);
     });
 
-    it("returns undefined for unsupported sort mappings", () => {
+    it('returns undefined for unsupported sort mappings', () => {
       expect(
-        PublicationServicePrivate.sortFieldToDbCol("invalid_sort_field" as any),
+        PublicationServicePrivate.sortFieldToDbCol('invalid_sort_field' as any),
       ).toBeUndefined();
     });
   });
@@ -119,42 +99,42 @@ describe("PublicationServicePrivate", () => {
   // filterClauseToWhere
   // --------------------------------------------------
 
-  describe("filterClauseToWhere", () => {
-    it("converts a title filter into a Prisma where clause", () => {
+  describe('filterClauseToWhere', () => {
+    it('converts a title filter into a Prisma where clause', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "title",
-        operator: "contains",
-        value: "Geology",
+        field: 'title',
+        operator: 'contains',
+        value: 'Geology',
       });
 
       expect(result).toEqual({
         title: {
-          contains: "Geology",
-          mode: "insensitive",
+          contains: 'Geology',
+          mode: 'insensitive',
         },
       });
     });
 
-    it("maps author to the originator database column", () => {
+    it('maps author to the originator database column', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "author",
-        operator: "contains",
-        value: "Smith",
+        field: 'author',
+        operator: 'contains',
+        value: 'Smith',
       });
 
       expect(result).toEqual({
         originator: {
-          contains: "Smith",
-          mode: "insensitive",
+          contains: 'Smith',
+          mode: 'insensitive',
         },
       });
     });
 
-    it("converts map_scale to a numeric database value", () => {
+    it('converts map_scale to a numeric database value', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "map_scale",
-        operator: "eq",
-        value: "2000000",
+        field: 'map_scale',
+        operator: 'eq',
+        value: '2000000',
       });
 
       expect(result).toEqual({
@@ -162,11 +142,11 @@ describe("PublicationServicePrivate", () => {
       });
     });
 
-    it("converts publication_key to a numeric value", () => {
+    it('converts publication_key to a numeric value', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "publication_key",
-        operator: "eq",
-        value: "12345",
+        field: 'publication_key',
+        operator: 'eq',
+        value: '12345',
       });
 
       expect(result).toEqual({
@@ -174,59 +154,59 @@ describe("PublicationServicePrivate", () => {
       });
     });
 
-    it("rejects unsupported map_scale operators", () => {
+    it('rejects unsupported map_scale operators', () => {
       expect(() =>
         PublicationServicePrivate.filterClauseToWhere({
-          field: "map_scale",
-          operator: "contains",
-          value: "2000000",
+          field: 'map_scale',
+          operator: 'contains',
+          value: '2000000',
         }),
       ).toThrow(UserInputError);
     });
 
-    it("creates OR conditions across keyword columns", () => {
+    it('creates OR conditions across keyword columns', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "keyword",
-        operator: "contains",
-        value: "copper",
+        field: 'keyword',
+        operator: 'contains',
+        value: 'copper',
       });
 
-      expect(result).toHaveProperty("OR");
+      expect(result).toHaveProperty('OR');
       expect((result as any).OR).toHaveLength(10);
 
       expect((result as any).OR).toContainEqual({
         theme_keyword_1: {
-          contains: "copper",
-          mode: "insensitive",
+          contains: 'copper',
+          mode: 'insensitive',
         },
       });
 
       expect((result as any).OR).toContainEqual({
         place_keyword_5: {
-          contains: "copper",
-          mode: "insensitive",
+          contains: 'copper',
+          mode: 'insensitive',
         },
       });
     });
 
-    it("creates an OR search across text fields for any", () => {
+    it('creates an OR search across text fields for any', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "any",
-        operator: "contains",
-        value: "Geology",
+        field: 'any',
+        operator: 'contains',
+        value: 'Geology',
       });
 
-      expect(result).toHaveProperty("OR");
+      expect(result).toHaveProperty('OR');
 
       // Eight text fields; non-numeric input adds no numeric clauses.
       expect((result as any).OR).toHaveLength(8);
     });
 
-    it("includes numeric fields in any search for numeric input", () => {
+    it('includes numeric fields in any search for numeric input', () => {
       const result = PublicationServicePrivate.filterClauseToWhere({
-        field: "any",
-        operator: "contains",
-        value: "2000000",
+        field: 'any',
+        operator: 'contains',
+        value: '2000000',
       });
 
       expect((result as any).OR).toHaveLength(10);
@@ -240,12 +220,12 @@ describe("PublicationServicePrivate", () => {
       });
     });
 
-    it("rejects unsupported operators for any", () => {
+    it('rejects unsupported operators for any', () => {
       expect(() =>
         PublicationServicePrivate.filterClauseToWhere({
-          field: "any",
-          operator: "eq",
-          value: "Geology",
+          field: 'any',
+          operator: 'eq',
+          value: 'Geology',
         }),
       ).toThrow("unsupported operator for 'any'");
     });
@@ -255,43 +235,43 @@ describe("PublicationServicePrivate", () => {
   // sortToOrderBy
   // --------------------------------------------------
 
-  describe("sortToOrderBy", () => {
-    it("converts a single sort object", () => {
+  describe('sortToOrderBy', () => {
+    it('converts a single sort object', () => {
       expect(
         PublicationServicePrivate.sortToOrderBy({
-          field: "title",
-          direction: "asc",
+          field: 'title',
+          direction: 'asc',
         }),
       ).toEqual({
-        title: "asc",
+        title: 'asc',
       });
     });
 
-    it("maps author sorting to originator", () => {
+    it('maps author sorting to originator', () => {
       expect(
         PublicationServicePrivate.sortToOrderBy({
-          field: "author",
-          direction: "desc",
+          field: 'author',
+          direction: 'desc',
         }),
       ).toEqual({
-        originator: "desc",
+        originator: 'desc',
       });
     });
 
-    it("converts an array of sort objects", () => {
+    it('converts an array of sort objects', () => {
       expect(
         PublicationServicePrivate.sortToOrderBy([
-          { field: "title", direction: "asc" },
-          { field: "publication_year", direction: "desc" },
+          { field: 'title', direction: 'asc' },
+          { field: 'publication_year', direction: 'desc' },
         ]),
-      ).toEqual([{ title: "asc" }, { publication_year: "desc" }]);
+      ).toEqual([{ title: 'asc' }, { publication_year: 'desc' }]);
     });
 
-    it("rejects an unsupported sort field", () => {
+    it('rejects an unsupported sort field', () => {
       expect(() =>
         PublicationServicePrivate.sortToOrderBy({
-          field: "unsupported" as any,
-          direction: "asc",
+          field: 'unsupported' as any,
+          direction: 'asc',
         }),
       ).toThrow(UserInputError);
     });
@@ -301,73 +281,67 @@ describe("PublicationServicePrivate", () => {
   // getPublicationGeometry
   // --------------------------------------------------
 
-  describe("getPublicationGeometry", () => {
-    it("returns parsed GeoJSON geometry", async () => {
+  describe('getPublicationGeometry', () => {
+    it('returns parsed GeoJSON geometry', async () => {
       const geometry = {
-        type: "Point",
+        type: 'Point',
         coordinates: [-123.1, 49.2],
       };
 
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue([
+      vi.spyOn(prisma, '$queryRaw').mockResolvedValue([
         {
           geometry_json: JSON.stringify(geometry),
         },
       ]);
 
       const result = await PublicationServicePrivate.getPublicationGeometry(
-        "11111111-1111-1111-1111-111111111111",
+        '11111111-1111-1111-1111-111111111111',
       );
 
       expect(result).toEqual(geometry);
     });
 
-    it("returns null when the database geometry is null", async () => {
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue([
+    it('returns null when the database geometry is null', async () => {
+      vi.spyOn(prisma, '$queryRaw').mockResolvedValue([
         {
           geometry_json: null,
         },
       ]);
 
       const result = await PublicationServicePrivate.getPublicationGeometry(
-        "11111111-1111-1111-1111-111111111111",
+        '11111111-1111-1111-1111-111111111111',
       );
 
       expect(result).toBeNull();
     });
 
-    it("returns null when no database row is found", async () => {
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue([]);
+    it('returns null when no database row is found', async () => {
+      vi.spyOn(prisma, '$queryRaw').mockResolvedValue([]);
 
       const result = await PublicationServicePrivate.getPublicationGeometry(
-        "11111111-1111-1111-1111-111111111111",
+        '11111111-1111-1111-1111-111111111111',
       );
 
       expect(result).toBeNull();
     });
 
-    it("propagates database errors", async () => {
-      vi.spyOn(prisma, "$queryRaw").mockRejectedValue(
-        new Error("Database unavailable"),
-      );
+    it('propagates database errors', async () => {
+      vi.spyOn(prisma, '$queryRaw').mockRejectedValue(new Error('Database unavailable'));
 
       await expect(
-        PublicationServicePrivate.getPublicationGeometry(
-          "11111111-1111-1111-1111-111111111111",
-        ),
-      ).rejects.toThrow("Database unavailable");
+        PublicationServicePrivate.getPublicationGeometry('11111111-1111-1111-1111-111111111111'),
+      ).rejects.toThrow('Database unavailable');
     });
 
-    it("propagates invalid GeoJSON parsing errors", async () => {
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue([
+    it('propagates invalid GeoJSON parsing errors', async () => {
+      vi.spyOn(prisma, '$queryRaw').mockResolvedValue([
         {
-          geometry_json: "invalid json",
+          geometry_json: 'invalid json',
         },
       ]);
 
       await expect(
-        PublicationServicePrivate.getPublicationGeometry(
-          "11111111-1111-1111-1111-111111111111",
-        ),
+        PublicationServicePrivate.getPublicationGeometry('11111111-1111-1111-1111-111111111111'),
       ).rejects.toThrow();
     });
   });

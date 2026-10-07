@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   imports: [],
-  selector: 'footer',
+  selector: 'pubcat-footer',
   styleUrl: './footer.css',
   templateUrl: './footer.html',
 })

@@ -1,16 +1,15 @@
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'alert',
+  selector: 'pubcat-alert',
   imports: [MatIconModule, MatCardModule, NgClass],
   templateUrl: './alert.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './alert.scss',
 })
-export class Alert {
+export class Alert implements OnInit {
   readonly alertType = input<'error' | 'info' | 'warn' | 'success'>('info');
   readonly compact = input<boolean>(false);
   readonly showIcon = input<boolean>(true);
