@@ -1,7 +1,7 @@
-import { PrismaPg } from '@prisma/adapter-pg'
-import 'dotenv/config'
-import { PrismaClient } from '../generated/prisma/client.js'
-import { config } from './config.js'
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
+import { PrismaClient } from '../generated/prisma/client.js';
+import { config } from './config.js';
 
 // Create a single shared instance of the generated PrismaClient.
 // PrismaPg is required in Prisma v7 as a driver adapter.  The 'schema'
@@ -12,10 +12,10 @@ import { config } from './config.js'
 const adapter = new PrismaPg(
   { connectionString: config.get('db:url') },
   { schema: config.get('db:schema') },
-)
+);
 const prisma = new PrismaClient({
   adapter,
   //log: ['query']
-})
+});
 
-export { prisma }
+export { prisma };

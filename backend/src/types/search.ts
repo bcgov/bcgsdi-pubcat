@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Comparison operators available in a {@link FilterClause}.
@@ -20,19 +20,19 @@ import { z } from "zod";
  * | `isNotNull`    | Field is not null (`value` is ignored)             |
  */
 export type FilterOperator =
-  | "eq"
-  | "neq"
-  | "lt"
-  | "lte"
-  | "gt"
-  | "gte"
-  | "contains"
-  | "startsWith"
-  | "endsWith"
-  | "in"
-  | "notIn"
-  | "isNull"
-  | "isNotNull";
+  | 'eq'
+  | 'neq'
+  | 'lt'
+  | 'lte'
+  | 'gt'
+  | 'gte'
+  | 'contains'
+  | 'startsWith'
+  | 'endsWith'
+  | 'in'
+  | 'notIn'
+  | 'isNull'
+  | 'isNotNull';
 
 /** Scalar value used in a filter clause. */
 export type FilterValue = string | number | boolean | Date | null;
@@ -82,12 +82,10 @@ export type FilterClause<TField extends string = string> = {
  * ```
  */
 export type SearchFilter<TField extends string = string> =
-  | FilterClause<TField>
-  | { and: SearchFilter<TField>[] }
-  | { or: SearchFilter<TField>[] };
+  FilterClause<TField> | { and: SearchFilter<TField>[] } | { or: SearchFilter<TField>[] };
 
 /** Sort direction for search results. */
-export type SortDirection = "asc" | "desc";
+export type SortDirection = 'asc' | 'desc';
 
 /**
  * Sort specification for search results, generic over the set of sortable
@@ -116,28 +114,23 @@ export type SearchResponse<TField> = {
 
 /** Validates any {@link FilterOperator} string. */
 export const filterOperatorSchema = z.enum([
-  "eq",
-  "neq",
-  "lt",
-  "lte",
-  "gt",
-  "gte",
-  "contains",
-  "startsWith",
-  "endsWith",
-  "in",
-  "notIn",
-  "isNull",
-  "isNotNull",
+  'eq',
+  'neq',
+  'lt',
+  'lte',
+  'gt',
+  'gte',
+  'contains',
+  'startsWith',
+  'endsWith',
+  'in',
+  'notIn',
+  'isNull',
+  'isNotNull',
 ]);
 
 /** Validates a scalar {@link FilterValue}. */
-export const filterValueSchema = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-]);
+export const filterValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
 
 /** Validates a {@link SortDirection} string. */
-export const sortDirectionSchema = z.enum(["asc", "desc"]);
+export const sortDirectionSchema = z.enum(['asc', 'desc']);

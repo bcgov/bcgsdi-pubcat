@@ -1,18 +1,18 @@
-import { Response } from 'express'
-import z from 'zod'
+import { Response } from 'express';
+import z from 'zod';
 
 export interface ErrorOptions {
-  errCode?: string | null
-  userMessage?: string | null
-  developerMessage?: string | null
+  errCode?: string | null;
+  userMessage?: string | null;
+  developerMessage?: string | null;
 }
 
 export interface ApiErrorBody {
   error: {
-    code?: string
-    userMessage?: string
-    developerMessage?: string
-  }
+    code?: string;
+    userMessage?: string;
+    developerMessage?: string;
+  };
 }
 
 /**
@@ -36,46 +36,46 @@ export function sendErrorResponse(
   httpStatusCode: number,
   options: ErrorOptions = {},
 ): Response {
-  const { errCode, userMessage, developerMessage } = options
+  const { errCode, userMessage, developerMessage } = options;
 
-  const error: ApiErrorBody['error'] = {}
+  const error: ApiErrorBody['error'] = {};
 
   // Resolve error code: explicit value > per-status default
-  let defaultCode: string | undefined
+  let defaultCode: string | undefined;
   if (httpStatusCode >= 500) {
-    defaultCode = 'INTERNAL_ERROR'
+    defaultCode = 'INTERNAL_ERROR';
   } else if (httpStatusCode === 401) {
-    defaultCode = 'UNAUTHORIZED'
+    defaultCode = 'UNAUTHORIZED';
   } else if (httpStatusCode === 403) {
-    defaultCode = 'FORBIDDEN'
+    defaultCode = 'FORBIDDEN';
   } else if (httpStatusCode === 404) {
-    defaultCode = 'NOT_FOUND'
+    defaultCode = 'NOT_FOUND';
   } else if (httpStatusCode === 400) {
-    defaultCode = 'INVALID_REQUEST'
+    defaultCode = 'INVALID_REQUEST';
   }
-  const resolvedCode = errCode !== undefined ? errCode : defaultCode
+  const resolvedCode = errCode !== undefined ? errCode : defaultCode;
   if (resolvedCode != null) {
-    error.code = resolvedCode
+    error.code = resolvedCode;
   }
 
   // Resolve user message: explicit value > per-status default
-  const defaultUserMessage = httpStatusCode === 401 ? 'Not authorized' : undefined
-  const resolvedUserMessage = userMessage !== undefined ? userMessage : defaultUserMessage
+  const defaultUserMessage = httpStatusCode === 401 ? 'Not authorized' : undefined;
+  const resolvedUserMessage = userMessage !== undefined ? userMessage : defaultUserMessage;
   if (resolvedUserMessage != null) {
-    error.userMessage = resolvedUserMessage
+    error.userMessage = resolvedUserMessage;
   }
 
   if (developerMessage != null) {
-    error.developerMessage = developerMessage
+    error.developerMessage = developerMessage;
   }
 
-  const body: ApiErrorBody = { error }
-  return res.status(httpStatusCode).json(body)
+  const body: ApiErrorBody = { error };
+  return res.status(httpStatusCode).json(body);
 }
 
 export function sendZodErrorResponse(res: Response, error: z.ZodError) {
   return sendErrorResponse(res, 400, {
     errCode: 'VALIDATION_ERROR',
     developerMessage: error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
-  })
+  });
 }

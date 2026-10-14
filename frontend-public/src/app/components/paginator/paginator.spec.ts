@@ -34,21 +34,25 @@ describe('Paginator', () => {
     });
 
     it('should use the default page size options', () => {
-      expect(component.pageSizeOptions()).toEqual([10, 20]);
+      expect(component.pageSizeOptions()).toEqual([10, 25, 50]);
     });
 
     it('should use the default item count', () => {
       expect(component.itemCount()).toBe(0);
     });
+
+    it('should use an undefined total by default', () => {
+      expect(component.total()).toBeUndefined();
+    });
   });
 
-  describe('itemOffset', () => {
+  describe('pageStartOffset', () => {
     it('should be zero on the first page', () => {
       fixture.componentRef.setInput('pageIndex', 0);
       fixture.componentRef.setInput('pageSize', 10);
       fixture.detectChanges();
 
-      expect(component.itemOffset()).toBe(0);
+      expect(component.pageStartOffset()).toBe(0);
     });
 
     it('should calculate the item offset', () => {
@@ -56,7 +60,7 @@ describe('Paginator', () => {
       fixture.componentRef.setInput('pageSize', 10);
       fixture.detectChanges();
 
-      expect(component.itemOffset()).toBe(20);
+      expect(component.pageStartOffset()).toBe(20);
     });
 
     it('should calculate the item offset using a custom page size', () => {
@@ -64,7 +68,27 @@ describe('Paginator', () => {
       fixture.componentRef.setInput('pageSize', 25);
       fixture.detectChanges();
 
-      expect(component.itemOffset()).toBe(75);
+      expect(component.pageStartOffset()).toBe(75);
+    });
+  });
+
+  describe('pageEndOffset', () => {
+    it('should equal the start offset when there are no results', () => {
+      fixture.componentRef.setInput('pageIndex', 2);
+      fixture.componentRef.setInput('pageSize', 10);
+      fixture.componentRef.setInput('itemCount', 0);
+      fixture.detectChanges();
+
+      expect(component.pageEndOffset()).toBe(20);
+    });
+
+    it('should calculate the end offset', () => {
+      fixture.componentRef.setInput('pageIndex', 2);
+      fixture.componentRef.setInput('pageSize', 10);
+      fixture.componentRef.setInput('itemCount', 7);
+      fixture.detectChanges();
+
+      expect(component.pageEndOffset()).toBe(27);
     });
   });
 
@@ -85,28 +109,80 @@ describe('Paginator', () => {
   });
 
   describe('hasNextPage', () => {
-    it('should be true when the current page is full', () => {
-      fixture.componentRef.setInput('pageSize', 10);
-      fixture.componentRef.setInput('itemCount', 10);
-      fixture.detectChanges();
+    describe('when total is not provided', () => {
+      it('should be true when the current page is full', () => {
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 10);
+        fixture.detectChanges();
 
-      expect(component.hasNextPage()).toBe(true);
+        expect(component.hasNextPage()).toBe(true);
+      });
+
+      it('should be false when the current page is not full', () => {
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 9);
+        fixture.detectChanges();
+
+        expect(component.hasNextPage()).toBe(false);
+      });
+
+      it('should be false when there are no results', () => {
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 0);
+        fixture.detectChanges();
+
+        expect(component.hasNextPage()).toBe(false);
+      });
     });
 
-    it('should be false when the current page is not full', () => {
-      fixture.componentRef.setInput('pageSize', 10);
-      fixture.componentRef.setInput('itemCount', 9);
-      fixture.detectChanges();
+    describe('when total is provided', () => {
+      it('should be true when the current page ends before the total', () => {
+        fixture.componentRef.setInput('pageIndex', 0);
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 10);
+        fixture.componentRef.setInput('total', 25);
+        fixture.detectChanges();
 
-      expect(component.hasNextPage()).toBe(false);
-    });
+        expect(component.hasNextPage()).toBe(true);
+      });
 
-    it('should be false when there are no results', () => {
-      fixture.componentRef.setInput('pageSize', 10);
-      fixture.componentRef.setInput('itemCount', 0);
-      fixture.detectChanges();
+      it('should be false when the current page reaches the total', () => {
+        fixture.componentRef.setInput('pageIndex', 2);
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 5);
+        fixture.componentRef.setInput('total', 25);
+        fixture.detectChanges();
 
-      expect(component.hasNextPage()).toBe(false);
+        expect(component.hasNextPage()).toBe(false);
+      });
+
+      it('should be false when the current page ends exactly at the total', () => {
+        fixture.componentRef.setInput('pageIndex', 1);
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 10);
+        fixture.componentRef.setInput('total', 20);
+        fixture.detectChanges();
+
+        expect(component.hasNextPage()).toBe(false);
+      });
+
+      it('should be true when the current page contains fewer items than the page size but more results exist', () => {
+        fixture.componentRef.setInput('pageIndex', 0);
+        fixture.componentRef.setInput('pageSize', 10);
+        fixture.componentRef.setInput('itemCount', 5);
+        fixture.componentRef.setInput('total', 12);
+        fixture.detectChanges();
+
+        expect(component.hasNextPage()).toBe(true);
+      });
+
+      it('should be false when total is zero', () => {
+        fixture.componentRef.setInput('itemCount', 0);
+        fixture.componentRef.setInput('total', 0);
+        fixture.detectChanges();
+
+        expect(component.hasNextPage()).toBe(false);
+      });
     });
   });
 
@@ -125,6 +201,14 @@ describe('Paginator', () => {
       fixture.detectChanges();
 
       expect(component.rangeStart()).toBe(21);
+    });
+
+    it('should use the configured page size', () => {
+      fixture.componentRef.setInput('pageIndex', 2);
+      fixture.componentRef.setInput('pageSize', 25);
+      fixture.detectChanges();
+
+      expect(component.rangeStart()).toBe(51);
     });
   });
 
@@ -169,7 +253,7 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 1,
         pageSize: 10,
-        itemOffset: 10,
+        pageStartOffset: 10,
       } satisfies PageChangeEvent);
     });
 
@@ -198,8 +282,8 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 2,
         pageSize: 25,
-        itemOffset: 50,
-      });
+        pageStartOffset: 50,
+      } satisfies PageChangeEvent);
     });
   });
 
@@ -218,7 +302,7 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 2,
         pageSize: 10,
-        itemOffset: 20,
+        pageStartOffset: 20,
       } satisfies PageChangeEvent);
     });
 
@@ -236,6 +320,40 @@ describe('Paginator', () => {
       expect(emitSpy).not.toHaveBeenCalled();
     });
 
+    it('should not emit when the total has been reached', () => {
+      fixture.componentRef.setInput('pageIndex', 1);
+      fixture.componentRef.setInput('pageSize', 10);
+      fixture.componentRef.setInput('itemCount', 10);
+      fixture.componentRef.setInput('total', 20);
+      fixture.detectChanges();
+
+      const emitSpy = vi.fn();
+      component.pageChange.subscribe(emitSpy);
+
+      component.next();
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('should emit when more results exist even if the current page is not full', () => {
+      fixture.componentRef.setInput('pageIndex', 0);
+      fixture.componentRef.setInput('pageSize', 10);
+      fixture.componentRef.setInput('itemCount', 5);
+      fixture.componentRef.setInput('total', 12);
+      fixture.detectChanges();
+
+      const emitSpy = vi.fn();
+      component.pageChange.subscribe(emitSpy);
+
+      component.next();
+
+      expect(emitSpy).toHaveBeenCalledWith({
+        pageIndex: 1,
+        pageSize: 10,
+        pageStartOffset: 10,
+      } satisfies PageChangeEvent);
+    });
+
     it('should calculate the next page offset using a custom page size', () => {
       fixture.componentRef.setInput('pageIndex', 1);
       fixture.componentRef.setInput('pageSize', 25);
@@ -250,8 +368,8 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 2,
         pageSize: 25,
-        itemOffset: 50,
-      });
+        pageStartOffset: 50,
+      } satisfies PageChangeEvent);
     });
   });
 
@@ -265,7 +383,7 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 0,
         pageSize: 20,
-        itemOffset: 0,
+        pageStartOffset: 0,
       } satisfies PageChangeEvent);
     });
 
@@ -282,8 +400,8 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 0,
         pageSize: 25,
-        itemOffset: 0,
-      });
+        pageStartOffset: 0,
+      } satisfies PageChangeEvent);
     });
 
     it('should emit when the page size form control changes', () => {
@@ -295,8 +413,8 @@ describe('Paginator', () => {
       expect(emitSpy).toHaveBeenCalledWith({
         pageIndex: 0,
         pageSize: 20,
-        itemOffset: 0,
-      });
+        pageStartOffset: 0,
+      } satisfies PageChangeEvent);
     });
   });
 

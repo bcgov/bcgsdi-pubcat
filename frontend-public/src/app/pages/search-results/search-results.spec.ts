@@ -384,7 +384,8 @@ describe('SearchResults', () => {
       vi.spyOn(component, 'goToPage');
 
       component.onPageChange({
-        itemOffset: 50,
+        pageIndex: 2,
+        pageStartOffset: 50,
         pageSize: 25,
       });
 
