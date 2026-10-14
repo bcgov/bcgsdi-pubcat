@@ -1,3 +1,26 @@
 :host {
   height: 100%;
 }
+
+.btn-active {
+  background-color: var(--theme-gray-20) !important;
+  border: solid 0px #ffffff00 !important;
+  color: var(--typography-color-primary) !important;
+}
+
+.btn-inactive {
+  background-color: var(--surface-color-secondary-button-default) !important;
+  border: solid 0px #ffffff00 !important;
+  color: var(--typography-color-primary) !important;
+}
+
+.tab-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 48px;
+  height: var(--mat-button-filled-touch-target-size, 40px);
+  border-radius: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+}

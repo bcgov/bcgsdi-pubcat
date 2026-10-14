@@ -1,0 +1,6 @@
+pubcat-publication-card {
+  cursor: pointer;
+}
+pubcat-publication-card:hover {
+  background-color: var(--theme-blue-10);
+}

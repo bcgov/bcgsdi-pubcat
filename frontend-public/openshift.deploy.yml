@@ -6,7 +6,7 @@ parameters:
     required: true
   - name: COMPONENT
     description: Component name
-    value: frontend
+    value: frontend-public
   - name: ZONE
     description: Deployment zone, e.g. pr-### or prod
     required: true

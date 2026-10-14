@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +7,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { Alert } from '../../components/alert/alert';
 import { PageChangeEvent, Paginator } from '../../components/paginator/paginator';
+import { PublicationsAbstractView } from '../../components/publications-abstract-view/publications-abstract-view';
 import { PublicationsTableView } from '../../components/publications-table-view/publications-table-view';
 import { SearchFilterSummary } from '../../components/search-filter-summary/search-filter-summary';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
@@ -21,10 +23,12 @@ export enum ResultsViewType {
     MatButtonModule,
     MatIconModule,
     PublicationsTableView,
+    PublicationsAbstractView,
     Paginator,
     SearchFilterSummary,
     Alert,
     RouterLink,
+    NgClass,
   ],
   selector: 'pubcat-search-results',
   styleUrl: './search-results.css',
