@@ -7,84 +7,90 @@
       <h3>Search results</h3>
     </div>
 
+    @if (showResults()) {
+      <div class="flex items-center gap-2">
+        <button
+          class="tab-btn"
+          (click)="setViewType(ResultsViewType.Table)"
+          [ngClass]="viewType() !== ResultsViewType.Table ? 'btn-inactive' : 'btn-active'"
+        >
+          <mat-icon matListItemIcon> table_chart </mat-icon>
+          <span class="hidden sm:inline ml-2"> Table view </span>
+        </button>
 
-    @if(showResults()) {
-    <div class="flex items-center gap-2">
-      <button class="tab-btn" (click)="setViewType(ResultsViewType.Table)"
-        [ngClass]="viewType() !== ResultsViewType.Table ? 'btn-inactive' : 'btn-active'">
-
-        <mat-icon matListItemIcon>
-          table_chart
-        </mat-icon>
-        <span class="hidden sm:inline ml-2">
-          Table view
-        </span>
-      </button>
-
-      <button class="tab-btn" (click)="setViewType(ResultsViewType.Abstract)"
-        [ngClass]="viewType() !== ResultsViewType.Abstract ? 'btn-inactive' : 'btn-active'">
-        <mat-icon matListItemIcon>
-          table_rows
-        </mat-icon>
-        <span class="hidden sm:inline ml-2">
-          Abstract View
-        </span>
-      </button>
-
-    </div>
+        <button
+          class="tab-btn"
+          (click)="setViewType(ResultsViewType.Abstract)"
+          [ngClass]="viewType() !== ResultsViewType.Abstract ? 'btn-inactive' : 'btn-active'"
+        >
+          <mat-icon matListItemIcon> table_rows </mat-icon>
+          <span class="hidden sm:inline ml-2"> Abstract View </span>
+        </button>
+      </div>
     }
-
   </div>
 
   <div class="min-h-0 flex-1 overflow-auto">
     @if (showResults()) {
-    <div class="mb-4">
-      <pubcat-alert [showIcon]="false" [compact]="true" class="text-xs md:text-sm">
-        <div class="flex items-center">
-          <pubcat-search-filter-summary [filter]="publicationSearchStore.lastSearchedParams()?.filter"
-            class="grow-1"></pubcat-search-filter-summary>
-          <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">
-            Modify search
-          </button>
-          <pubcat-loading-button mat-flat-button class="btn-secondary ml-4" [loading]="isDownloading()"
-            [disabled]="isDownloading()" (triggered)="download()">
-            <mat-icon class="inline sm:hidden!">
-              download
-            </mat-icon>
-            <span class="hidden sm:inline">
-              Download <span class="hidden lg:inline">results</span>
-            </span></pubcat-loading-button>
-        </div>
-      </pubcat-alert>
-    </div>
+      <div class="mb-4">
+        <pubcat-alert [showIcon]="false" [compact]="true" class="text-xs md:text-sm">
+          <div class="flex items-center">
+            <pubcat-search-filter-summary
+              [filter]="publicationSearchStore.lastSearchedParams()?.filter"
+              class="grow-1"
+            ></pubcat-search-filter-summary>
+            <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">
+              Modify search
+            </button>
+            <pubcat-loading-button
+              mat-flat-button
+              class="btn-secondary ml-4"
+              [loading]="isDownloading()"
+              [disabled]="isDownloading()"
+              (triggered)="download()"
+            >
+              <mat-icon class="inline sm:hidden!"> download </mat-icon>
+              <span class="hidden sm:inline">
+                Download <span class="hidden lg:inline">results</span>
+              </span></pubcat-loading-button
+            >
+          </div>
+        </pubcat-alert>
+      </div>
 
-    @if (!publicationSearchStore.results()?.items?.length) {
-    @if (publicationSearchStore.pageIndex() === 0) {
-    <div class="my-4">No matches</div>
+      @if (!publicationSearchStore.results()?.items?.length) {
+        @if (publicationSearchStore.pageIndex() === 0) {
+          <div class="my-4">No matches</div>
+        } @else {
+          <div class="my-4">This page is empty</div>
+        }
+      }
+      @if (viewType() === ResultsViewType.Table) {
+        <pubcat-publications-table-view
+          [publications]="publicationSearchStore.results()?.items"
+        ></pubcat-publications-table-view>
+      }
+      @if (viewType() === ResultsViewType.Abstract) {
+        <pubcat-publications-abstract-view
+          [publications]="publicationSearchStore.results()?.items"
+        ></pubcat-publications-abstract-view>
+      }
+      @if (
+        publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.items?.length
+      ) {
+        <div class="mt-6 mb-2 flex justify-center">
+          <pubcat-paginator
+            [pageIndex]="publicationSearchStore.pageIndex()"
+            [pageSize]="publicationSearchStore.pageSize()"
+            [itemCount]="publicationSearchStore.results()?.items?.length || 0"
+            [total]="publicationSearchStore.results()?.total"
+            (pageChange)="onPageChange($event)"
+          >
+          </pubcat-paginator>
+        </div>
+      }
     } @else {
-    <div class="my-4">This page is empty</div>
-    }
-    }
-    @if (viewType() === ResultsViewType.Table) {
-    <pubcat-publications-table-view
-      [publications]="publicationSearchStore.results()?.items"></pubcat-publications-table-view>
-    }
-    @if (viewType() === ResultsViewType.Abstract) {
-    <pubcat-publications-abstract-view
-      [publications]="publicationSearchStore.results()?.items"></pubcat-publications-abstract-view>
-    }
-    @if (
-    publicationSearchStore.pageIndex() > 0 || !!publicationSearchStore.results()?.items?.length
-    ) {
-    <div class="mt-6 mb-2 flex justify-center">
-      <pubcat-paginator [pageIndex]="publicationSearchStore.pageIndex()" [pageSize]="publicationSearchStore.pageSize()"
-        [itemCount]="publicationSearchStore.results()?.items?.length || 0"
-        [total]="publicationSearchStore.results()?.total" (pageChange)="onPageChange($event)">
-      </pubcat-paginator>
-    </div>
-    }
-    } @else {
-    <div class="my-4">No matches</div>
+      <div class="my-4">No matches</div>
     }
   </div>
 </div>

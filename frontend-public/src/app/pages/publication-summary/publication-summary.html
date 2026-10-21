@@ -2,9 +2,9 @@
   <div class="flex justify-between items-center mb-4 shrink-0">
     <div class="flex items-center gap-2">
       @if (navigationService.canGoBack) {
-      <button matIconButton (click)="navigationService.back()">
-        <mat-icon matListItemIcon class="mr-2"> chevron_left </mat-icon>
-      </button>
+        <button matIconButton (click)="navigationService.back()">
+          <mat-icon matListItemIcon class="mr-2"> chevron_left </mat-icon>
+        </button>
       }
       <h3>Publication Summary</h3>
     </div>
@@ -18,10 +18,10 @@
     </button>
   </div>
   @if (publication.isLoading()) {
-  <p>Loading...</p>
+    <p>Loading...</p>
   } @else if (publication.error()) {
-  <p>Unable to load publication.</p>
+    <p>Unable to load publication.</p>
   } @else if (publication.value(); as item) {
-  <pubcat-publication-card [publication]="item"></pubcat-publication-card>
+    <pubcat-publication-card [publication]="item"></pubcat-publication-card>
   }
 </div>
