@@ -128,7 +128,7 @@ jobs:
 
       - name: Deploy Crunchy PostgreSQL
         if: inputs.db_type == 'crunchy'
-        uses: bcgov/actions-openshift/crunchy@4dbe4f6d25d14cbdb01e525a302e61e31f96c3ed # v.0.5.0
+        uses: bcgov/actions-openshift/crunchy@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # latest commit on main brance on Oct 21, 2026.  Fixes a problem with v.0.5.0, which isn't yet included in any more recent release.
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
