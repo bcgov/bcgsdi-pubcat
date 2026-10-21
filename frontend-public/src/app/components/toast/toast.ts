@@ -1,5 +1,5 @@
 import { NgClass } from '@angular/common';
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
@@ -10,10 +10,9 @@ export type ToastData = {
 };
 
 @Component({
-  selector: 'toast',
+  selector: 'pubcat-toast',
   imports: [MatIconModule, MatButtonModule, NgClass],
   templateUrl: './toast.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toast.scss',
 })
 export class Toast {

@@ -4,7 +4,7 @@
   <pubcat-publication-card [publication]="publication" [showThumbnail]="false" [showDownloads]="false"
     [showSeries]="false" [showKeywords]="false" [showMap]="false" class="p-4"
     [routerLink]="['/publications', publication.publication_guid]"></pubcat-publication-card>
-  @if(index + 1 != publications()?.length) {
+  @if(index + 1 !== publications()?.length) {
   <hr>
   }
   }

@@ -11,7 +11,7 @@
     @if(showResults()) {
     <div class="flex items-center gap-2">
       <button class="tab-btn" (click)="setViewType(ResultsViewType.Table)"
-        [ngClass]="viewType() != ResultsViewType.Table ? 'btn-inactive' : 'btn-active'">
+        [ngClass]="viewType() !== ResultsViewType.Table ? 'btn-inactive' : 'btn-active'">
 
         <mat-icon matListItemIcon>
           table_chart
@@ -22,7 +22,7 @@
       </button>
 
       <button class="tab-btn" (click)="setViewType(ResultsViewType.Abstract)"
-        [ngClass]="viewType() != ResultsViewType.Abstract ? 'btn-inactive' : 'btn-active'">
+        [ngClass]="viewType() !== ResultsViewType.Abstract ? 'btn-inactive' : 'btn-active'">
         <mat-icon matListItemIcon>
           table_rows
         </mat-icon>
