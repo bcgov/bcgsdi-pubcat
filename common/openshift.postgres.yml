@@ -10,7 +10,7 @@ parameters:
   - name: ZONE
     description: Deployment zone, e.g. pr-### or prod
     required: true
-  - name: PG_VERSION
+  - name: PG_IMAGE_TAG
     description: PostgreSQL version tag for the Docker Hub postgres image
     value: "17"
   - name: DB_PVC_SIZE
@@ -46,7 +46,7 @@ objects:
           terminationGracePeriodSeconds: 60
           containers:
             - name: ${NAME}-${ZONE}
-              image: postgres:${PG_VERSION}
+              image: postgres:${PG_IMAGE_TAG}
               imagePullPolicy: Always
               ports:
                 - containerPort: 5432
@@ -122,10 +122,14 @@ objects:
               emptyDir: {}
       # Per-pod PVC managed by the StatefulSet. The claim-template name is fixed
       # ("data"): volumeClaimTemplates are immutable once the StatefulSet exists,
-      # so the name must not embed PG_VERSION. A major Postgres upgrade is a
-      # deliberate migration (pg_upgrade or dump/restore), never an automatic
-      # volume swap. netapp-block-standard (RWO block) suits a single-writer DB
-      # and supports resize-up only.
+      # so the name must not embed the PostgreSQL or PostGIS version.
+      # Changing the PostGIS version while keeping the same PostgreSQL major
+      # version does not normally require a PostgreSQL data migration, though
+      # the PostGIS extension may need to be upgraded separately.
+      # A PostgreSQL major-version upgrade requires a deliberate migration
+      # (pg_upgrade or dump/restore), never an automatic volume swap.
+      # netapp-block-standard (RWO block) suits a single-writer DB and supports
+      # resize-up only.
       volumeClaimTemplates:
         - metadata:
             labels:
