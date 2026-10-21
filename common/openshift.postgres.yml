@@ -10,7 +10,7 @@ parameters:
   - name: ZONE
     description: Deployment zone, e.g. pr-### or prod
     required: true
-  - name: PG_VERSION
+  - name: PG_IMAGE_TAG
     description: PostgreSQL version tag for the Docker Hub postgres image
     value: "17"
   - name: DB_PVC_SIZE
@@ -46,7 +46,7 @@ objects:
           terminationGracePeriodSeconds: 60
           containers:
             - name: ${NAME}-${ZONE}
-              image: postgres:${PG_VERSION}
+              image: postgres:${PG_IMAGE_TAG}
               imagePullPolicy: Always
               ports:
                 - containerPort: 5432

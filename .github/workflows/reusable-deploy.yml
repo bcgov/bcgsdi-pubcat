@@ -109,7 +109,6 @@ jobs:
           parameters: -p DB_PASSWORD="$DB_PASSWORD"
             -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
-            -p PG_VERSION="17-3.6"
           triggers: ${{ inputs.triggers }}
           debug: true
 
@@ -125,7 +124,7 @@ jobs:
           parameters: -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
             -p DB_PVC_SIZE="256Mi"
-            -p PG_VERSION="17-3.6"
+            -p PG_IMAGE_TAG="17-3.6"
           triggers: ${{ inputs.triggers }}
 
       - name: Deploy Crunchy PostgreSQL
