@@ -42,7 +42,6 @@ jobs:
     secrets:
       oc_namespace: ${{ secrets.oc_namespace }}
       oc_token: ${{ secrets.oc_token }}
-      db_type: "postgres"
 
       # only needed when db_type == 'postgres'
       db_password: ${{ secrets.db_password }}
@@ -56,6 +55,7 @@ jobs:
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
       triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', '.github/workflows/pr-open.yml')
+      db_type: "postgres"
 
   tests:
     name: Tests
