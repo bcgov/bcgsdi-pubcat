@@ -24,6 +24,7 @@ describe('PublicationCard', () => {
     zip_link: 'https://example.com/publication.zip',
     abstract: 'An overview of the geology of the example region.',
     thumbnail_link: 'https://example.com/thumbnail.png',
+    geometry: undefined
   };
 
   beforeEach(async () => {

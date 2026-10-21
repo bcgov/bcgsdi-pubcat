@@ -17,6 +17,7 @@ class StubPublicationCard {
   readonly showDownloads = input(true);
   readonly showSeries = input(true);
   readonly showKeywords = input(true);
+  readonly showMap = input(true);
 }
 
 describe('PublicationsAbstractView', () => {

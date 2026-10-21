@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Toast } from '../components/toast/toast';
 import { ToastService } from './toast-service';
 
@@ -12,7 +11,6 @@ describe('ToastService', () => {
     openFromComponentSpy = vi.fn();
 
     TestBed.configureTestingModule({
-      imports: [NoopAnimationsModule],
       providers: [
         ToastService,
         { provide: MatSnackBar, useValue: { openFromComponent: openFromComponentSpy } },
@@ -65,4 +63,3 @@ describe('ToastService', () => {
     });
   });
 });
-

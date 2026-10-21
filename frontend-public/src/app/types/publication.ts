@@ -24,5 +24,5 @@ export type Publication = {
   pdf_link?: string | null;
   zip_link?: string | null;
   thumbnail_link?: string | null;
-  geometry: Geometry;
+  geometry?: Geometry | null;
 };
