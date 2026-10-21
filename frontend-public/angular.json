@@ -25,7 +25,12 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/material-theme.scss", "src/material-overrides.scss", "src/styles.css"]
+            "styles": [
+              "node_modules/leaflet/dist/leaflet.css",
+              "src/material-theme.scss",
+              "src/material-overrides.scss",
+              "src/styles.css"
+            ]
           },
           "configurations": {
             "production": {

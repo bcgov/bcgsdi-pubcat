@@ -1,7 +1,10 @@
 import { prisma } from '../core/prisma.js';
 
+import ExcelJS from 'exceljs';
 import { Geometry } from 'geojson';
+import { PassThrough, type Readable } from 'node:stream';
 import { PublicationAdapter } from '../adapters/publication-adapter.js';
+import { publication } from '../generated/prisma/client.js';
 import { UserInputError } from '../types/error.js';
 import {
   ApiPublication,
@@ -22,7 +25,36 @@ export const SEARCH_FIELD_TYPES = {
   scale: 'number',
 };
 
+export interface ExportColumn<T> {
+  header: string;
+  key: keyof T & string;
+}
+
 export const PublicationServicePrivate = {
+  /* 
+  Similar to searchPublications, but...
+  returns a raw list of prisma publication objects rather than SearchResponse<ApiPublication>
+  */
+  async searchPublicationsRaw(
+    filter: PublicationFilter | PublicationFilterClause[] = [],
+    sort: PublicationSort = { field: 'title', direction: 'asc' },
+    offset = 0,
+    limit = 20,
+  ): Promise<publication[]> {
+    const where = SearchHelperService.searchFilterToWhere(
+      filter,
+      (clause: PublicationFilterClause) => PublicationServicePrivate.filterClauseToWhere(clause),
+    );
+
+    const orderBy = PublicationServicePrivate.sortToOrderBy(sort);
+
+    const publicationsQuery = { where: where, orderBy: orderBy, skip: offset, take: limit };
+
+    const publications = await prisma.publication.findMany(publicationsQuery);
+
+    return publications;
+  },
+
   validateFieldSupportsOperators(field: PublicationFilterableField, operator: string) {
     //fields not listed here are assumed to support all operators
     const fieldOperatorMappings = {
@@ -268,5 +300,94 @@ export const PublicationService = {
     }
 
     return apiPublication;
+  },
+
+  exportPublicationsToExcel(
+    filter: PublicationFilter | PublicationFilterClause[] = [],
+    sort: PublicationSort = { field: 'title', direction: 'asc' },
+  ): Readable {
+    const BATCH_SIZE = 500;
+
+    const publicationColumns = [
+      { header: 'Publication key', key: 'publication_key' },
+      { header: 'Series', key: 'series_name' },
+      { header: 'Issue', key: 'issue_identification' },
+      { header: 'Title', key: 'title' },
+      { header: 'Author', key: 'originator' },
+      { header: 'Publication year', key: 'publication_year' },
+      { header: 'Abstract', key: 'abstract' },
+      { header: 'Other', key: 'other_citation_details' },
+      { header: 'Web link', key: 'bcgs_link' },
+      { header: 'PDF link', key: 'pdf_link' },
+      { header: 'Zip link', key: 'zip_link' },
+      { header: 'Zip content link', key: 'zip_content_link' },
+      { header: 'Other link 1', key: 'other_link_1' },
+      { header: 'Other link 2', key: 'other_link_2' },
+      { header: 'Other link 3', key: 'other_link_3' },
+      { header: 'Thumbnail link', key: 'thumbnail_link' },
+      { header: 'Larger work citation', key: 'larger_work_citation' },
+      { header: 'Purpose', key: 'purpose' },
+      { header: 'Scale', key: 'scale' },
+      { header: 'West bounding coordinate	', key: 'west_bounding_coordinate' },
+      { header: 'East bounding coordinate	', key: 'east_bounding_coordinate' },
+      { header: 'North bounding coordinate	', key: 'north_bounding_coordinate' },
+      { header: 'South bounding coordinate	', key: 'south_bounding_coordinate' },
+      { header: 'Theme keyword 1', key: 'theme_keyword_1' },
+      { header: 'Theme keyword 2', key: 'theme_keyword_2' },
+      { header: 'Theme keyword 3', key: 'theme_keyword_3' },
+      { header: 'Theme keyword 4', key: 'theme_keyword_4' },
+      { header: 'Theme keyword 5', key: 'theme_keyword_5' },
+      { header: 'Place keyword 1', key: 'place_keyword_1' },
+      { header: 'Place keyword 2', key: 'place_keyword_2' },
+      { header: 'Place keyword 3', key: 'place_keyword_3' },
+      { header: 'Place keyword 4', key: 'place_keyword_4' },
+      { header: 'Place keyword 5', key: 'place_keyword_5' },
+      { header: 'Browse Graphic File Type', key: 'browse_graphic_file_type' },
+      { header: 'NTS Maps', key: 'nts_maps' },
+    ] satisfies ExportColumn<publication>[];
+
+    const output = new PassThrough();
+
+    void (async () => {
+      const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
+        stream: output,
+        useStyles: false,
+        useSharedStrings: false,
+      });
+
+      const worksheet = workbook.addWorksheet('Publications');
+
+      worksheet.columns = publicationColumns.map(({ key }) => ({ key }));
+
+      worksheet.addRow(publicationColumns.map(({ header }) => header)).commit();
+
+      let offset = 0;
+
+      while (true) {
+        const publications = await PublicationServicePrivate.searchPublicationsRaw(
+          filter,
+          sort,
+          offset,
+          BATCH_SIZE,
+        );
+
+        for (const publication of publications) {
+          worksheet.addRow(publicationColumns.map(({ key }) => publication[key])).commit();
+        }
+
+        offset += publications.length;
+
+        if (publications.length < BATCH_SIZE) {
+          break;
+        }
+      }
+
+      worksheet.commit();
+      await workbook.commit();
+    })().catch((error: unknown) => {
+      output.destroy(error instanceof Error ? error : new Error(String(error)));
+    });
+
+    return output;
   },
 };

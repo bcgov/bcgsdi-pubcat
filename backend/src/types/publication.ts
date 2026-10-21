@@ -104,3 +104,8 @@ export const publicationSearchBodySchema = z.object({
   offset: z.number().int().nonnegative().optional(),
   limit: z.number().int().positive().optional(),
 });
+
+export const publicationSearchDownloadBodySchema = z.object({
+  filter: z.union([publicationFilterSchema, z.array(publicationFilterClauseSchema)]).optional(),
+  sort: publicationSortSchema.optional(),
+});

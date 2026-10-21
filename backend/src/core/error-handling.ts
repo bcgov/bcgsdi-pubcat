@@ -36,6 +36,14 @@ export function sendErrorResponse(
   httpStatusCode: number,
   options: ErrorOptions = {},
 ): Response {
+  const body = buildApiErrorBody(httpStatusCode, options);
+  return res.status(httpStatusCode).json(body);
+}
+
+export function buildApiErrorBody(
+  httpStatusCode: number,
+  options: ErrorOptions = {},
+): ApiErrorBody {
   const { errCode, userMessage, developerMessage } = options;
 
   const error: ApiErrorBody['error'] = {};
@@ -52,6 +60,8 @@ export function sendErrorResponse(
     defaultCode = 'NOT_FOUND';
   } else if (httpStatusCode === 400) {
     defaultCode = 'INVALID_REQUEST';
+  } else if (httpStatusCode === 429) {
+    defaultCode = 'RATE_LIMIT_REACHED';
   }
   const resolvedCode = errCode !== undefined ? errCode : defaultCode;
   if (resolvedCode != null) {
@@ -69,8 +79,8 @@ export function sendErrorResponse(
     error.developerMessage = developerMessage;
   }
 
-  const body: ApiErrorBody = { error };
-  return res.status(httpStatusCode).json(body);
+  const apiErrorBody: ApiErrorBody = { error };
+  return apiErrorBody;
 }
 
 export function sendZodErrorResponse(res: Response, error: z.ZodError) {

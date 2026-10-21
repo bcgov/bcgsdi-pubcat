@@ -162,9 +162,12 @@ export type PublicationSortField =
 
 export type PublicationSort = SearchSort<PublicationSortField> | SearchSort<PublicationSortField>[];
 
-export type PublicationSearchParams = {
+export type PublicationDownloadParams = {
   filter?: PublicationFilter | PublicationFilterClause[];
   sort?: PublicationSort;
+};
+
+export type PublicationSearchParams = PublicationDownloadParams & {
   offset?: number;
   limit?: number;
 };

@@ -6,14 +6,14 @@ import { referenceRouter } from './reference-router.js';
 
 const apiRouter = express.Router({ mergeParams: true });
 
-const rateLimiter = rateLimit({
+const generalLimiter = rateLimit({
   windowMs: 60 * 1000, //1 minute
   limit: 400,
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-apiRouter.use(rateLimiter);
+apiRouter.use(generalLimiter);
 apiRouter.use(express.json());
 
 // Child routers

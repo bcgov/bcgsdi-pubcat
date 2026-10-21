@@ -2,9 +2,10 @@ import { Component, computed, input } from '@angular/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { Publication } from '../../types/publication';
+import { BasicMap } from '../basic-map/basic-map';
 
 @Component({
-  imports: [MatIconModule, MatChipsModule],
+  imports: [MatIconModule, MatChipsModule, BasicMap],
   selector: 'pubcat-publication-card',
   styleUrl: './publication-card.css',
   templateUrl: './publication-card.html',
@@ -16,6 +17,7 @@ export class PublicationCard {
   readonly showYear = input<boolean>(true);
   readonly showDownloads = input<boolean>(true);
   readonly showSeries = input<boolean>(true);
+  readonly showMap = input<boolean>(true);
 
   placeKeywords = computed<string[]>(() => {
     const p = this.publication();

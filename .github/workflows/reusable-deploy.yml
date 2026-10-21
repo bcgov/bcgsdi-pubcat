@@ -20,6 +20,14 @@ on:
         description: Triggers for deployment
         default: ""
         type: string
+      db_type:
+        description: "Type of database to deploy.  Supported options are: postgres, crunchy"
+        type: string
+        default: postgres
+      crunchy_values_file:
+        description: ""
+        type: string
+        default: common/crunchy-values.yml
 
     secrets:
       db_password:
@@ -46,18 +54,45 @@ jobs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     runs-on: ubuntu-24.04
     steps:
+      - name: Validate database type
+        env:
+          DB_TYPE: ${{ inputs.db_type }}
+        run: |
+          if [[ "$DB_TYPE" != "postgres" && "$DB_TYPE" != "crunchy" ]]; then
+            echo "::error::Invalid db_type '$DB_TYPE'. Valid options: postgres, crunchy."
+            exit 1
+          fi    
       - uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
         id: deploy
-        env:
-          DB_PASSWORD: ${{ secrets.db_password }}
         with:
           file: common/openshift.init.yml
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
-          # Secret + NetworkPolicies: create if missing. Postgres ignores
-          # POSTGRES_PASSWORD after first boot; restamping the Secret desyncs Flyway.
-          # New NetworkPolicy names still apply; existing NP specs do not update.
+          # Secret + NetworkPolicies: create if missing.
+          overwrite: false
+          parameters: -p ZONE="${{ inputs.target }}"
+            -p NAME="${{ github.event.repository.name }}"
+          triggers: ${{ inputs.triggers }}
+          debug: true
+
+  database:
+    name: Deploy database (${{ inputs.db_type }})
+    environment: ${{ inputs.environment }}
+    needs: [init]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Initialize vanilla PostgreSQL resources
+        if: inputs.db_type == 'postgres'
+        uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
+        env:
+          DB_PASSWORD: ${{ secrets.db_password }}
+        with:
+          file: common/openshift.postgres.init.yml
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
           overwrite: false
           parameters: -p DB_PASSWORD="$DB_PASSWORD"
             -p ZONE="${{ inputs.target }}"
@@ -65,19 +100,74 @@ jobs:
           triggers: ${{ inputs.triggers }}
           debug: true
 
-  deploy:
+      - name: Deploy vanilla PostgreSQL
+        if: inputs.db_type == 'postgres'
+        uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
+        with:
+          file: common/openshift.postgres.yml
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          debug: true
+          parameters: -p ZONE="${{ inputs.target }}"
+            -p NAME="${{ github.event.repository.name }}"
+            ${{ inputs.db_oc_template_params }}
+          triggers: ${{ inputs.triggers }}
+
+      - name: Deploy Crunchy PostgreSQL
+        if: inputs.db_type == 'crunchy'
+        uses: bcgov/actions-openshift/crunchy@4dbe4f6d25d14cbdb01e525a302e61e31f96c3ed # v.0.5.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          s3_access_key: ${{ secrets.s3_access_key }}
+          s3_secret_key: ${{ secrets.s3_secret_key }}
+          s3_bucket: ${{ secrets.s3_bucket }}
+          s3_endpoint: ${{ secrets.s3_endpoint }}
+          values_file: ${{ inputs.crunchy_values_file }}
+          release_name: pg-${{ github.event.repository.name }}-${{ inputs.target }}
+          triggers: ${{ inputs.triggers }}
+
+  init:
+    name: Deploy (shared init)
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    outputs:
+      triggered: ${{ steps.deploy.outputs.triggered }}
+    steps:
+      - name: Validate database type
+        env:
+          DB_TYPE: ${{ inputs.db_type }}
+        run: |
+          if [[ "$DB_TYPE" != "postgres" && "$DB_TYPE" != "crunchy" ]]; then
+            echo "::error::Invalid db_type '$DB_TYPE'. Valid options: postgres, crunchy."
+            exit 1
+          fi
+
+      - uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
+        id: deploy
+        with:
+          file: common/openshift.init.yml
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          # Shared NetworkPolicies: create if missing.
+          overwrite: false
+          parameters: -p ZONE="${{ inputs.target }}"
+            -p NAME="${{ github.event.repository.name }}"
+          triggers: ${{ inputs.triggers }}
+          debug: true
+
+deploy:
     name: Deploy (${{ matrix.name }})
     environment: ${{ inputs.environment }}
-    needs: [init]
+    needs: [init, database]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       matrix:
-        name: [database, backend, frontend-public]
         include:
-          - name: database
-            file: common/openshift.database.yml
-            parameters: -p DB_PVC_SIZE="256Mi"
           - name: backend
             file: backend/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"
@@ -85,7 +175,7 @@ jobs:
             file: frontend-public/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"
     outputs:
-      triggered: ${{ steps.deploy.outputs.triggered }}
+      triggered: ${{ steps.deploy.outputs.triggered }}            
     steps:
       - uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
         id: deploy

@@ -44,7 +44,7 @@ export class SearchFilterSummary {
 
   protected fieldLabel(field: PublicationFilterableField): string {
     const labels: Partial<Record<PublicationFilterableField, string>> = {
-      publication_key: 'Publication ID',
+      publication_key: 'Publication key',
       issue_id: 'Issue ID',
       title: 'Title',
       author: 'Author',

@@ -68,17 +68,22 @@
     }
   </div>
   }
+
   @if (publication()?.abstract) {
   <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Abstract</div>
-  <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
+  <div class="col-span-12 sm:col-span-9 md:col-span-10 flex-inline gap-x-2 mb-2 sm:mb-0">
+    @if (showThumbnail() && publication()?.thumbnail_link) {
+    <img [src]="publication()?.thumbnail_link" class="max-w-32 float-left pr-2 pb-2" alt="Thumbnail" />
+    }
     {{ publication()?.abstract }}
   </div>
   }
 
-  @if (showThumbnail() && publication()?.thumbnail_link) {
-  <div class="col-span-12 sm:col-span-3 md:col-span-2"></div>
+  @if (showMap() && publication()?.geometry) {
+  <div class="col-span-12 sm:col-span-3 md:col-span-2 font-bold">Footprint</div>
   <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
-    <img [src]="publication()?.thumbnail_link" class="self-start max-w-32" alt="Thumbnail" />
+    <pubcat-basic-map [geometry]="publication()?.geometry" class="w-full h-96!"></pubcat-basic-map>
   </div>
   }
+
 </div>

@@ -46,6 +46,14 @@
           <button mat-flat-button class="btn-secondary ml-4" routerLink="/search">
             Modify search
           </button>
+          <pubcat-loading-button mat-flat-button class="btn-secondary ml-4" [loading]="isDownloading()"
+            [disabled]="isDownloading()" (triggered)="download()">
+            <mat-icon class="inline sm:hidden!">
+              download
+            </mat-icon>
+            <span class="hidden sm:inline">
+              Download <span class="hidden lg:inline">results</span>
+            </span></pubcat-loading-button>
         </div>
       </pubcat-alert>
     </div>
