@@ -1,21 +1,27 @@
 apiVersion: template.openshift.io/v1
 kind: Template
+
 parameters:
   - name: NAME
     description: Product name
     required: true
+
   - name: COMPONENT
     description: Component name
     value: database
+
   - name: ZONE
     description: Deployment zone, e.g. pr-### or prod
     required: true
+
   - name: PG_IMAGE_TAG
-    description: PostgreSQL version tag for the Docker Hub postgres image
-    value: "postgres:17"
+    description: PostgreSQL/PostGIS image and version tag
+    value: "postgis/postgis:17-3.6"
+
   - name: DB_PVC_SIZE
     description: Volume space available for data
     value: 256Mi
+
   - name: MEMORY_LIMIT
     description: Memory limit for the database container (bounds the pod's working set).
     value: 4Gi
@@ -40,25 +46,31 @@ objects:
             deployment: ${NAME}-${ZONE}-${COMPONENT}
         spec:
           terminationGracePeriodSeconds: 60
+
           containers:
             - name: ${NAME}-${ZONE}
               image: ${PG_IMAGE_TAG}
               imagePullPolicy: Always
+
               ports:
                 - containerPort: 5432
+
               env:
                 - name: PGDATA
                   value: /var/lib/postgresql/data/pgdata
+
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-name
+
                 - name: POSTGRES_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-password
+
                 - name: POSTGRES_USER
                   valueFrom:
                     secretKeyRef:
@@ -68,9 +80,6 @@ objects:
               volumeMounts:
                 - name: data
                   mountPath: /var/lib/postgresql/data
-                # Restoring the socket-dir mount ensures the probe process can see the socket file
-                - name: socket-dir
-                  mountPath: /var/run/postgresql
 
               resources:
                 requests:
@@ -83,36 +92,37 @@ objects:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
                 capabilities:
-                  drop: ["ALL"]
+                  drop:
+                    - ALL
                 seccompProfile:
                   type: RuntimeDefault
 
-              # Evaluates the exact socket file path using a shell wrapper to pass credentials
               readinessProbe:
                 exec:
                   command:
                     - /bin/sh
                     - -c
-                    - pg_isready -h /var/run/postgresql -d "$POSTGRES_DB" -U "$POSTGRES_USER"
+                    - pg_isready -h 127.0.0.1 -p 5432 -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 15
                 periodSeconds: 15
                 timeoutSeconds: 10
+
               livenessProbe:
                 exec:
                   command:
                     - /bin/sh
                     - -c
-                    - pg_isready -h /var/run/postgresql -d "$POSTGRES_DB" -U "$POSTGRES_USER"
+                    - pg_isready -h 127.0.0.1 -p 5432 -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
-                initialDelaySeconds: 30
+                initialDelaySeconds: 60
                 periodSeconds: 15
                 timeoutSeconds: 10
-          volumes:
-            - name: socket-dir
-              emptyDir: {}
+
+          # Retain the existing persistent volume claim.
+          # No socket-dir volume is required for TCP health checks.
 
       volumeClaimTemplates:
         - metadata:
