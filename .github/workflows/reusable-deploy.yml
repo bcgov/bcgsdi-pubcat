@@ -106,6 +106,8 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
           overwrite: false
+          # todo: is there a better way to pass the db_password, so the deployer action
+          # can inject it as an environment variable into the yml template?
           parameters: -p DB_PASSWORD="${{ secrets.db_password }}"
             -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
