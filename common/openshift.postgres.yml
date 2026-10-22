@@ -28,6 +28,7 @@ objects:
         app: ${NAME}-${ZONE}
       name: ${NAME}-${ZONE}-${COMPONENT}
     spec:
+      # Governing Service required by the StatefulSet.
       serviceName: ${NAME}-${ZONE}-${COMPONENT}
       replicas: 1
       selector:
@@ -39,6 +40,7 @@ objects:
             app: ${NAME}-${ZONE}
             deployment: ${NAME}-${ZONE}-${COMPONENT}
         spec:
+          # Give Postgres time to flush and shut down cleanly on SIGTERM during a node drain.
           terminationGracePeriodSeconds: 60
           containers:
             - name: ${NAME}-${ZONE}
@@ -49,6 +51,10 @@ objects:
               env:
                 - name: PGDATA
                   value: /var/lib/postgresql/data/pgdata
+                # FORCES the Postgres Engine to write its Unix socket to /tmp
+                - name: PGOPTIONS
+                  value: "-c unix_socket_directories=/tmp"
+                # Tells local client defaults to search /tmp natively
                 - name: PGHOST
                   value: /tmp
                 - name: POSTGRES_DB
@@ -66,15 +72,19 @@ objects:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-user
+
               volumeMounts:
                 - name: data
                   mountPath: /var/lib/postgresql/data
+
               resources:
                 requests:
                   cpu: 50m
                   memory: 256Mi
                 limits:
                   memory: ${MEMORY_LIMIT}
+
+              # restricted-v2 SCC hardening compliance
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
@@ -82,10 +92,14 @@ objects:
                   drop: ["ALL"]
                 seccompProfile:
                   type: RuntimeDefault
+
+              # Health probes configured to monitor the accessible /tmp socket directory
               readinessProbe:
                 exec:
                   command:
                     - pg_isready
+                    - -h
+                    - /tmp
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 15
@@ -95,6 +109,8 @@ objects:
                 exec:
                   command:
                     - pg_isready
+                    - -h
+                    - /tmp
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 30
@@ -102,7 +118,7 @@ objects:
                 timeoutSeconds: 10
           volumes: []
 
-      # Volume Claim and Service Configurations remain completely unchanged...
+      # Per-pod NetApp block storage PVC managed by the StatefulSet
       volumeClaimTemplates:
         - metadata:
             labels:
@@ -115,6 +131,8 @@ objects:
             resources:
               requests:
                 storage: ${DB_PVC_SIZE}
+
+  # ClusterIP Service: the backend connects here via ${NAME}-${ZONE}-${COMPONENT}:5432.
   - apiVersion: v1
     kind: Service
     metadata:
