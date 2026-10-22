@@ -39,6 +39,7 @@ parameters:
     value: 'info'
   - name: PORT
     description: Port for the component to run on
+    type: integer
     value: '3000'
   - name: DB_SCHEMA
     description: Database schema used by the application
