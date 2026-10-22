@@ -87,7 +87,7 @@ objects:
                   command:
                     - /bin/sh
                     - -c
-                    - pg_isready -h "$PGHOST" -d "$POSTGRES_DB" -U "$POSTGRES_USER"
+                    - pg_isready -h 127.0.0.1 -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 15
@@ -98,7 +98,7 @@ objects:
                   command:
                     - /bin/sh
                     - -c
-                    - pg_isready -h "$PGHOST" -d "$POSTGRES_DB" -U "$POSTGRES_USER"
+                    - pg_isready -h 127.0.0.1 -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 30
