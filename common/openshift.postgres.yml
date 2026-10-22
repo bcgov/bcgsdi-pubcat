@@ -28,7 +28,6 @@ objects:
         app: ${NAME}-${ZONE}
       name: ${NAME}-${ZONE}-${COMPONENT}
     spec:
-      # Governing Service required by the StatefulSet.
       serviceName: ${NAME}-${ZONE}-${COMPONENT}
       replicas: 1
       selector:
@@ -40,7 +39,6 @@ objects:
             app: ${NAME}-${ZONE}
             deployment: ${NAME}-${ZONE}-${COMPONENT}
         spec:
-          # Give Postgres time to flush and shut down cleanly on SIGTERM during a node drain.
           terminationGracePeriodSeconds: 60
           containers:
             - name: ${NAME}-${ZONE}
@@ -51,12 +49,6 @@ objects:
               env:
                 - name: PGDATA
                   value: /var/lib/postgresql/data/pgdata
-                # FORCES the Postgres Engine to write its Unix socket to /tmp
-                - name: PGOPTIONS
-                  value: "-c unix_socket_directories=/tmp"
-                # Tells local client defaults to search /tmp natively
-                - name: PGHOST
-                  value: /tmp
                 - name: POSTGRES_DB
                   valueFrom:
                     secretKeyRef:
@@ -76,6 +68,9 @@ objects:
               volumeMounts:
                 - name: data
                   mountPath: /var/lib/postgresql/data
+                # Restoring the socket-dir mount ensures the probe process can see the socket file
+                - name: socket-dir
+                  mountPath: /var/run/postgresql
 
               resources:
                 requests:
@@ -84,7 +79,6 @@ objects:
                 limits:
                   memory: ${MEMORY_LIMIT}
 
-              # restricted-v2 SCC hardening compliance
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
@@ -93,13 +87,13 @@ objects:
                 seccompProfile:
                   type: RuntimeDefault
 
-              # Health probes configured to monitor the accessible /tmp socket directory
+              # Evaluates the exact socket file path using a shell wrapper to pass credentials
               readinessProbe:
                 exec:
                   command:
-                    - pg_isready
-                    - -h
-                    - /tmp
+                    - /bin/sh
+                    - -c
+                    - pg_isready -h /var/run/postgresql -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 15
@@ -108,17 +102,18 @@ objects:
               livenessProbe:
                 exec:
                   command:
-                    - pg_isready
-                    - -h
-                    - /tmp
+                    - /bin/sh
+                    - -c
+                    - pg_isready -h /var/run/postgresql -d "$POSTGRES_DB" -U "$POSTGRES_USER"
                 successThreshold: 1
                 failureThreshold: 5
                 initialDelaySeconds: 30
                 periodSeconds: 15
                 timeoutSeconds: 10
-          volumes: []
+          volumes:
+            - name: socket-dir
+              emptyDir: {}
 
-      # Per-pod NetApp block storage PVC managed by the StatefulSet
       volumeClaimTemplates:
         - metadata:
             labels:
@@ -132,7 +127,6 @@ objects:
               requests:
                 storage: ${DB_PVC_SIZE}
 
-  # ClusterIP Service: the backend connects here via ${NAME}-${ZONE}-${COMPONENT}:5432.
   - apiVersion: v1
     kind: Service
     metadata:
