@@ -106,7 +106,7 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
           overwrite: false
-          parameters: -p DB_PASSWORD="$DB_PASSWORD"
+          parameters: -p DB_PASSWORD="${{ secrets.db_password }}"
             -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
           triggers: ${{ inputs.triggers }}
