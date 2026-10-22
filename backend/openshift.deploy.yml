@@ -129,7 +129,7 @@ objects:
                       name: ${NAME}-${ZONE}-database
                       key: database-password
                 - name: FLYWAY_DEFAULT_SCHEMA
-                  value: 'users'
+                  value: '${DB_SCHEMA}'
                 - name: FLYWAY_BASELINE_ON_MIGRATE
                   value: 'true'
               resources:
@@ -156,7 +156,7 @@ objects:
                   containerPort: ${PORT}
               env:
                 - name: PORT
-                  value: ${PORT}
+                  value: '${PORT}'
                 - name: LOG_LEVEL
                   value: ${LOG_LEVEL}
                 - name: DB_HOST
