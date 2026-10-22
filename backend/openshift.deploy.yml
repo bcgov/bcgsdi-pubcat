@@ -37,6 +37,12 @@ parameters:
   - name: LOG_LEVEL
     description: Application log level (debug|info|warn|error)
     value: 'info'
+  - name: PORT
+    description: Port for the component to run on
+    value: '3000'
+  - name: DB_SCHEMA
+    description: Database schema used by the application
+    value: 'users'
 objects:
   - apiVersion: apps/v1
     kind: Deployment
@@ -146,31 +152,33 @@ objects:
               imagePullPolicy: Always
               ports:
                 - name: http
-                  containerPort: 3000
+                  containerPort: ${PORT}
               env:
+                - name: PORT
+                  value: ${PORT}
                 - name: LOG_LEVEL
                   value: ${LOG_LEVEL}
-                - name: POSTGRES_HOST
+                - name: DB_HOST
                   value: ${NAME}-${ZONE}-database
-                - name: POSTGRES_PORT
+                - name: DB_PORT
                   value: '5432'
-                - name: POSTGRES_DATABASE
+                - name: DB_NAME
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-name
-                - name: POSTGRES_USER
+                - name: DB_USER
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-user
-                - name: POSTGRES_PASSWORD
+                - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-password
-                - name: POSTGRES_SCHEMA
-                  value: 'users'
+                - name: DB_SCHEMA
+                  value: ${DB_SCHEMA}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
