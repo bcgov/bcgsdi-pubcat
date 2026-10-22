@@ -28,6 +28,14 @@ on:
         description: "Only needed if db_type == 'crunchy' and the default values file is not sufficient"
         type: string
         default: common/crunchy-values.yml
+      db_schema:
+        description: "Database schema of used for the application"
+        type: string
+        default: public
+      backend_port:
+        description: "Port used for the backend"
+        type: string
+        default: 3000
 
     secrets:
       oc_namespace:
