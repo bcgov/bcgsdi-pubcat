@@ -56,8 +56,8 @@ jobs:
       tag: ${{ github.event.pull_request.head.sha }}
       triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', '.github/workflows/pr-open.yml')
       db_type: "postgres"
-      db_schema: ${{ inputs.db_schema }}
-      backend_port: ${{ inputs.backend_port }}
+      db_schema: ${{ vars.db_schema }}
+      backend_port: ${{ vars.backend_port }}
 
   tests:
     name: Tests
