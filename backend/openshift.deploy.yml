@@ -153,7 +153,7 @@ objects:
               imagePullPolicy: Always
               ports:
                 - name: http
-                  containerPort: ${PORT}
+                  containerPort: ${{PORT}}
               env:
                 - name: PORT
                   value: '${PORT}'
