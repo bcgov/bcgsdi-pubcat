@@ -12,7 +12,7 @@ parameters:
     required: true
   - name: PG_IMAGE_TAG
     description: PostgreSQL version tag for the Docker Hub postgres image
-    value: "postgres:17" 
+    value: "postgres:17"
   - name: DB_PVC_SIZE
     description: Volume space available for data
     value: 256Mi
@@ -48,7 +48,7 @@ objects:
                 - containerPort: 5432
               env:
                 - name: PGDATA
-                  value: /var/lib/postgresql/data/pgdata                
+                  value: /var/lib/postgresql/data/pgdata
                 - name: PGHOST
                   value: /tmp
                 - name: POSTGRES_DB
@@ -82,7 +82,6 @@ objects:
                   drop: ["ALL"]
                 seccompProfile:
                   type: RuntimeDefault
-              # FIXES log spam and role evaluation errors by executing through a shell wrapper
               readinessProbe:
                 exec:
                   command:
@@ -105,21 +104,21 @@ objects:
                 initialDelaySeconds: 30
                 periodSeconds: 15
                 timeoutSeconds: 10
-          volumes: [] 
-  
-  # Volume Claim and Service Configurations remain completely unchanged...
-  volumeClaimTemplates:
-    - metadata:
-        labels:
-          app: ${NAME}-${ZONE}
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: netapp-block-standard
-        resources:
-          requests:
-            storage: ${DB_PVC_SIZE}
+          volumes: []
+
+      # Volume Claim and Service Configurations remain completely unchanged...
+      volumeClaimTemplates:
+        - metadata:
+            labels:
+              app: ${NAME}-${ZONE}
+            name: data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: netapp-block-standard
+            resources:
+              requests:
+                storage: ${DB_PVC_SIZE}
   - apiVersion: v1
     kind: Service
     metadata:
