@@ -1,18 +1,18 @@
-import express from "express";
-import { config } from "../core/config.js";
-import { logRequests } from "../core/express-middleware.js";
-import { logger } from "../core/logger.js";
-import { prisma } from "../core/prisma.js";
-import { apiRouter } from "../routers/api-router.js";
-import { DbService } from "../services/db-service.js";
+import express from 'express';
+import { config } from '../core/config.js';
+import { logRequests } from '../core/express-middleware.js';
+import { logger } from '../core/logger.js';
+import { prisma } from '../core/prisma.js';
+import { apiRouter } from '../routers/api-router.js';
+import { DbService } from '../services/db-service.js';
 
 logger.info(`Starting up`);
-const port = config.get("server:port");
+const port = config.get('server:port');
 
 //-----------------------------------------------------------------------------
 
 const app = express();
-app.set("trust proxy", 1);
+app.set('trust proxy', 1);
 
 // Logging
 //-----------------------------------------------------------------------------
@@ -22,7 +22,7 @@ app.use(logRequests);
 // Routers
 // ----------------------------------------------------------------------------
 
-app.use("/api", apiRouter);
+app.use('/api', apiRouter);
 
 // Launch
 // ----------------------------------------------------------------------------
@@ -32,23 +32,19 @@ const server = app.listen(port, async () => {
   // query is performed.  that would slow down the first query significantly, and
   // could result in timeout errors.)
 
-  logger.info(
-    `Connecting to database: ${config.get("db:urlObfuscatedPassword")}`,
-  );
+  logger.info(`Connecting to database: ${config.get('db:urlObfuscatedPassword')}`);
   try {
     await prisma.$connect();
     logger.info(`Connected to database`);
     const dbSearchPath = await DbService.getDbSearchPath();
     logger.info(`Database search path is: ${dbSearchPath}`);
-  } catch (e) {
-    logger.error(
-      `Unable to connect to database: ${config.get("db:urlObfuscatedPassword")}`,
-    );
+  } catch {
+    logger.error(`Unable to connect to database: ${config.get('db:urlObfuscatedPassword')}`);
   }
 
   logger.info(`PubCat backend is ready and listening on port ${port}`);
   logger.info(
-    `API URL: http://${config.get("environment") == "local" ? "localhost" : "HOST"}:${port}/api`,
+    `API URL: http://${config.get('environment') == 'local' ? 'localhost' : 'HOST'}:${port}/api`,
   );
 });
 

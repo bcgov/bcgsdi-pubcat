@@ -1,0 +1,60 @@
+# Helm values overrides for the Crunchy chart.
+# Overrides defaults here: https://github.com/bcgov/actions-openshift/blob/main/crunchy/values.yml
+# The values in this file be be further overridden with parameters
+# included in the "Database" > "Deploy Crunchy PostgreSQL" step of reusable-deploy.yml
+
+global:
+  config:
+    dbName: app
+
+  crunchy:
+    enabled: true
+    postgresVersion: 18
+    postGISVersion: "3.6"
+
+    instances:
+      replicas: 3
+      dataVolumeClaimSpec:
+        storage: 1Gi
+        storageClassName: netapp-block-standard
+        walStorage: 420Mi
+
+    # Enable this to restore a backup from a given date into a NEW database cluster.
+    bootstrapFromBackup:
+      enabled: false
+      fromRepoName: ~ # Repository containing the backup (repo1=PVC, repo2=S3)
+      targetTime: ~ # e.g. 2026-05-24 01:00:00-08
+      stanza: db
+
+    # Enable this to go back to a specific timestamp in history in the CURRENT cluster.
+    # follow https://access.crunchydata.com/documentation/postgres-operator/5.8/tutorials/backups-disaster-recovery/disaster-recovery
+    restore:
+      enabled: false
+      repoName: ~ # Repository containing the backup (repo1=PVC, repo2=S3)
+      target: ~ # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    replicaCertCopy:
+      requests:
+        cpu: 1m
+        memory: 32Mi
+
+    pgBackRest:
+      enabled: true
+      backupPath: /backups/prod/cluster/version # change it for PROD, create values-prod.yaml
+      s3:
+        # In reusable-deploy.yml under the "Database" > "Deploy Crunchy PostgreSQL" step,
+        # provide parameters that override bucket, endpoint, accessKey and secretKey using
+        # github secrets.
+        enabled: true
+        retention: 7 # 7 days
+        bucket: ~
+        endpoint: ~
+        accessKey: ~
+        secretKey: ~
+        fullBackupSchedule: 0 9 * * *
+        incrementalBackupSchedule: 0 0/5 * * * # every 5 hour incremental
+      pvc:
+        enabled: false

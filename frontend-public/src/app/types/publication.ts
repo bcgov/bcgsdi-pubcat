@@ -1,3 +1,5 @@
+import { Geometry } from 'geojson';
+
 export type Publication = {
   publication_guid?: string | undefined;
   publication_key?: string;
@@ -22,4 +24,5 @@ export type Publication = {
   pdf_link?: string | null;
   zip_link?: string | null;
   thumbnail_link?: string | null;
+  geometry?: Geometry | null;
 };

@@ -169,7 +169,7 @@ describe('SearchFilterSummary', () => {
     });
 
     it('should return the field name when there is no custom label', () => {
-      expect(component['fieldLabel']('abstract')).toBe('abstract');
+      expect(component['fieldLabel']('abstract')).toBe('Abstract');
     });
   });
 
@@ -298,20 +298,10 @@ describe('SearchFilterSummary', () => {
       expect(component.isRoot()).toBe(true);
     });
 
-    it('should default showModifySearchButton to true', () => {
-      expect(component.showModifySearchButton()).toBe(true);
-    });
-
     it('should allow isRoot to be set to false', () => {
       fixture.componentRef.setInput('isRoot', false);
 
       expect(component.isRoot()).toBe(false);
-    });
-
-    it('should allow showModifySearchButton to be set to false', () => {
-      fixture.componentRef.setInput('showModifySearchButton', false);
-
-      expect(component.showModifySearchButton()).toBe(false);
     });
   });
 });

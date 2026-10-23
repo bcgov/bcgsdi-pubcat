@@ -1,0 +1,95 @@
+<div class="grid grid-cols-12 gap-1">
+  @if (publication()?.issue_identification) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 font-bold sm:min-h-8">Issue ID:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+      {{ publication()?.issue_identification }}
+    </div>
+  }
+  @if (publication()?.title) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Title:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 sm:font-bold mb-2 sm:mb-0">
+      {{ publication()?.title }}
+    </div>
+  }
+  @if (publication()?.originator) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Author(s):</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+      {{ publication()?.originator }}
+    </div>
+  }
+  @if (showSeries() && publication()?.series_name) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Series Name:</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+      {{ publication()?.series_name }}
+    </div>
+  }
+  @if (showYear() && publication()?.publication_year) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">
+      Publication Year:
+    </div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+      {{ publication()?.publication_year }}
+    </div>
+  }
+  @if (showKeywords()) {
+    @if (placeKeywords().length) {
+      <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">
+        Place Keywords:
+      </div>
+      <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+        <mat-chip-set aria-label="Place keywords">
+          @for (keyword of placeKeywords(); track keyword) {
+            <mat-chip>{{ keyword }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+    }
+    @if (themeKeywords().length) {
+      <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">
+        Theme Keywords:
+      </div>
+      <div class="col-span-12 sm:col-span-9 md:col-span-10 mb-2 sm:mb-0">
+        <mat-chip-set aria-label="Theme keywords">
+          @for (keyword of themeKeywords(); track keyword) {
+            <mat-chip>{{ keyword }}</mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+    }
+  }
+  @if (showDownloads() && (publication()?.pdf_link || publication()?.zip_link)) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Downloads</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
+      @if (publication()?.pdf_link) {
+        <a [href]="publication()?.pdf_link" target="_blank">PDF</a>
+      }
+      @if (publication()?.zip_link) {
+        <a [href]="publication()?.zip_link" target="_blank">ZIP</a>
+      }
+    </div>
+  }
+
+  @if (publication()?.abstract) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 sm:min-h-8 font-bold">Abstract</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex-inline gap-x-2 mb-2 sm:mb-0">
+      @if (showThumbnail() && publication()?.thumbnail_link) {
+        <img
+          [src]="publication()?.thumbnail_link"
+          class="max-w-32 float-left pr-2 pb-2"
+          alt="Thumbnail"
+        />
+      }
+      {{ publication()?.abstract }}
+    </div>
+  }
+
+  @if (showMap() && publication()?.geometry) {
+    <div class="col-span-12 sm:col-span-3 md:col-span-2 font-bold">Footprint</div>
+    <div class="col-span-12 sm:col-span-9 md:col-span-10 flex gap-x-2 mb-2 sm:mb-0">
+      <pubcat-basic-map
+        [geometry]="publication()?.geometry"
+        class="w-full h-96!"
+      ></pubcat-basic-map>
+    </div>
+  }
+</div>

@@ -40,13 +40,24 @@ jobs:
     needs: [builds]
     uses: ./.github/workflows/reusable-deploy.yml
     secrets:
-      db_password: ${{ secrets.db_password }}
       oc_namespace: ${{ secrets.oc_namespace }}
       oc_token: ${{ secrets.oc_token }}
+
+      # only needed when db_type == 'postgres'
+      db_password: ${{ secrets.db_password }}
+
+      # only needed when db_type == 'crunchy'
+      #s3_access_key: ${{ secrets.s3_access_key }}
+      #s3_secret_key: ${{ secrets.s3_secret_key }}
+      #s3_bucket: ${{ secrets.s3_bucket }}
+      #s3_endpoint: ${{ secrets.s3_endpoint }}
     with:
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
       triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', '.github/workflows/pr-open.yml')
+      db_type: "postgres"
+      db_schema: ${{ vars.db_schema }}
+      backend_port: ${{ vars.backend_port }}
 
   tests:
     name: Tests

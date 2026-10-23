@@ -15,7 +15,7 @@
       // font set by the :host rule (Tailwind's system-ui stack) instead of BC Sans.
       // Setting the token explicitly here ensures all filled buttons use BC Sans
       // regardless of their component-host ancestry.
-      filled-label-text-font: var(--typography-font-families-bc-sans, "BC Sans"),
+      filled-label-text-font: var(--typography-font-families-bc-sans, 'BC Sans'),
       // material-theme.scss omits `typography` from mat.theme() so the
       // --mat-sys-label-large-size system token is never emitted. Angular Material's
       // button CSS falls back through var(--mat-button-filled-label-text-size,

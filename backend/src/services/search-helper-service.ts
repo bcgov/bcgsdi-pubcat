@@ -1,9 +1,4 @@
-import type {
-  FilterClause,
-  FilterOperator,
-  FilterValue,
-  SearchFilter,
-} from "../types/search.js";
+import type { FilterClause, FilterOperator, FilterValue, SearchFilter } from '../types/search.js';
 
 /**
  * Provides helper functions provide common functionality intended to be used to implement
@@ -18,58 +13,58 @@ export const SearchHelperService: any = {
   operatorToPrisma(
     operator: FilterOperator,
     value: FilterValue | FilterValue[] | undefined,
-    coerceValueTo: "number" | undefined = undefined,
+    coerceValueTo: 'number' | undefined = undefined,
   ): unknown {
     let cleanedValue = value;
-    if (coerceValueTo == "number") {
+    if (coerceValueTo == 'number') {
       cleanedValue = Number(value);
       if (Number.isNaN(cleanedValue)) {
-        throw new Error("Cannot coerse value into a number");
+        throw new Error('Cannot coerse value into a number');
       }
     }
 
     switch (operator) {
-      case "eq":
+      case 'eq':
         return cleanedValue ?? null;
 
-      case "neq":
+      case 'neq':
         return { not: cleanedValue ?? null };
 
-      case "lt":
+      case 'lt':
         return { lt: cleanedValue };
 
-      case "lte":
+      case 'lte':
         return { lte: cleanedValue };
 
-      case "gt":
+      case 'gt':
         return { gt: cleanedValue };
 
-      case "gte":
+      case 'gte':
         return { gte: cleanedValue };
 
-      case "contains":
-        return { contains: cleanedValue, mode: "insensitive" };
+      case 'contains':
+        return { contains: cleanedValue, mode: 'insensitive' };
 
-      case "startsWith":
+      case 'startsWith':
         return { startsWith: cleanedValue };
 
-      case "endsWith":
+      case 'endsWith':
         return { endsWith: cleanedValue };
 
-      case "in":
+      case 'in':
         return {
           in: Array.isArray(cleanedValue) ? cleanedValue : [cleanedValue],
         };
 
-      case "notIn":
+      case 'notIn':
         return {
           notIn: Array.isArray(cleanedValue) ? cleanedValue : [cleanedValue],
         };
 
-      case "isNull":
+      case 'isNull':
         return null;
 
-      case "isNotNull":
+      case 'isNotNull':
         return { not: null };
 
       default:
@@ -82,14 +77,9 @@ export const SearchHelperService: any = {
    * using the clause's field name as the key. Suitable for entities whose filterable
    * fields map one-to-one to top-level Prisma model columns (no joins required).
    */
-  defaultClauseFn<TField extends string>(
-    clause: FilterClause<TField>,
-  ): Record<string, unknown> {
+  defaultClauseFn<TField extends string>(clause: FilterClause<TField>): Record<string, unknown> {
     return {
-      [clause.field]: SearchHelperService.operatorToPrisma(
-        clause.operator,
-        clause.value,
-      ),
+      [clause.field]: SearchHelperService.operatorToPrisma(clause.operator, clause.value),
     };
   },
 
@@ -115,19 +105,15 @@ export const SearchHelperService: any = {
       return { AND: filter.map(clauseFn) };
     }
 
-    if ("and" in filter) {
+    if ('and' in filter) {
       return {
-        AND: filter.and.map((f) =>
-          SearchHelperService.searchFilterToWhere(f, clauseFn),
-        ),
+        AND: filter.and.map((f) => SearchHelperService.searchFilterToWhere(f, clauseFn)),
       };
     }
 
-    if ("or" in filter) {
+    if ('or' in filter) {
       return {
-        OR: filter.or.map((f) =>
-          SearchHelperService.searchFilterToWhere(f, clauseFn),
-        ),
+        OR: filter.or.map((f) => SearchHelperService.searchFilterToWhere(f, clauseFn)),
       };
     }
 

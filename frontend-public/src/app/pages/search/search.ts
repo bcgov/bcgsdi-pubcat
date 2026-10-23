@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,11 +39,11 @@ enum SearchType {
     MatPaginatorModule,
     MatSelectModule,
   ],
-  selector: 'search',
+  selector: 'pubcat-search',
   styleUrl: './search.css',
   templateUrl: './search.html',
 })
-export class Search {
+export class Search implements OnInit {
   SearchType = SearchType;
 
   private readonly fb = inject(FormBuilder);
@@ -66,7 +66,7 @@ export class Search {
     ntsMap: [null],
     mapScale: [null],
     series: [null],
-    publicationId: [null],
+    publicationKey: [null],
     issueId: [null],
   });
 
@@ -150,11 +150,11 @@ export class Search {
     if (this.form.get('series')?.value) {
       filter.push({ field: 'series', operator: 'eq', value: this.form.get('series')?.value });
     }
-    if (this.form.get('publicationId')?.value) {
+    if (this.form.get('publicationKey')?.value) {
       filter.push({
         field: 'publication_key',
         operator: 'eq',
-        value: this.form.get('publicationId')?.value,
+        value: this.form.get('publicationKey')?.value,
       });
     }
     if (this.form.get('issueId')?.value) {
@@ -313,7 +313,7 @@ export class Search {
       } else if (f.field == 'map_scale') {
         this.form.get('mapScale')?.setValue(value);
       } else if (f.field == 'publication_key') {
-        this.form.get('publicationId')?.setValue(value);
+        this.form.get('publicationKey')?.setValue(value);
       } else if (f.field == 'issue_id') {
         this.form.get('issueId')?.setValue(value);
       }

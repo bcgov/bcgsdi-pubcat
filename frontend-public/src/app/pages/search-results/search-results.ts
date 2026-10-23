@@ -1,14 +1,22 @@
+import { NgClass } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map, shareReplay } from 'rxjs/operators';
 import { Alert } from '../../components/alert/alert';
-import { Paginator } from '../../components/paginator/paginator';
+import { LoadingButton } from '../../components/loading-button/loading-button';
+import { PageChangeEvent, Paginator } from '../../components/paginator/paginator';
+import { PublicationsAbstractView } from '../../components/publications-abstract-view/publications-abstract-view';
 import { PublicationsTableView } from '../../components/publications-table-view/publications-table-view';
 import { SearchFilterSummary } from '../../components/search-filter-summary/search-filter-summary';
+import { ErrorHandler } from '../../core/error-handler';
+import { PublicationService } from '../../services/publication-service';
+import { ToastService } from '../../services/toast-service';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
+import { UserInputError } from '../../types/error';
 import { PublicationSearchParams } from '../../types/search';
 
 export enum ResultsViewType {
@@ -21,12 +29,15 @@ export enum ResultsViewType {
     MatButtonModule,
     MatIconModule,
     PublicationsTableView,
+    PublicationsAbstractView,
     Paginator,
     SearchFilterSummary,
     Alert,
     RouterLink,
+    NgClass,
+    LoadingButton,
   ],
-  selector: 'search-results',
+  selector: 'pubcat-search-results',
   styleUrl: './search-results.css',
   templateUrl: './search-results.html',
 })
@@ -36,13 +47,15 @@ export class SearchResults {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly publicationSearchStore = inject(PublicationSearchStore);
+  readonly publicationService = inject(PublicationService);
+  readonly toastService = inject(ToastService);
 
   readonly routeParams = this.route.queryParamMap.pipe(
     map((params) => {
       let query;
       try {
         query = JSON.parse(params.get('query')!);
-      } catch (err) {
+      } catch {
         query = undefined;
       }
       return {
@@ -55,6 +68,7 @@ export class SearchResults {
 
   readonly viewType = signal(ResultsViewType.Table);
   readonly searchParams = signal<PublicationSearchParams | undefined>(undefined);
+  readonly isDownloading = signal<boolean>(false);
 
   readonly showResults = computed<boolean>(() => {
     return (
@@ -99,10 +113,46 @@ export class SearchResults {
       }
       this.searchParams.set(cleanedParams);
       this.publicationSearchStore.search(cleanedParams);
-    } catch (err) {
+    } catch {
       this.error.set('Search failed');
       this.publicationSearchStore.reset();
     }
+  }
+
+  download() {
+    if (!this.searchParams() || this.isDownloading()) {
+      return;
+    }
+    this.isDownloading.set(true);
+
+    const downloadParams = this.searchParams();
+    delete downloadParams?.offset;
+    delete downloadParams?.limit;
+
+    this.publicationService
+      .downloadPublications(downloadParams)
+      .pipe(
+        finalize(() => this.isDownloading.set(false)),
+        catchError((err) => throwError(() => ErrorHandler.toApiError(err))),
+      )
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+
+          link.href = url;
+          link.download = 'publication-search.xlsx';
+          link.click();
+
+          URL.revokeObjectURL(url);
+        },
+        error: (error: any) => {
+          if (error instanceof UserInputError) {
+            this.toastService.error(error.message);
+          }
+          console.error('Failed to download publication search results', error);
+        },
+      });
   }
 
   /*
@@ -159,7 +209,7 @@ export class SearchResults {
   // Event handlers
   // --------------------------------------------------------------------------
 
-  onPageChange(event: any) {
-    this.goToPage(event.itemOffset, event.pageSize);
+  onPageChange(event: PageChangeEvent) {
+    this.goToPage(event.pageStartOffset, event.pageSize);
   }
 }
