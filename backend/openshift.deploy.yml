@@ -211,7 +211,7 @@ objects:
                 failureThreshold: 3
               livenessProbe:
                 httpGet:
-                  path: /api
+                  path: /api/health
                   port: http
                 periodSeconds: 10
                 failureThreshold: 3
