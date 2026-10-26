@@ -163,11 +163,13 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.env.yml
-            parameters: -p SAMPLE_SECRET="my secret"
-              -p SAMPLE_NON_SECRET="my non-secret"
+            parameters: -p LOG_LEVEL="info"
+              -p PORT="${{ inputs.backend_port }}"
+              -p DB_SCHEMA="${{ inputs.db_schema }}"
           - name: frontend-public
             file: frontend-public/openshift.env.yml
             parameters: -p LOG_LEVEL="info"
+
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
@@ -196,8 +198,6 @@ jobs:
           - name: backend
             file: backend/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"
-              -p PORT="${{ inputs.backend_port }}"
-              -p DB_SCHEMA="${{ inputs.db_schema }}"
           - name: frontend-public
             file: frontend-public/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"

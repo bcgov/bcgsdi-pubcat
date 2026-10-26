@@ -160,10 +160,6 @@ objects:
                 - configMapRef:
                     name: ${NAME}-${ZONE}-${COMPONENT}
               env:
-                - name: PORT
-                  value: '${PORT}'
-                - name: LOG_LEVEL
-                  value: ${LOG_LEVEL}
                 - name: DB_HOST
                   value: ${NAME}-${ZONE}-database
                 - name: DB_PORT
@@ -183,8 +179,6 @@ objects:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-database
                       key: database-password
-                - name: DB_SCHEMA
-                  value: ${DB_SCHEMA}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
