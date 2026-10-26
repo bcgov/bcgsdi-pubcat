@@ -198,6 +198,7 @@ jobs:
           - name: frontend-public
             file: frontend-public/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"
+              -p DOMAIN="${{ vars.oc_server }}"
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
