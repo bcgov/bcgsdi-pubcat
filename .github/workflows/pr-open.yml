@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, frontend-public, migrations]
+        package: [backend, frontend-public, migrations, sample-data]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@cb2629351c87dd1c2130073e4ebb7233a9653a63 # v4.4.1
@@ -58,6 +58,7 @@ jobs:
       db_type: "postgres"
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
+      seed_sample_data: true
 
   tests:
     name: Tests

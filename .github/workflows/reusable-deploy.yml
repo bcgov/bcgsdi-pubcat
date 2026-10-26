@@ -36,6 +36,10 @@ on:
         description: "Port used for the backend"
         type: string
         default: 3000
+      seed_sample_data:
+        description: "Load synthetic sample data into the database (only for dev and test deployments)"
+        type: boolean
+        default: false
 
     secrets:
       oc_namespace:
@@ -215,4 +219,26 @@ jobs:
           parameters: -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
             ${{ matrix.parameters }}
+          triggers: ${{ inputs.triggers }}
+
+  seed:
+    name: Seed sample data
+    if: ${{ inputs.seed_sample_data && needs.deploy.result == 'success' }}
+    environment: ${{ inputs.environment }}
+    needs: [deploy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Seed sample data
+        uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
+        with:
+          file: seed/openshift.seed.yml
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          debug: true
+          parameters: -p ZONE="${{ inputs.target }}"
+            -p NAME="${{ github.event.repository.name }}"
+            -p IMAGE_TAG="${{ inputs.tag }}"
+            -p RUN_ID="${{ github.run_id }}"
           triggers: ${{ inputs.triggers }}
