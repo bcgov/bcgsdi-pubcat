@@ -198,6 +198,7 @@ jobs:
           - name: frontend-public
             file: frontend-public/openshift.deploy.yml
             parameters: -p IMAGE_TAG="${{ inputs.tag }}"
+              -p BACKEND_URL="http://${NAME}-${ZONE}-backend"
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:

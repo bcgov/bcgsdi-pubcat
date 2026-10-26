@@ -13,13 +13,13 @@ objects:
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
-      name: ${NAME}-${ZONE}-frontend-ingress
+      name: ${NAME}-${ZONE}-frontend-public-ingress
       labels:
         app: ${NAME}-${ZONE}
     spec:
       podSelector:
         matchLabels:
-          deployment: ${NAME}-${ZONE}-frontend
+          deployment: ${NAME}-${ZONE}-frontend-public
       ingress:
         - from:
             - namespaceSelector:
@@ -43,6 +43,6 @@ objects:
             - podSelector:
                 matchLabels:
                   app: ${NAME}-${ZONE}
-                  deployment: ${NAME}-${ZONE}-frontend
+                  deployment: ${NAME}-${ZONE}-frontend-public
       policyTypes:
         - Ingress
