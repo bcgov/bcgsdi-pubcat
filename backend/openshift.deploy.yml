@@ -156,9 +156,9 @@ objects:
                   containerPort: ${{PORT}}
               envFrom:
                 - secretRef:
-                  name: ${NAME}-${ZONE}-backend-secret
+                    name: ${NAME}-${ZONE}-backend-secret
                 - configMapRef:
-                  name: ${NAME}-${ZONE}-backend-config
+                    name: ${NAME}-${ZONE}-backend-config
               env:
                 - name: PORT
                   value: '${PORT}'
