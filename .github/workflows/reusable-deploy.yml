@@ -167,7 +167,7 @@ jobs:
               -p SAMPLE_NON_SECRET="my non-secret"
           - name: frontend-public
             file: frontend-public/openshift.env.yml
-            parameters: -p BACKEND_URL="http://${NAME}-${ZONE}-backend"
+            parameters: -p LOG_LEVEL="info"
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:

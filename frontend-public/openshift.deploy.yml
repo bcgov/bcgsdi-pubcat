@@ -34,9 +34,6 @@ parameters:
   - name: MEMORY_LIMIT
     description: Memory limit for the container (bounds the pod's working set).
     value: '1Gi'
-  - name: LOG_LEVEL
-    description: Caddy log level (debug|info|warn|error)
-    value: 'info'
 objects:
   - apiVersion: apps/v1
     kind: Deployment
