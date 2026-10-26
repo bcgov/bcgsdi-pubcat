@@ -152,10 +152,39 @@ jobs:
           release_name: pg-${{ github.event.repository.name }}-${{ inputs.target }}
           triggers: ${{ inputs.triggers }}
 
+  env-setup:
+    name: Environment setup (${{ matrix.name }})
+    environment: ${{ inputs.environment }}
+    needs: [init, database]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            file: backend/openshift.env.yml
+            parameters: -p SAMPLE_SECRET="my secret"
+              -p SAMPLE_NON_SECRET="my non-secret"
+    outputs:
+      triggered: ${{ steps.deploy.outputs.triggered }}
+    steps:
+      - uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
+        id: deploy
+        with:
+          file: ${{ matrix.file }}
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          debug: true
+          parameters: -p ZONE="${{ inputs.target }}"
+            -p NAME="${{ github.event.repository.name }}"
+            ${{ matrix.parameters }}
+          triggers: ${{ inputs.triggers }}
+
   deploy:
     name: Deploy (${{ matrix.name }})
     environment: ${{ inputs.environment }}
-    needs: [init, database]
+    needs: [init, database, env-setup]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
