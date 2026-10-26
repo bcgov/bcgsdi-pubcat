@@ -157,7 +157,7 @@ jobs:
     environment: ${{ inputs.environment }}
     needs: [init, database]
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 5
     strategy:
       matrix:
         include:
