@@ -38,7 +38,7 @@ objects:
           restartPolicy: Never
           containers:
             - name: seed
-              image: ${REGISTRY}/${ORG_NAME}/${NAME}/sample-data:${IMAGE_TAG}
+              image: ${REGISTRY}/${ORG_NAME}/${NAME}/seed:${IMAGE_TAG}
               imagePullPolicy: Always
               command:
                 - /bin/sh
@@ -57,7 +57,7 @@ objects:
 
                   if [ "$has_publications" = "f" ]; then
                     echo "Publication table is empty; loading sample data."
-                    psql -v ON_ERROR_STOP=1 -f /sample-data/sample-data.sql
+                    psql -v ON_ERROR_STOP=1 -f /seed/sample-data.sql
                     echo "Sample data loaded successfully."
                   else
                     echo "Publication table is not empty; skipping sample data."
