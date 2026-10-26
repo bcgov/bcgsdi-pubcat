@@ -101,6 +101,7 @@ export class SearchResults {
       if (!stringifiedQuery) {
         throw new Error('Missing the query');
       }
+      console.log(`SearchResults:search`);
       const searchParams = JSON.parse(stringifiedQuery);
 
       //ensure offset and limit are included

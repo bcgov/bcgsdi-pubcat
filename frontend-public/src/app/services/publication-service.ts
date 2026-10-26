@@ -20,6 +20,7 @@ export class PublicationService {
   public searchPublications(
     params: PublicationSearchParams = {},
   ): Observable<SearchResponse<Publication>> {
+    console.log(`PublicationService:searchPublications`);
     const paramsCleaned = {
       ...params,
       sort: this.normalizeSort(params.sort),
