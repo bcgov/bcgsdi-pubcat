@@ -1,0 +1,33 @@
+.toast-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+.toast-message {
+  flex: 1;
+}
+
+.toast-error {
+  color: var(--typography-color-secondary);
+
+  .toast-icon {
+    color: var(--icons-color-danger);
+  }
+}
+
+.toast-info {
+  .toast-icon {
+    color: var(--typography-color-secondary);
+  }
+}
+
+.toast-success {
+  .toast-icon {
+    color: var(--icons-color-success);
+  }
+}

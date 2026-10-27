@@ -1,6 +1,6 @@
 import { Component, inject, input, ViewChild } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
 import { PublicationSearchStore } from '../../stores/publication-search-store';
@@ -9,7 +9,7 @@ import { PublicationSortField, SearchSort } from '../../types/search';
 
 @Component({
   imports: [MatPaginatorModule, MatTableModule, MatSort, MatSortModule, RouterLink],
-  selector: 'publications-table-view',
+  selector: 'pubcat-publications-table-view',
   styleUrl: './publications-table-view.scss',
   templateUrl: './publications-table-view.html',
 })
@@ -29,7 +29,7 @@ export class PublicationsTableView {
     const lastSort = this.publicationSearchStore.lastSearchedParams()?.sort;
     if (Array.isArray(lastSort) && lastSort.length) {
       return lastSort[0].field;
-    } else if (!!lastSort) {
+    } else if (lastSort) {
       return (lastSort as SearchSort<PublicationSortField>).field;
     }
     return '';
@@ -39,7 +39,7 @@ export class PublicationsTableView {
     const lastSort = this.publicationSearchStore.lastSearchedParams()?.sort;
     if (Array.isArray(lastSort) && lastSort.length) {
       return lastSort[0].direction;
-    } else if (!!lastSort) {
+    } else if (lastSort) {
       return (lastSort as SearchSort<PublicationSortField>).direction;
     }
     return '';
@@ -48,9 +48,9 @@ export class PublicationsTableView {
   // Event handlers
   // --------------------------------------------------------------------------
 
-  onSortChanged = (event: any) => {
+  onSortChanged = (event: Sort) => {
     const sort = [];
-    if (!!event.active) {
+    if (event.active) {
       sort.push({ field: event.active, direction: event.direction });
     }
 

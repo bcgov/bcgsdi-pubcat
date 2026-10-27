@@ -13,13 +13,22 @@ permissions: {}
 
 jobs:
   cleanup:
-    name: Cleanup and Image Promotion
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-close.yml@a11ad3d1b9288fb40757c4314a62eb86ff227931 # v1.2.1
-    permissions:
-      packages: write
-    secrets:
-      oc_namespace: ${{ secrets.oc_namespace }}
-      oc_token: ${{ secrets.oc_token }}
-    with:
-      cleanup: label
-      packages: backend frontend-public migrations
+    environment: dev
+    runs-on: ubuntu-24.04
+    steps:
+      - name: PR Cleanup
+        uses: bcgov/actions-openshift/cleanup-pr@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7
+        with:
+          target: ${{ github.event.number }}
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+
+      - name: Remove PR-specific Crunchy database and user
+        if: ${{ always() && vars.DB_TYPE == 'crunchy' }}
+        uses: bcgov/action-crunchy@v2.0.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          values_file: common/crunchy-values.yml

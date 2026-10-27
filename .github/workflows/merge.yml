@@ -41,6 +41,9 @@ jobs:
       environment: test
       target: test
       tag: ${{ needs.init.outputs.pr }}
+      db_schema: ${{ vars.db_schema }}
+      backend_port: ${{ vars.backend_port }}
+      seed_sample_data: true
 
   tests:
     name: Tests
@@ -61,6 +64,9 @@ jobs:
       environment: prod
       target: prod
       tag: ${{ needs.init.outputs.pr }}
+      db_schema: ${{ vars.db_schema }}
+      backend_port: ${{ vars.backend_port }}
+      seed_sample_data: false
 
   # Vanity TLS on the PROD frontend-public Service.
   # No-ops cleanly if vars.ROUTE_HOST is unset. Sibling of promote/monitor-prod

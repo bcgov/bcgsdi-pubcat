@@ -1,0 +1,110 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+
+parameters:
+  - name: NAME
+    description: Product name
+    required: true
+  - name: ZONE
+    description: Deployment zone
+    required: true
+  - name: IMAGE_TAG
+    description: Container image tag
+    required: true
+  - name: RUN_ID
+    description: Unique GitHub Actions run ID
+    required: true
+  - name: REGISTRY
+    value: ghcr.io
+  - name: ORG_NAME
+    value: bcgov
+  - name: DB_HOST
+    description: Database host or service name
+    required: true
+  - name: DB_PORT
+    description: Database service port
+    value: "5432"
+  - name: DB_SECRET_NAME
+    description: Secret containing database credentials
+    required: true
+  - name: DB_NAME_KEY
+    description: Secret key containing the database name
+    required: true
+  - name: DB_USER_KEY
+    description: Secret key containing the database username
+    required: true
+  - name: DB_PASSWORD_KEY
+    description: Secret key containing the database password
+    required: true
+
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: ${NAME}-${ZONE}-seed-${RUN_ID}
+      labels:
+        app: ${NAME}-${ZONE}
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app: ${NAME}-${ZONE}
+            deployment: ${NAME}-${ZONE}-backend
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: seed
+              image: ${REGISTRY}/${ORG_NAME}/${NAME}/seed:${IMAGE_TAG}
+              imagePullPolicy: Always
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+
+                  echo "Checking whether the publication table is empty..."
+
+                  has_publications=$(psql \
+                    -v ON_ERROR_STOP=1 \
+                    -tA \
+                    -c 'SELECT EXISTS (
+                      SELECT 1 FROM pubcat.publication LIMIT 1
+                    )')
+
+                  if [ "$has_publications" = "f" ]; then
+                    echo "Publication table is empty; loading sample data."
+                    psql -v ON_ERROR_STOP=1 -f /seed/sample-data.sql
+                    echo "Sample data loaded successfully."
+                  else
+                    echo "Publication table is not empty; skipping sample data."
+                  fi
+              env:
+                - name: PGHOST
+                  value: ${DB_HOST}
+                - name: PGPORT
+                  value: ${DB_PORT}
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_NAME_KEY}
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_USER_KEY}
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_PASSWORD_KEY}
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault
