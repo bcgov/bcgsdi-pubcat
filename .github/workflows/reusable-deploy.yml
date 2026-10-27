@@ -25,7 +25,7 @@ on:
         type: string
         default: postgres
       crunchy_values_file:
-        description: "Only needed if db_type == 'crunchy' and the default values file is not sufficient"
+        description: "Only used if db_type == 'crunchy'"
         type: string
         default: common/crunchy-values.yml
       db_schema:
