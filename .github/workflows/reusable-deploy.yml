@@ -76,6 +76,12 @@ jobs:
     environment: ${{ inputs.environment }}
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
+      db_host: ${{ steps.db_connection.outputs.db_host }}
+      db_port: ${{ steps.db_connection.outputs.db_port }}
+      db_secret_name: ${{ steps.db_connection.outputs.db_secret_name }}
+      db_name_key: ${{ steps.db_connection.outputs.db_name_key }}
+      db_user_key: ${{ steps.db_connection.outputs.db_user_key }}
+      db_password_key: ${{ steps.db_connection.outputs.db_password_key }}
     runs-on: ubuntu-24.04
     steps:
       - name: Validate database type
@@ -86,6 +92,28 @@ jobs:
             echo "::error::Invalid db_type '$DB_TYPE'. Valid options: postgres, crunchy."
             exit 1
           fi
+      - name: Set database connection parameters
+        id: db_connection
+        env:
+          DB_TYPE: ${{ inputs.db_type }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          if [[ "$DB_TYPE" == "crunchy" ]]; then
+            echo "db_host=pg-${REPO_NAME}-${TARGET}-crunchy-pgbouncer" >> "$GITHUB_OUTPUT"
+            echo "db_secret_name=pg-${REPO_NAME}-${TARGET}-crunchy-pguser-app-${TARGET}" >> "$GITHUB_OUTPUT"
+            echo "db_name_key=dbname" >> "$GITHUB_OUTPUT"
+            echo "db_user_key=user" >> "$GITHUB_OUTPUT"
+            echo "db_password_key=password" >> "$GITHUB_OUTPUT"
+          else
+            echo "db_host=${REPO_NAME}-${TARGET}-database" >> "$GITHUB_OUTPUT"
+            echo "db_secret_name=${REPO_NAME}-${TARGET}-database" >> "$GITHUB_OUTPUT"
+            echo "db_name_key=database-name" >> "$GITHUB_OUTPUT"
+            echo "db_user_key=database-user" >> "$GITHUB_OUTPUT"
+            echo "db_password_key=database-password" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "db_port=5432" >> "$GITHUB_OUTPUT"
       - uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
         id: deploy
         with:
@@ -208,28 +236,6 @@ jobs:
     outputs:
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
-      - name: Set database connection parameters
-        id: db_connection
-        env:
-          DB_TYPE: ${{ inputs.db_type }}
-          REPO_NAME: ${{ github.event.repository.name }}
-          TARGET: ${{ inputs.target }}
-        run: |
-          if [[ "$DB_TYPE" == "crunchy" ]]; then
-            echo "db_host=pg-${REPO_NAME}-${TARGET}-crunchy-pgbouncer" >> "$GITHUB_OUTPUT"
-            echo "db_secret_name=pg-${REPO_NAME}-${TARGET}-crunchy-pguser-app-${TARGET}" >> "$GITHUB_OUTPUT"
-            echo "db_name_key=dbname" >> "$GITHUB_OUTPUT"
-            echo "db_user_key=user" >> "$GITHUB_OUTPUT"
-            echo "db_password_key=password" >> "$GITHUB_OUTPUT"
-          else
-            echo "db_host=${REPO_NAME}-${TARGET}-database" >> "$GITHUB_OUTPUT"
-            echo "db_secret_name=${REPO_NAME}-${TARGET}-database" >> "$GITHUB_OUTPUT"
-            echo "db_name_key=database-name" >> "$GITHUB_OUTPUT"
-            echo "db_user_key=database-user" >> "$GITHUB_OUTPUT"
-            echo "db_password_key=database-password" >> "$GITHUB_OUTPUT"
-          fi
-
-          echo "db_port=5432" >> "$GITHUB_OUTPUT"
       - uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         id: deploy
         with:
@@ -241,14 +247,14 @@ jobs:
           parameters: -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
             ${{ matrix.parameters }}
-            ${{ matrix.name == 'backend' && format('-p DB_HOST="{0}" -p DB_PORT="{1}" -p DB_SECRET_NAME="{2}" -p DB_NAME_KEY="{3}" -p DB_USER_KEY="{4}" -p DB_PASSWORD_KEY="{5}"', steps.db_connection.outputs.db_host, steps.db_connection.outputs.db_port, steps.db_connection.outputs.db_secret_name, steps.db_connection.outputs.db_name_key, steps.db_connection.outputs.db_user_key, steps.db_connection.outputs.db_password_key) || '' }}
+            ${{ matrix.name == 'backend' && format('-p DB_HOST="{0}" -p DB_PORT="{1}" -p DB_SECRET_NAME="{2}" -p DB_NAME_KEY="{3}" -p DB_USER_KEY="{4}" -p DB_PASSWORD_KEY="{5}"', needs.init.outputs.db_host, needs.init.outputs.db_port, needs.init.outputs.db_secret_name, needs.init.outputs.db_name_key, needs.init.outputs.db_user_key, needs.init.outputs.db_password_key) || '' }}
           triggers: ${{ inputs.triggers }}
 
   seed:
     name: Seed sample data
     if: ${{ inputs.seed_sample_data && needs.deploy.result == 'success' }}
     environment: ${{ inputs.environment }}
-    needs: [deploy]
+    needs: [init, deploy]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -264,4 +270,10 @@ jobs:
             -p NAME="${{ github.event.repository.name }}"
             -p IMAGE_TAG="${{ inputs.tag }}"
             -p RUN_ID="${{ github.run_id }}"
+            -p DB_HOST="${{ needs.init.outputs.db_host }}"
+            -p DB_PORT="${{ needs.init.outputs.db_port }}"
+            -p DB_SECRET_NAME="${{ needs.init.outputs.db_secret_name }}"
+            -p DB_NAME_KEY="${{ needs.init.outputs.db_name_key }}"
+            -p DB_USER_KEY="${{ needs.init.outputs.db_user_key }}"
+            -p DB_PASSWORD_KEY="${{ needs.init.outputs.db_password_key }}"
           triggers: ${{ inputs.triggers }}

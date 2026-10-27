@@ -18,6 +18,24 @@ parameters:
     value: ghcr.io
   - name: ORG_NAME
     value: bcgov
+  - name: DB_HOST
+    description: Database host or service name
+    required: true
+  - name: DB_PORT
+    description: Database service port
+    value: "5432"
+  - name: DB_SECRET_NAME
+    description: Secret containing database credentials
+    required: true
+  - name: DB_NAME_KEY
+    description: Secret key containing the database name
+    required: true
+  - name: DB_USER_KEY
+    description: Secret key containing the database username
+    required: true
+  - name: DB_PASSWORD_KEY
+    description: Secret key containing the database password
+    required: true
 
 objects:
   - apiVersion: batch/v1
@@ -64,24 +82,24 @@ objects:
                   fi
               env:
                 - name: PGHOST
-                  value: ${NAME}-${ZONE}-database
+                  value: ${DB_HOST}
                 - name: PGPORT
-                  value: "5432"
+                  value: ${DB_PORT}
                 - name: PGDATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-name
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_NAME_KEY}
                 - name: PGUSER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-user
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_USER_KEY}
                 - name: PGPASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-password
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_PASSWORD_KEY}
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
