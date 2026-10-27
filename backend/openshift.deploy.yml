@@ -34,6 +34,24 @@ parameters:
   - name: MEMORY_LIMIT
     description: Memory limit for the container (bounds the pod's working set).
     value: '4Gi'
+  - name: DB_HOST
+    description: Database host or service name
+    required: true
+  - name: DB_PORT
+    description: Database service port
+    value: '5432'
+  - name: DB_SECRET_NAME
+    description: Secret containing database credentials
+    required: true
+  - name: DB_NAME_KEY
+    description: Secret key containing the database name
+    required: true
+  - name: DB_USER_KEY
+    description: Secret key containing the database username
+    required: true
+  - name: DB_PASSWORD_KEY
+    description: Secret key containing the database password
+    required: true
   - name: LOG_LEVEL
     description: Application log level (debug|info|warn|error)
     value: 'info'
@@ -86,9 +104,9 @@ objects:
                   echo "Waiting for database to be reachable..."
                   max_retries=30
                   attempt=1
-                  until nc -z -v -w3 ${NAME}-${ZONE}-database 5432; do
+                  until nc -z -v -w3 ${DB_HOST} ${DB_PORT}; do
                     if [ "$attempt" -ge "$max_retries" ]; then
-                      echo "ERROR: Database ${NAME}-${ZONE}-database:5432 is not reachable after ${max_retries} attempts." >&2
+                      echo "ERROR: Database ${DB_HOST}:${DB_PORT} is not reachable after ${max_retries} attempts." >&2
                       exit 1
                     fi
                     echo "Database not ready (attempt ${attempt}/${max_retries}), sleeping..."
@@ -114,20 +132,20 @@ objects:
                 - name: POSTGRES_DATABASE
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-name
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_NAME_KEY}
                 - name: FLYWAY_URL
-                  value: jdbc:postgresql://${NAME}-${ZONE}-database:5432/$(POSTGRES_DATABASE)
+                  value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/$(POSTGRES_DATABASE)
                 - name: FLYWAY_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-user
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_USER_KEY}
                 - name: FLYWAY_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-password
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_PASSWORD_KEY}
                 - name: FLYWAY_DEFAULT_SCHEMA
                   value: '${DB_SCHEMA}'
                 - name: FLYWAY_BASELINE_ON_MIGRATE
@@ -161,24 +179,24 @@ objects:
                     name: ${NAME}-${ZONE}-${COMPONENT}
               env:
                 - name: DB_HOST
-                  value: ${NAME}-${ZONE}-database
+                  value: ${DB_HOST}
                 - name: DB_PORT
-                  value: '5432'
+                  value: ${DB_PORT}
                 - name: DB_NAME
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-name
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_NAME_KEY}
                 - name: DB_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-user
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_USER_KEY}
                 - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${NAME}-${ZONE}-database
-                      key: database-password
+                      name: ${DB_SECRET_NAME}
+                      key: ${DB_PASSWORD_KEY}
               resources:
                 requests:
                   cpu: ${CPU_REQUEST}
@@ -234,7 +252,7 @@ objects:
       ports:
         - name: http
           port: 80
-          targetPort: 3000
+          targetPort: ${PORT}
       selector:
         deployment: ${NAME}-${ZONE}-${COMPONENT}
   - apiVersion: autoscaling/v2
