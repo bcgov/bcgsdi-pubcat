@@ -4,6 +4,7 @@ import ExcelJS from 'exceljs';
 import { Geometry } from 'geojson';
 import { PassThrough, type Readable } from 'node:stream';
 import { PublicationAdapter } from '../adapters/publication-adapter.js';
+import { config } from '../core/config.js';
 import { publication } from '../generated/prisma/client.js';
 import { UserInputError } from '../types/error.js';
 import {
@@ -224,7 +225,7 @@ export const PublicationServicePrivate = {
     // to SQL injection.
     const geometryRows = await db.$queryRaw<[{ geometry_json: string | null }]>`
       SELECT ST_AsGeoJSON(geometry)::text AS geometry_json
-      FROM publication
+      FROM ${config.get('db:schema')}.publication
       WHERE publication_guid = ${publicationGuid}::uuid
     `;
     // geometryRows may be empty if the row was deleted between the two queries

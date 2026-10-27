@@ -4,7 +4,6 @@ import { logRequests } from '../core/express-middleware.js';
 import { logger } from '../core/logger.js';
 import { prisma } from '../core/prisma.js';
 import { apiRouter } from '../routers/api-router.js';
-import { DbService } from '../services/db-service.js';
 
 logger.info(`Starting up`);
 const port = config.get('server:port');
@@ -35,9 +34,7 @@ const server = app.listen(port, async () => {
   logger.info(`Connecting to database: ${config.get('db:urlObfuscatedPassword')}`);
   try {
     await prisma.$connect();
-    logger.info(`Connected to database`);
-    const dbSearchPath = await DbService.getDbSearchPath();
-    logger.info(`Database search path is: ${dbSearchPath}`);
+    logger.info(`Connected to database. Schema is: ${config.get('db:schema')}`);
   } catch {
     logger.error(`Unable to connect to database: ${config.get('db:urlObfuscatedPassword')}`);
   }
