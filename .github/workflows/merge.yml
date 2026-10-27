@@ -41,7 +41,6 @@ jobs:
       environment: test
       target: test
       tag: ${{ needs.init.outputs.pr }}
-      db_type: "crunchy"
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: true
@@ -65,7 +64,6 @@ jobs:
       environment: prod
       target: prod
       tag: ${{ needs.init.outputs.pr }}
-      db_type: "crunchy"
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: false

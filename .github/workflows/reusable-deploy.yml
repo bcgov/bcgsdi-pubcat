@@ -20,20 +20,16 @@ on:
         description: Triggers for deployment
         default: ""
         type: string
-      db_type:
-        description: "Type of database to deploy.  Supported options are: postgres, crunchy"
-        type: string
-        default: postgres
       crunchy_values_file:
-        description: "Only used if db_type == 'crunchy'"
+        description: "Crunchy configuration file, used when DB_TYPE is crunchy"
         type: string
         default: common/crunchy-values.yml
       db_schema:
-        description: "Database schema of used for the application"
+        description: Database schema used for the application
         type: string
         required: true
       backend_port:
-        description: "Port used for the backend"
+        description: Port used for the backend
         type: string
         default: 3000
       seed_sample_data:
@@ -49,7 +45,7 @@ on:
         description: OpenShift token
         required: true
       db_password:
-        description: Database password to be used when db_type == 'postgres'. Not needed for crunchy, which manages its own passwords.
+        description: Database password for vanilla PostgreSQL; not needed for Crunchy, which manages its own passwords.
         required: false
       s3_access_key:
         description: S3 access key for Crunchy backups
@@ -63,6 +59,7 @@ on:
       s3_endpoint:
         description: S3 endpoint for Crunchy backups
         required: false
+
     outputs:
       triggered:
         description: Has deployment been triggered?
@@ -86,16 +83,17 @@ jobs:
     steps:
       - name: Validate database type
         env:
-          DB_TYPE: ${{ inputs.db_type }}
+          DB_TYPE: ${{ vars.DB_TYPE }}
         run: |
           if [[ "$DB_TYPE" != "postgres" && "$DB_TYPE" != "crunchy" ]]; then
-            echo "::error::Invalid db_type '$DB_TYPE'. Valid options: postgres, crunchy."
+            echo "::error::Invalid or missing DB_TYPE '$DB_TYPE'. Valid options: postgres, crunchy."
             exit 1
           fi
+
       - name: Set database connection parameters
         id: db_connection
         env:
-          DB_TYPE: ${{ inputs.db_type }}
+          DB_TYPE: ${{ vars.DB_TYPE }}
           REPO_NAME: ${{ github.event.repository.name }}
           TARGET: ${{ inputs.target }}
         run: |
@@ -114,6 +112,7 @@ jobs:
           fi
 
           echo "db_port=5432" >> "$GITHUB_OUTPUT"
+
       - uses: bcgov/action-deployer-openshift@27a85b7b157bfc9c3c9bf0aca53bcd288d4d2506 # v4.2.1
         id: deploy
         with:
@@ -129,14 +128,14 @@ jobs:
           debug: true
 
   database:
-    name: Deploy database (${{ inputs.db_type }})
+    name: Deploy database
     environment: ${{ inputs.environment }}
     needs: [init]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Initialize vanilla PostgreSQL resources
-        if: inputs.db_type == 'postgres'
+        if: ${{ vars.DB_TYPE == 'postgres' }}
         uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         env:
           DB_PASSWORD: ${{ secrets.db_password }}
@@ -146,8 +145,8 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
           overwrite: false
-          # todo: is there a better way to pass the db_password, so the deployer action
-          # can inject it as an environment variable into the yml template?
+          # TODO: Is there a better way to pass DB_PASSWORD so the deployer action
+          # can inject it as an environment variable into the YAML template?
           parameters: -p DB_PASSWORD="${{ secrets.db_password }}"
             -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
@@ -155,7 +154,7 @@ jobs:
           debug: true
 
       - name: Deploy vanilla PostgreSQL
-        if: inputs.db_type == 'postgres'
+        if: ${{ vars.DB_TYPE == 'postgres' }}
         uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         with:
           file: common/openshift.postgres.yml
@@ -170,7 +169,7 @@ jobs:
           triggers: ${{ inputs.triggers }}
 
       - name: Deploy Crunchy PostgreSQL
-        if: inputs.db_type == 'crunchy'
+        if: ${{ vars.DB_TYPE == 'crunchy' }}
         uses: bcgov/actions-openshift/crunchy@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
