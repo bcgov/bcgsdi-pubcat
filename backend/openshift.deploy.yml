@@ -252,7 +252,7 @@ objects:
       ports:
         - name: http
           port: 80
-          targetPort: ${PORT}
+          targetPort: http
       selector:
         deployment: ${NAME}-${ZONE}-${COMPONENT}
   - apiVersion: autoscaling/v2
