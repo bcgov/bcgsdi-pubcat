@@ -32,3 +32,4 @@ jobs:
           oc_token: ${{ secrets.oc_token }}
           oc_server: ${{ vars.oc_server }}
           values_file: common/crunchy-values.yml
+          release_name: pg-${{ github.event.repository.name }}-dev
