@@ -35,12 +35,14 @@ export class BasicMap implements AfterViewInit, OnChanges, OnDestroy {
   ngAfterViewInit(): void {
     this.map = L.map(this.mapContainer().nativeElement);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
+      referrerPolicy: 'strict-origin-when-cross-origin',
     }).addTo(this.map);
 
-    // Hide Ukranian flag
+    // Hide the Leaflet attribution prefix, not the OSM copyright attribution.
     this.map.attributionControl.setPrefix('');
 
     this.map.setView([54.5, -125], this.maxZoomLevel());
