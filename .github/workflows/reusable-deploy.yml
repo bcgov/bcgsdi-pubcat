@@ -6,8 +6,8 @@ on:
     inputs:
       environment:
         description: GitHub/OpenShift environment
-        default: ""
         type: string
+        required: true
       target:
         description: Deployment target; usually PR number, test or prod
         default: ${{ github.event.number }}
@@ -96,10 +96,16 @@ jobs:
           DB_TYPE: ${{ vars.DB_TYPE }}
           REPO_NAME: ${{ github.event.repository.name }}
           TARGET: ${{ inputs.target }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           if [[ "$DB_TYPE" == "crunchy" ]]; then
-            echo "db_host=pg-${REPO_NAME}-${TARGET}-crunchy-pgbouncer" >> "$GITHUB_OUTPUT"
-            echo "db_secret_name=pg-${REPO_NAME}-${TARGET}-crunchy-pguser-app-${TARGET}" >> "$GITHUB_OUTPUT"
+            CLUSTER_TARGET="$TARGET"
+            if [[ "$ENVIRONMENT" == "dev" ]]; then
+              CLUSTER_TARGET="dev"
+            fi
+
+            echo "db_host=pg-${REPO_NAME}-${CLUSTER_TARGET}-crunchy-pgbouncer" >> "$GITHUB_OUTPUT"
+            echo "db_secret_name=pg-${REPO_NAME}-${CLUSTER_TARGET}-crunchy-pguser-app-${TARGET}" >> "$GITHUB_OUTPUT"
             echo "db_name_key=dbname" >> "$GITHUB_OUTPUT"
             echo "db_user_key=user" >> "$GITHUB_OUTPUT"
             echo "db_password_key=password" >> "$GITHUB_OUTPUT"
@@ -180,7 +186,7 @@ jobs:
           s3_bucket: ${{ secrets.s3_bucket }}
           s3_endpoint: ${{ secrets.s3_endpoint }}
           values_file: ${{ inputs.crunchy_values_file }}
-          release_name: pg-${{ github.event.repository.name }}-${{ inputs.target }}
+          release_name: pg-${{ github.event.repository.name }}-${{ inputs.environment }}
           triggers: ${{ inputs.triggers }}
 
   env-setup:

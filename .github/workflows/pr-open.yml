@@ -52,6 +52,7 @@ jobs:
       #s3_bucket: ${{ secrets.s3_bucket }}
       #s3_endpoint: ${{ secrets.s3_endpoint }}
     with:
+      environment: dev
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
       triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', '.github/workflows/pr-open.yml')
