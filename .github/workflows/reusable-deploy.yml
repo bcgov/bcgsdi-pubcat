@@ -24,6 +24,10 @@ on:
         description: "Crunchy configuration file, used when DB_TYPE is crunchy"
         type: string
         default: common/crunchy-values.yml
+      crunchy_db_user_for_app:
+        description: "Database username used by the application.  Only used when DB_TYPE is crunchy (when DB_TYPE is postgres, the db user is always the same as the repository name) "
+        type: string
+        required: true
       db_schema:
         description: Database schema used for the application
         type: string
@@ -105,7 +109,7 @@ jobs:
             fi
 
             echo "db_host=pg-${REPO_NAME}-${CLUSTER_TARGET}-crunchy-pgbouncer" >> "$GITHUB_OUTPUT"
-            echo "db_secret_name=pg-${REPO_NAME}-${CLUSTER_TARGET}-crunchy-pguser-app-${TARGET}" >> "$GITHUB_OUTPUT"
+            echo "db_secret_name=pg-${REPO_NAME}-${CLUSTER_TARGET}-crunchy-pguser-${{ inputs.crunchy_db_user_for_app }}" >> "$GITHUB_OUTPUT"
             echo "db_name_key=dbname" >> "$GITHUB_OUTPUT"
             echo "db_user_key=user" >> "$GITHUB_OUTPUT"
             echo "db_password_key=password" >> "$GITHUB_OUTPUT"
