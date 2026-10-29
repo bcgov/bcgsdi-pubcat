@@ -5,7 +5,7 @@ import { Geometry } from 'geojson';
 import { PassThrough, type Readable } from 'node:stream';
 import { PublicationAdapter } from '../adapters/publication-adapter.js';
 import { config } from '../core/config.js';
-import { publication } from '../generated/prisma/client.js';
+import { Prisma, publication } from '../generated/prisma/client.js';
 import { UserInputError } from '../types/error.js';
 import {
   ApiPublication,
@@ -223,11 +223,13 @@ export const PublicationServicePrivate = {
     // be significantly more complex. Prisma's tagged-template $queryRaw passes
     // all interpolated values as bound parameters, so this is not susceptible
     // to SQL injection.
+
     const geometryRows = await db.$queryRaw<[{ geometry_json: string | null }]>`
-      SELECT ST_AsGeoJSON(geometry)::text AS geometry_json
-      FROM ${config.get('db:schema')}.publication
-      WHERE publication_guid = ${publicationGuid}::uuid
-    `;
+        SELECT ST_AsGeoJSON(geometry)::text AS geometry_json
+        FROM ${Prisma.raw(`"${config.get('db:schema')}".publication`)}
+        WHERE publication_guid = ${publicationGuid}::uuid
+      `;
+
     // geometryRows may be empty if the row was deleted between the two queries
     // (a transient race condition). Treat missing geometry as null in that case.
     const geometryJson = geometryRows.length > 0 ? (geometryRows[0].geometry_json ?? null) : null;
