@@ -26,7 +26,7 @@ jobs:
 
       - name: Remove PR-specific Crunchy database and user
         if: ${{ always() && vars.DB_TYPE == 'crunchy' }}
-        uses: bcgov/action-crunchy@v2.0.0
+        uses: bcgov/action-crunchy@v2.0.0 #consider updating to the following to match the reusable-deploy: bcgov/actions-openshift/crunchy@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}

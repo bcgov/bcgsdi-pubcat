@@ -44,6 +44,8 @@ jobs:
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: true
+      crunchy_values_file: common/crunchy-values.test.yml
+      crunchy_db_user_for_app: pubcat
 
   tests:
     name: Tests
@@ -67,6 +69,8 @@ jobs:
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: false
+      crunchy_values_file: common/crunchy-values.prod.yml
+      crunchy_db_user_for_app: pubcat
 
   # Vanity TLS on the PROD frontend-public Service.
   # No-ops cleanly if vars.ROUTE_HOST is unset. Sibling of promote/monitor-prod

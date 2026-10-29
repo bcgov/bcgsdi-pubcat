@@ -59,6 +59,7 @@ jobs:
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: true
+      crunchy_db_user_for_app: app-${{ github.event.number }}
 
   tests:
     name: Tests
