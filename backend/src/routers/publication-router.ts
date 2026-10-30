@@ -21,8 +21,8 @@ import {
 const publicationRouter = express.Router({ mergeParams: true });
 
 const downloadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  limit: 5,
+  windowMs: 10 * 60 * 1000, // 10 min
+  limit: 10,
   message: buildApiErrorBody(429, {
     userMessage: 'Rate limit exceeded.  Try again after one hour',
   }),

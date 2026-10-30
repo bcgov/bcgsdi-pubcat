@@ -7,35 +7,35 @@
 
 ## Pull Request-Based Workflows with Sample Stack
 
-This repository provides a template to rapidly deploy a modern web application stack to OpenShift using [GitHub Actions](https://github.com/bcgov/quickstart-openshift/actions), incorporating best practices for CI/CD, security, and observability. By hitting the ground running we can save weeks‑to‑months of development time, receive regular updates, and built‑in **Maintenance Mode Automation**, which allows an app to go on autopilot for security and dependency updates.  This limits developmer involvement to critical issues only, drastically reducing labor costs and freeing up resources for higher priority work.
+This repository provides a template to rapidly deploy a modern web application stack to OpenShift using [GitHub Actions](https://github.com/bcgov/quickstart-openshift/actions), incorporating best practices for CI/CD, security, and observability. By hitting the ground running we can save weeks‑to‑months of development time, receive regular updates, and built‑in **Maintenance Mode Automation**, which allows an app to go on autopilot for security and dependency updates. This limits developmer involvement to critical issues only, drastically reducing labor costs and freeing up resources for higher priority work.
 
 **Includes:**
-* Pull Request-based pipeline
-* Sandboxed development environments
-* Gated/controlled production deployments (optional)
-* Container publishing (ghcr.io) and importing (OpenShift)
-* Security, vulnerability, infrastructure, and container scan tools
-* Out-of-the-box alignment with **OWASP ASVS** Level 1 & 2 controls (see [SECURITY.md](file:///home/derek/Repos/quickstart-openshift/SECURITY.md#owasp-asvs-alignment))
-* Automatic dependency patching via [bcgov/renovate-config](https://github.com/bcgov/renovate-config)
-* Maintenance Mode Automation (hands‑off updates, low‑dev mode) via the same Renovate config
-* Enforced code reviews and workflow jobs (pass|fail)
-* OpenShift Templates
-* Prometheus Metrics export from Backend/Frontend
-* Resource Tuning with Horizontal Pod Autoscaler
-* Affinity and anti-affinity for Scheduling on different worker nodes
-* Rolling updates with zero downtime in PROD
-* Database Migrations with Flyway
-* Pod disruption budgets for high availability
-* Self-healing through probes/checks (startup, readiness, liveness)
-* **Sample application stack:**
-    * Database: Postgres, Flyway
-    * Frontend: TypeScript, Caddy Server with Coraza WAF
-    * Backend: TypeScript, Nest.js
 
+- Pull Request-based pipeline
+- Sandboxed development environments
+- Gated/controlled production deployments (optional)
+- Container publishing (ghcr.io) and importing (OpenShift)
+- Security, vulnerability, infrastructure, and container scan tools
+- Out-of-the-box alignment with **OWASP ASVS** Level 1 & 2 controls (see [SECURITY.md](file:///home/derek/Repos/quickstart-openshift/SECURITY.md#owasp-asvs-alignment))
+- Automatic dependency patching via [bcgov/renovate-config](https://github.com/bcgov/renovate-config)
+- Maintenance Mode Automation (hands‑off updates, low‑dev mode) via the same Renovate config
+- Enforced code reviews and workflow jobs (pass|fail)
+- OpenShift Templates
+- Prometheus Metrics export from Backend/Frontend
+- Resource Tuning with Horizontal Pod Autoscaler
+- Affinity and anti-affinity for Scheduling on different worker nodes
+- Rolling updates with zero downtime in PROD
+- Database Migrations with Flyway
+- Pod disruption budgets for high availability
+- Self-healing through probes/checks (startup, readiness, liveness)
+- **Sample application stack:**
+  - Database: Postgres, Flyway
+  - Frontend: TypeScript, Caddy Server with Coraza WAF
+  - Backend: TypeScript, Nest.js
 
 # Setup
 
-Initial setup is intended to take an hour or less.  This depends greatly on intended complexity, features selected/excluded and outside cooperation.
+Initial setup is intended to take an hour or less. This depends greatly on intended complexity, features selected/excluded and outside cooperation.
 
 ## Prerequisites
 
@@ -50,15 +50,15 @@ If you're using BC Government's OpenShift platform, you'll also need:
 
 - [ ] BC Government IDIR accounts for anyone submitting requests
 - [ ] Membership in the BCGov GitHub organization
-    - Join the bcgov organization using [these instructions](https://developer.gov.bc.ca/docs/default/component/bc-developer-guide/use-github-in-bcgov/bc-government-organizations-in-github/#directions-to-sign-up-and-link-your-account-for-bcgov).
+  - Join the bcgov organization using [these instructions](https://developer.gov.bc.ca/docs/default/component/bc-developer-guide/use-github-in-bcgov/bc-government-organizations-in-github/#directions-to-sign-up-and-link-your-account-for-bcgov).
 - [ ] BCGov OpenShift project namespaces:
-    - [BCGov signup](https://registry.developer.gov.bc.ca)
+  - [BCGov signup](https://registry.developer.gov.bc.ca)
 
 ## Using this Template
 
 Create a new repository using this repository as a template.
 
-* Verify bcgov/quickstart-openshift is selected under Repository template
+- Verify bcgov/quickstart-openshift is selected under Repository template
 
 ![](./.github/graphics/template.png)
 
@@ -66,7 +66,7 @@ Create a new repository using this repository as a template.
 
 ### Secrets and Variables
 
-Variables and secrets are consumed by workflows.  Variables are visible in workflows and logs, while secrets are hidden/redacted.
+Variables and secrets are consumed by workflows. Variables are visible in workflows and logs, while secrets are hidden/redacted.
 
 **Repository-level vs Environment-specific:**
 
@@ -75,163 +75,172 @@ Variables and secrets are consumed by workflows.  Variables are visible in workf
 
 To create new secrets from GitHub.com click:
 
-* `Settings > Secrets and Variables > Actions > Secrets > New repository secret`
+- `Settings > Secrets and Variables > Actions > Secrets > New repository secret`
 
 Note: Dependabot, which we don't recommend as highly as Renovate, requires its own set of values.
 
 ### Environments
 
-Environments are groups of secrets and variables with optional access controls.  This includes limiting access to certain users or requiring manual approval before a requesting workflow can run.  Environment values add to or override any repository-level values.
+Environments are groups of secrets and variables with optional access controls. This includes limiting access to certain users or requiring manual approval before a requesting workflow can run. Environment values add to or override any repository-level values.
 
 To create new environments from GitHub.com click:
 
-* `Settings > Environments > New environment`
+- `Settings > Environments > New environment`
 
 Environments provide a [number of features](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment), including:
 
-* Required reviewers
-* Wait timer
-* Limit TEST/PROD values to post-merge workflows
+- Required reviewers
+- Wait timer
+- Limit TEST/PROD values to post-merge workflows
 
 ### Example
 
 Here is the arrangement of secrets, variables and environments for this repository.
 
-| Environment | Name                   | Description                                     |
-|-------------|------------------------|-------------------------------------------------|
-| none        | `vars.oc_server`       | Common server address (repository-level)        |
-| none        | `secrets.oc_namespace` | PR namespace (repository-level)                 |
-| none        | `secrets.oc_token`     | PR service token (repository-level)             |
-| none        | `secrets.db_password`  | PR database password (repository-level)         |
-| test        | `secrets.oc_namespace` | TEST namespace (environment-level)              |
-| test        | `secrets.oc_token`     | TEST service token (environment-level)          |
-| test        | `secrets.db_password`  | TEST database password (environment-level)       |
-| prod        | `secrets.oc_namespace` | PROD namespace (environment-level)              |
-| prod        | `secrets.oc_token`     | PROD service token (environment-level)          |
-| prod        | `secrets.db_password`  | PROD database password (environment-level)       |
-| prod (opt)  | `vars.ROUTE_HOST`      | Vanity URL hostname (repository or environment) |
-| prod (opt)  | `secrets.TLS_CERTIFICATE` | Leaf certificate PEM for vanity URL          |
-| prod (opt)  | `secrets.TLS_PRIVATE_KEY` | Private key PEM for vanity URL               |
-| prod (opt)  | `secrets.TLS_CA_CERTIFICATE` | Issuing CA PEM for vanity URL            |
+| Environment | Name                         | Description                                     |
+| ----------- | ---------------------------- | ----------------------------------------------- |
+| none        | `vars.oc_server`             | Common server address (repository-level)        |
+| none        | `vars.deploy_domain`         | Common server address (repository-level)        |
+| none        | `secrets.oc_namespace`       | PR namespace (repository-level)                 |
+| none        | `secrets.oc_token`           | PR service token (repository-level)             |
+| none        | `secrets.db_password`        | PR database password (repository-level)         |
+| test        | `secrets.oc_namespace`       | TEST namespace (environment-level)              |
+| test        | `secrets.oc_token`           | TEST service token (environment-level)          |
+| test        | `secrets.db_password`        | TEST database password (environment-level)      |
+| prod        | `secrets.oc_namespace`       | PROD namespace (environment-level)              |
+| prod        | `secrets.oc_token`           | PROD service token (environment-level)          |
+| prod        | `secrets.db_password`        | PROD database password (environment-level)      |
+| prod (opt)  | `vars.ROUTE_HOST`            | Vanity URL hostname (repository or environment) |
+| prod (opt)  | `secrets.TLS_CERTIFICATE`    | Leaf certificate PEM for vanity URL             |
+| prod (opt)  | `secrets.TLS_PRIVATE_KEY`    | Private key PEM for vanity URL                  |
+| prod (opt)  | `secrets.TLS_CA_CERTIFICATE` | Issuing CA PEM for vanity URL                   |
 
 ### Secret Values
 
-**`oc_token`** 
+**`deploy_domain`**
 
-Create separate tokens for each of the DEV, TEST and PROD namespaces.  
+Set this to the domain that the application will be accessible at (e.g. 'apps.silver.devops.gov.bc.ca', or 'apps.gold.devops.gov.bc.ca')
+
+**`oc_token`**
+
+Create separate tokens for each of the DEV, TEST and PROD namespaces.
 
 1. Login to your OpenShift console, e.g. [Silver](https://console.apps.silver.devops.gov.bc.ca/) or [Gold](https://console.apps.gold.devops.gov.bc.ca/).
 1. Select the pulldown with your username in the top right corner.
 1. Select `Copy login command`.
 1. Follow the UI to access a one-time login with token.
 1. Paste the login command into a shell, e.g.:
-    ```
-    oc login --token=... --server=...
-    ```
+   ```
+   oc login --token=... --server=...
+   ```
 1. View available projects:
-    ```
-    oc projects
-    ```
+   ```
+   oc projects
+   ```
 1. Switch to a namespace:
-    ```
-    oc project <abc123-name>
-    ```
+   ```
+   oc project <abc123-name>
+   ```
 1. Create a service account:
-    ```
-    oc create sa github-actions
-    ```
+   ```
+   oc create sa github-actions
+   ```
 1. Create a role binding:
-    ```
-    oc create rolebinding github-actions-edit --clusterrole=edit --serviceaccount=$(oc project -q):github-actions
-    ```
-1. Create and copy a token.  It cannot be retrieved again:
-    ```
-    oc create token github-actions --duration=87600h
-    ```
+   ```
+   oc create rolebinding github-actions-edit --clusterrole=edit --serviceaccount=$(oc project -q):github-actions
+   ```
+1. Create and copy a token. It cannot be retrieved again:
+   ```
+   oc create token github-actions --duration=87600h
+   ```
 
-* Alternate steps using an inline template can be found [here](https://github.com/bcgov/gh-discussions-lab/discussions/3750). 
-* In earlier versions of OpenShift, a pipeline token secret was created automatically in each namespace. 
-* Reference: `${{ secrets.oc_token }}`
+- Alternate steps using an inline template can be found [here](https://github.com/bcgov/gh-discussions-lab/discussions/3750).
+- In earlier versions of OpenShift, a pipeline token secret was created automatically in each namespace.
+- Reference: `${{ secrets.oc_token }}`
 
-**`oc_namespace`** 
+**`oc_namespace`**
 
-Teams will receive a set of project namespaces, usually DEV (for PRs), TEST and PROD.  TOOLS namespaces (e.g. Jenkins, shared Oracle resources) are not used here.  Provided by your OpenShift platform team.
+Teams will receive a set of project namespaces, usually DEV (for PRs), TEST and PROD. TOOLS namespaces (e.g. Jenkins, shared Oracle resources) are not used here. Provided by your OpenShift platform team.
 
-* Reference: `${{ secrets.oc_namespace }}`
-* E.g.: `abc123-dev`
+- Reference: `${{ secrets.oc_namespace }}`
+- E.g.: `abc123-dev`
 
-**`SONAR_TOKEN(s)`** 
+**`SONAR_TOKEN(s)`**
 
-If SonarCloud is being used each application will have its own token.  Single-application repositories typically use `SONAR_TOKEN`, while monorepos append component names.
+If SonarCloud is being used each application will have its own token. Single-application repositories typically use `SONAR_TOKEN`, while monorepos append component names.
 
-* Reference (standalone): `${{ secrets.SONAR_TOKEN }}`
-* Reference (monorepo): `${{ secrets.SONAR_TOKEN_BACKEND }}`, `${{ secrets.SONAR_TOKEN_FRONTEND }}`, etc
+- Reference (standalone): `${{ secrets.SONAR_TOKEN }}`
+- Reference (monorepo): `${{ secrets.SONAR_TOKEN_BACKEND }}`, `${{ secrets.SONAR_TOKEN_FRONTEND }}`, etc
 
-BC Government employees can request SonarCloud projects by creating an [issue](https://github.com/bcgov/devops-requests/issues/new/choose) with the platform team.  Please make sure to request a monorepo with component names (e.g. backend, frontend), which may not be explained in their directions.
+BC Government employees can request SonarCloud projects by creating an [issue](https://github.com/bcgov/devops-requests/issues/new/choose) with the platform team. Please make sure to request a monorepo with component names (e.g. backend, frontend), which may not be explained in their directions.
 
 **db_password**
 
 The password used for the PostgreSQL database. This **MUST** be a strong, unique password and **DISTINCT** across all environments (pr, test, prod). Reusing the same password in development/PRs as in production is a critical security risk.
 
-* Reference: `${{ secrets.db_password }}`
-* Minimum 12 characters recommended for production.
-* **Pro-tip**: Use a password manager (like BitWarden, 1Password, or KeePass) to generate and store long, random, and unique passwords for each environment. Avoid simple, guessable passwords like `password` or `secure`.
+- Reference: `${{ secrets.db_password }}`
+- Minimum 12 characters recommended for production.
+- **Pro-tip**: Use a password manager (like BitWarden, 1Password, or KeePass) to generate and store long, random, and unique passwords for each environment. Avoid simple, guessable passwords like `password` or `secure`.
 
 **`SYSDIG_API_TOKEN`**
 
 Sysdig API token used to sync the PROD email-alert set on every merge. Sourced from the in-cluster Secret materialized by your `SysdigTeam` CR (BC Gov platform-services provisions this in your `*-tools` namespace). Optional — if unset, the `monitor-prod` step no-ops with a warning, so the deploy still succeeds.
 
-* Reference: `${{ secrets.SYSDIG_API_TOKEN }}`
-* Alert templates live in [`monitoring/alerts/`](./monitoring/alerts/). Add or remove files to customize the alert set per app — see [`bcgov/action-sysdig-monitor`](https://github.com/bcgov/action-sysdig-monitor) for the template schema and placeholder vocabulary.
+- Reference: `${{ secrets.SYSDIG_API_TOKEN }}`
+- Alert templates live in [`monitoring/alerts/`](./monitoring/alerts/). Add or remove files to customize the alert set per app — see [`bcgov/action-sysdig-monitor`](https://github.com/bcgov/action-sysdig-monitor) for the template schema and placeholder vocabulary.
 
 **`TLS_CERTIFICATE`, `TLS_PRIVATE_KEY`, `TLS_CA_CERTIFICATE`**
 
 PEM-formatted certificates and private key for custom vanity URL TLS on the PROD frontend OpenShift Route. Optional — required only when `vars.ROUTE_HOST` is configured. If `vars.ROUTE_HOST` is unset, the `route-tls` step is safely skipped.
-* References: `${{ secrets.TLS_CERTIFICATE }}`, `${{ secrets.TLS_PRIVATE_KEY }}`, `${{ secrets.TLS_CA_CERTIFICATE }}`
-* Validated and applied via [`bcgov/actions-openshift/route-tls`](https://github.com/bcgov/actions-openshift/tree/main/route-tls), which checks key matching, CA chain, expiration, and archives previous certificates to an OpenShift secret.
+
+- References: `${{ secrets.TLS_CERTIFICATE }}`, `${{ secrets.TLS_PRIVATE_KEY }}`, `${{ secrets.TLS_CA_CERTIFICATE }}`
+- Validated and applied via [`bcgov/actions-openshift/route-tls`](https://github.com/bcgov/actions-openshift/tree/main/route-tls), which checks key matching, CA chain, expiration, and archives previous certificates to an OpenShift secret.
 
 ### Variable Values
 
->  Click Settings > Secrets and Variables > Actions > Variables > New repository variable
+> Click Settings > Secrets and Variables > Actions > Variables > New repository variable
 
-**`oc_server`** 
+**`oc_server`**
 
 OpenShift server address (API endpoint for your OpenShift cluster).
-* Reference: `${{ vars.oc_server }}`
-* BCGov: `https://api.gold.devops.gov.bc.ca:6443` or `https://api.silver.devops.gov.bc.ca:6443`
-* Others: Use your cluster's API server address (e.g. `https://api.<cluster-domain>:6443`)
+
+- Reference: `${{ vars.oc_server }}`
+- BCGov: `https://api.gold.devops.gov.bc.ca:6443` or `https://api.silver.devops.gov.bc.ca:6443`
+- Others: Use your cluster's API server address (e.g. `https://api.<cluster-domain>:6443`)
 
 **`ROUTE_HOST`**
 
 Vanity URL hostname for the application (e.g., `myapp.gov.bc.ca` — hostname only, no scheme). Optional — can be set as a repository variable or environment variable on `prod`. When set, `merge.yml` configures an OpenShift Route with custom TLS for the frontend service.
-* Reference: `${{ vars.ROUTE_HOST }}`
+
+- Reference: `${{ vars.ROUTE_HOST }}`
 
 ## Updating Dependencies
 
-Dependabot and Mend Renovate can both provide dependency updates using pull requests.  Dependabot is simpler to configure, while Renovate is much more configurable and lighter on resources.
+Dependabot and Mend Renovate can both provide dependency updates using pull requests. Dependabot is simpler to configure, while Renovate is much more configurable and lighter on resources.
 
 ### Renovate
 
-A config file (`renovate.json`) is included with this template.  It can source config from our [renovate repository](https://github.com/bcgov/renovate-config).  Renovate can be [self-hosted](https://github.com/renovatebot/github-action) or run using the GitHub App managed at the organization level.  For BC Government the OCIO controls this application, so please opt in with them using a GitHub issue.
+A config file (`renovate.json`) is included with this template. It can source config from our [renovate repository](https://github.com/bcgov/renovate-config). Renovate can be [self-hosted](https://github.com/renovatebot/github-action) or run using the GitHub App managed at the organization level. For BC Government the OCIO controls this application, so please opt in with them using a GitHub issue.
 
 > [!TIP]
 > Once Renovate is set up, you can enable **Maintenance Mode Automation** by following the checklist in the [Maintenance Mode Automation](#maintenance-mode-automation) section of this README. This will let Renovate auto‑merge safe updates after all CI checks pass.
 
 To opt-in:
-* Visit the [Renovate GitHub App](https://github.com/apps/renovate/)
-* Click `Configure` and set up your repository
-* Visit [BCDevOps Requests](https://github.com/BCDevOps/devops-requests)
-* Select [Issues](https://github.com/BCDevOps/devops-requests/issues)
-* Select [New Issue](https://github.com/BCDevOps/devops-requests/issues/new/choose)
-* Select [Request for integrating a GitHub App](https://github.com/BCDevOps/devops-requests/issues/new?assignees=MonicaG%2C+oomIRL%2C+SHIHO-I&labels=github-app%2C+pending&projects=&template=github_integration_request.md&title=)
-* Create a meaningful title, e.g. `Request to add X repo to Renovate App`
-* Fill out the description providing a repository name
-* Select "Submit new issue"
-* Wait for Renovate to start sending pull requests to your repository
+
+- Visit the [Renovate GitHub App](https://github.com/apps/renovate/)
+- Click `Configure` and set up your repository
+- Visit [BCDevOps Requests](https://github.com/BCDevOps/devops-requests)
+- Select [Issues](https://github.com/BCDevOps/devops-requests/issues)
+- Select [New Issue](https://github.com/BCDevOps/devops-requests/issues/new/choose)
+- Select [Request for integrating a GitHub App](https://github.com/BCDevOps/devops-requests/issues/new?assignees=MonicaG%2C+oomIRL%2C+SHIHO-I&labels=github-app%2C+pending&projects=&template=github_integration_request.md&title=)
+- Create a meaningful title, e.g. `Request to add X repo to Renovate App`
+- Fill out the description providing a repository name
+- Select "Submit new issue"
+- Wait for Renovate to start sending pull requests to your repository
 
 ### Dependabot
 
-Dependabot is no longer recommended as an alternative to Renovate for generating security, vulnerability and dependency pull requests.  It can still be used to generate warnings under the GitHub Security tab, which is only viewable by repository administrators.
+Dependabot is no longer recommended as an alternative to Renovate for generating security, vulnerability and dependency pull requests. It can still be used to generate warnings under the GitHub Security tab, which is only viewable by repository administrators.
 
 ## Dependency Scanning with Knip
 
@@ -273,6 +282,7 @@ If you encounter a false positive (a dependency that is used but flagged as unus
 If `@testing-library/user-event` is flagged but exported from `test-utils.tsx`:
 
 **Upstream PR to `bcgov/action-test-and-analyse/.knip.json`:**
+
 ```json
 {
   "ignoreDependencies": [
@@ -283,15 +293,14 @@ If `@testing-library/user-event` is flagged but exported from `test-utils.tsx`:
     "@types/react-dom",
     "@testing-library/user-event"
   ],
-  "ignoreBinaries": [
-    "rimraf"
-  ]
+  "ignoreBinaries": ["rimraf"]
 }
 ```
 
 **PR Description:**
+
 > Add `@testing-library/user-event` to ignoreDependencies
-> 
+>
 > This dependency is exported from test-utils files for use in tests but may not be directly imported yet. This is a common pattern in testing utilities where dependencies are re-exported for convenience.
 
 ### Common False Positive Patterns
@@ -306,79 +315,80 @@ If `@testing-library/user-event` is flagged but exported from `test-utils.tsx`:
 
 ### Pull Request Handling
 
-Squash merging is recommended for simplified history and ease of rollback.  Cleaning up merged branches is recommended for your DevOps Specialist's fragile sanity.
+Squash merging is recommended for simplified history and ease of rollback. Cleaning up merged branches is recommended for your DevOps Specialist's fragile sanity.
 
 > Click Settings > General (selected automatically)
 
 Pull Requests:
 
-* `[uncheck] Allow merge commits`
-* `[check] Allow squash merging`
-   * `Default to pull request title`
-* `[uncheck] Allow rebase merging`
-* `[check] Always suggest updating pull request branches`
-* `[uncheck] Allow auto-merge`
-* `[check] Automatically delete head branches`
+- `[uncheck] Allow merge commits`
+- `[check] Allow squash merging`
+  - `Default to pull request title`
+- `[uncheck] Allow rebase merging`
+- `[check] Always suggest updating pull request branches`
+- `[uncheck] Allow auto-merge`
+- `[check] Automatically delete head branches`
 
 ### Packages
 
-Packages are available from your repository (link on right).  All should have visibility set to public for the workflows to run successfully.
+Packages are available from your repository (link on right). All should have visibility set to public for the workflows to run successfully.
 
 E.g. https://github.com/bcgov/quickstart-openshift/packages
 
 ### Branch Protection Rules
 
-This is required to prevent direct pushes and merges to the default branch.  These steps must be run after one full pull request pipeline has been run to populate the required status checks.
+This is required to prevent direct pushes and merges to the default branch. These steps must be run after one full pull request pipeline has been run to populate the required status checks.
 
 1. Select `Settings` (gear, top right) > `Rules` > `Rulesets` (under Code and Automation)
 2. Click `New ruleset` > `New branch ruleset`
 3. Setup Ruleset:
-    * Ruleset Name: `main`
-    * Enforcement status: `Active`
-    * Bypass list:
-        * Click `+ Add bypass`
-        * Check `[x] Repository admin`
-        * Click `Add selected`
-    * Target branches:
-        * Click `Add target`
-        * Select `Include default branch`
-    * Branch protections:
-        * `[x] Restrict deletions`
-        * `[x] Require linear history`
-        * `[x] Require a pull request before merging`
-            * Additional settings:
-                * `Require approvals: 1` (or more!)
-                * `[x] Require conversation resolution before merging`
-        * `[x] Require status checks to pass`
-            * `[x] Require branches to be up to date before merging`
-            * Required checks: *These will be populated after a full pull request pipeline run!*
-                * Click `+Add checks`
-                * This is our default set, yours may differ:
-                    * `Analysis Results`
-                    * `PR Results`
-                    * `Validate Results`
-    * `[x] Block force pushes`
-    * `[x] Require code scanning results`
-        * Click `+ Add tool`
-        * This is our default set, yours may differ:
-            * `CodeQL`
-            * `Trivy`
-    * Click `Create`
+   - Ruleset Name: `main`
+   - Enforcement status: `Active`
+   - Bypass list:
+     - Click `+ Add bypass`
+     - Check `[x] Repository admin`
+     - Click `Add selected`
+   - Target branches:
+     - Click `Add target`
+     - Select `Include default branch`
+   - Branch protections:
+     - `[x] Restrict deletions`
+     - `[x] Require linear history`
+     - `[x] Require a pull request before merging`
+       - Additional settings:
+         - `Require approvals: 1` (or more!)
+         - `[x] Require conversation resolution before merging`
+     - `[x] Require status checks to pass`
+       - `[x] Require branches to be up to date before merging`
+       - Required checks: _These will be populated after a full pull request pipeline run!_
+         - Click `+Add checks`
+         - This is our default set, yours may differ:
+           - `Analysis Results`
+           - `PR Results`
+           - `Validate Results`
+   - `[x] Block force pushes`
+   - `[x] Require code scanning results`
+     - Click `+ Add tool`
+     - This is our default set, yours may differ:
+       - `CodeQL`
+       - `Trivy`
+   - Click `Create`
 
 Note: Required status checks will only be available to select after the relevant workflows have run at least once on a pull request.
 
 #### Status checks example
+
 ![](./.github/graphics/branch-protection.png)
 
 #### Required tools and alerts example
-![](./.github/graphics/branch-code-results.png)
 
+![](./.github/graphics/branch-code-results.png)
 
 ### Adding Team Members
 
-Don't forget to add your team members!  
+Don't forget to add your team members!
 
-1.  Select Settings (gear, top right)  *> Collaborators and teams (under `Access`)
+1.  Select Settings (gear, top right) \*> Collaborators and teams (under `Access`)
 2.  Click `Add people` or `Add teams`
 3.  Use the search box to find people or teams
 4.  Choose a role (read, triage, write, maintain, admin)
@@ -387,20 +397,24 @@ Don't forget to add your team members!
 ## Security & OWASP ASVS Alignment
 
 This repository is architected and hardened out-of-the-box to align with Levels 1 and 2 of the **OWASP Application Security Verification Standard (ASVS) v4.0.3**. A detailed security mapping matrix is documented in [SECURITY.md](file:///home/derek/Repos/quickstart-openshift/SECURITY.md#owasp-asvs-alignment), detailing our implementation of:
-* **Active WAF Defense:** Inline Coraza WAF running inside the Caddy reverse proxy.
-* **Tiered Isolation:** NetworkPolicies enforcing network boundaries between the frontend, backend, and database tiers.
-* **Platform/Container Hardening:** Read-only root filesystems, non-root execution, privilege escalation blocks, default seccomp profiles, and drop capabilities.
-* **Build-Time & Dynamic Testing:** Automated static analysis (Trivy, CodeQL), dependency auditing (Renovate, Knip), and weekly dynamic vulnerability scans (**OWASP ZAP**).
+
+- **Active WAF Defense:** Inline Coraza WAF running inside the Caddy reverse proxy.
+- **Tiered Isolation:** NetworkPolicies enforcing network boundaries between the frontend, backend, and database tiers.
+- **Platform/Container Hardening:** Read-only root filesystems, non-root execution, privilege escalation blocks, default seccomp profiles, and drop capabilities.
+- **Build-Time & Dynamic Testing:** Automated static analysis (Trivy, CodeQL), dependency auditing (Renovate, Knip), and weekly dynamic vulnerability scans (**OWASP ZAP**).
 
 ## Container Hardening & Writable Paths
 
 Out of the box, the deployment templates in this repository enforce strict container-level security contexts:
-* **Read-Only Root Filesystems:** Containers cannot write to the root filesystem at runtime (`readOnlyRootFilesystem: true`).
-* **Non-Root Execution:** Containers are blocked from executing as the root user (`runAsNonRoot: true`).
-* **Privilege Escalation Blocked:** Containers cannot gain more privileges than their parent process (`allowPrivilegeEscalation: false`).
+
+- **Read-Only Root Filesystems:** Containers cannot write to the root filesystem at runtime (`readOnlyRootFilesystem: true`).
+- **Non-Root Execution:** Containers are blocked from executing as the root user (`runAsNonRoot: true`).
+- **Privilege Escalation Blocked:** Containers cannot gain more privileges than their parent process (`allowPrivilegeEscalation: false`).
 
 ### Handling Dynamic Writes
+
 If your application requires writing files at runtime (e.g., temporary caches, uploaded attachments, config logs):
+
 1. **Do not disable the security context.**
 2. Mount a memory-backed (`tmpfs`) volume on the writable path using `emptyDir` in `openshift.deploy.yml`:
    ```yaml
@@ -418,6 +432,7 @@ If your application requires writing files at runtime (e.g., temporary caches, u
 # Workflows
 
 These workflows and actions enforce a pull request based flow.
+
 ```mermaid
 flowchart TD
     A1(PR_Env_1) -->|tests| B
@@ -497,14 +512,14 @@ flowchart TD
 
 Runs on pull request submission.
 
-* Provides safe, sandboxed deployment environments
-* Build action pushes to GitHub Container Registry (ghcr.io)
-* Build triggers select new builds vs reusing builds
-* Deploy only when changes are made
-* Deployment includes curl checks and optional penetration tests
-* Run tests (e2e, load, integration) when changes are made
-* Posts sticky comment with deployment links when deployments occur
-* Other checks and updates as required
+- Provides safe, sandboxed deployment environments
+- Build action pushes to GitHub Container Registry (ghcr.io)
+- Build triggers select new builds vs reusing builds
+- Deploy only when changes are made
+- Deployment includes curl checks and optional penetration tests
+- Run tests (e2e, load, integration) when changes are made
+- Posts sticky comment with deployment links when deployments occur
+- Other checks and updates as required
 
 ![](.github/graphics/pr-open.png)
 
@@ -512,18 +527,17 @@ Runs on pull request submission.
 
 Runs on pull request submission.
 
-* Enforces conventional commits in PR title
+- Enforces conventional commits in PR title
 
 ![](.github/graphics/pr-validate.png)
-
 
 ## Analysis
 
 Runs on pull request submission or merge to the default branch.
 
-* Unit tests (should include coverage)
-* CodeQL/GitHub security reporting (now handled as GitHub default!)
-* Trivy password, vulnerability and security scanning
+- Unit tests (should include coverage)
+- CodeQL/GitHub security reporting (now handled as GitHub default!)
+- Trivy password, vulnerability and security scanning
 
 ![](.github/graphics/analysis.png)
 
@@ -531,8 +545,8 @@ Runs on pull request submission or merge to the default branch.
 
 Runs on pull request close or merge.
 
-* Cleans up OpenShift objects/artifacts
-* Merge retags successful build images as `latest`
+- Cleans up OpenShift objects/artifacts
+- Merge retags successful build images as `latest`
 
 ![](.github/graphics/pr-close.png)
 
@@ -540,12 +554,12 @@ Runs on pull request close or merge.
 
 Runs on merge to main branch.
 
-* Code scanning and reporting to GitHub Security overview
-* Zero-downtime* TEST deployment
-* Penetration tests on TEST deployment (optional)
-* Zero-downtime* PROD deployment
-* Labels successful deployment images as PROD
-* Sysdig email alerts synced to PROD (no-op if `SYSDIG_API_TOKEN` is unset)
+- Code scanning and reporting to GitHub Security overview
+- Zero-downtime\* TEST deployment
+- Penetration tests on TEST deployment (optional)
+- Zero-downtime\* PROD deployment
+- Labels successful deployment images as PROD
+- Sysdig email alerts synced to PROD (no-op if `SYSDIG_API_TOKEN` is unset)
 
 \* excludes database changes
 
@@ -555,9 +569,9 @@ Runs on merge to main branch.
 
 Runs on scheduled job (cronjob) or workflow dispatch.
 
-* PR environment purge
-* Generate SchemaSpy documentation
-* Tests (e2e, load, integration) on TEST deployment
+- PR environment purge
+- Generate SchemaSpy documentation
+- Tests (e2e, load, integration) on TEST deployment
 
 ![](.github/graphics/scheduled.png)
 
@@ -588,14 +602,16 @@ To safely automate dependency updates, runtime health checks are mandatory to ca
 ### QuickStart Health Check Implementation
 
 This template provides out-of-the-box support for self-healing and verification through container probes:
+
 - **NestJS Backend**: Implements an `/api/health` endpoint using NestJS Terminus (currently checks DB connectivity via Prisma).
 - **Frontend (Caddy/Vite)**: OpenShift readiness/liveness probes are configured to check `/` to confirm the web server is responsive and serving assets.
 
-*Tip: For a fully mature maintenance mode setup, customize the backend health checks to query external APIs and database migrations. If a dependency goes down, the health check should return `503 Service Unavailable`, blocking the automated merge.*
+_Tip: For a fully mature maintenance mode setup, customize the backend health checks to query external APIs and database migrations. If a dependency goes down, the health check should return `503 Service Unavailable`, blocking the automated merge._
 
 ## Automerge Expectations
 
 ### When Automerge Occurs
+
 - Renovate creates PRs for dependency updates (npm packages, GitHub Actions, Docker base images).
 - All status checks pass successfully:
   - Linting and unit tests complete.
@@ -604,8 +620,7 @@ This template provides out-of-the-box support for self-healing and verification 
 - No merge conflicts are detected.
 
 ### When Manual Intervention is Needed
+
 - A dependency upgrade causes compile, build, lint, or test failures.
 - A smoke test or deep health check fails post-deployment.
 - A security vulnerability scanner (e.g., Trivy or CodeQL) flags a new vulnerability.
-
-

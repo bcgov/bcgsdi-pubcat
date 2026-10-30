@@ -81,8 +81,8 @@ jobs:
           header: pr-deployment-links
           message: |
             ### 🚀 Deployments Available
-            - [frontend-public](https://${{ github.event.repository.name }}-${{ github.event.number }}.apps.silver.devops.gov.bc.ca)
-            - [Backend](https://${{ github.event.repository.name }}-${{ github.event.number }}.apps.silver.devops.gov.bc.ca/api)
+            - [frontend-public](https://${{ github.event.repository.name }}-${{ github.event.number }}.${{ vars.DEPLOY_DOMAIN || 'apps.gold.devops.gov.bc.ca' }})
+            - [Backend](https://${{ github.event.repository.name }}-${{ github.event.number }}.${{ vars.DEPLOY_DOMAIN || 'apps.gold.devops.gov.bc.ca' }}/api)
 
   # ==========================================================================
   # WARNING: This job acts as the required merge gate for this workflow.
