@@ -1,9 +1,9 @@
--- PubCat development-only synthetic sample data
+-- PubCat synthetic sample data
 -- Inserts 149 fictional publication records into pubcat.publication.
 -- Publication keys use the 900001-900149 range; verify this range is unused before running.
 -- All authors, titles, abstracts, and metadata are synthetic, not real bibliographic records.
 -- Footprints are small illustrative polygons around curated BC interior locations.
--- Do not run this script against test or production databases.
+-- Do not run this script against production databases.
 BEGIN;
 
 INSERT INTO "pubcat"."publication" (
