@@ -54,9 +54,22 @@ jobs:
     with:
       target: test
 
+  # Await approval from a stakeholder before deploying to prod.
+  # Prerequisites: a github envirnment called "await-prod-approval" exists and
+  # it has been configured with one or more "required reviewers".
+  await-approval-for-prod:
+    name: Await Approval for PROD Deployment
+    needs: [tests]
+    runs-on: ubuntu-24.04
+    environment: await-prod-approval
+    permissions: {}
+    steps:
+      - name: Production approval granted
+        run: echo "Production deployment has been approved"
+
   deploy-prod:
     name: PROD Deploys (${{ needs.init.outputs.pr }})
-    needs: [tests, init]
+    needs: [await-approval-for-prod, init]
     uses: ./.github/workflows/reusable-deploy.yml
     secrets:
       db_password: ${{ secrets.db_password }}
