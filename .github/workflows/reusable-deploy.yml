@@ -185,10 +185,10 @@ jobs:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
-          s3_access_key: ${{ secrets.s3_access_key }}
-          s3_secret_key: ${{ secrets.s3_secret_key }}
-          s3_bucket: ${{ secrets.s3_bucket }}
-          s3_endpoint: ${{ secrets.s3_endpoint }}
+          s3_access_key: ${{ secrets.backup_s3_access_key }}
+          s3_secret_key: ${{ secrets.backup_s3_secret_key }}
+          s3_bucket: ${{ secrets.backup_s3_bucket }}
+          s3_endpoint: ${{ secrets.backup_s3_endpoint }}
           values_file: ${{ inputs.crunchy_values_file }}
           release_name: pg-${{ github.event.repository.name }}-${{ inputs.environment }}
           triggers: ${{ inputs.triggers }}
