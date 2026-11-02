@@ -51,16 +51,16 @@ on:
       db_password:
         description: Database password for vanilla PostgreSQL; not needed for Crunchy, which manages its own passwords.
         required: false
-      s3_access_key:
+      backup_s3_access_key:
         description: S3 access key for Crunchy backups
         required: false
-      s3_secret_key:
+      backup_s3_secret_key:
         description: S3 secret key for Crunchy backups
         required: false
-      s3_bucket:
+      backup_s3_bucket:
         description: S3 bucket for Crunchy backups
         required: false
-      s3_endpoint:
+      backup_s3_endpoint:
         description: S3 endpoint for Crunchy backups
         required: false
 

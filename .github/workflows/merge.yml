@@ -62,6 +62,10 @@ jobs:
       db_password: ${{ secrets.db_password }}
       oc_namespace: ${{ secrets.oc_namespace }}
       oc_token: ${{ secrets.oc_token }}
+      backup_s3_access_key: ${{ secrets.backup_s3_access_key }}
+      backup_s3_secret_key: ${{ secrets.backup_s3_secret_key }}
+      backup_s3_bucket: ${{ secrets.backup_s3_bucket }}
+      backup_s3_endpoint: ${{ secrets.backup_s3_endpoint }}
     with:
       environment: prod
       target: prod
