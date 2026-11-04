@@ -2,11 +2,16 @@
 
 import argparse
 import json
+import math
 import sys
 from datetime import date, datetime
 from decimal import Decimal
 
 import pyodbc
+import shapely
+from pyproj import Transformer
+from shapely.geometry import shape
+from shapely.ops import transform as shapely_transform
 
 
 SOURCE_TABLE = "CGKN_METADATA"
@@ -92,6 +97,17 @@ COLUMN_RENAMES = {
     "CURRENTNESS_REERENCE": "currentness_reference",
 }
 
+# BC Albers (metres), suitable for measuring simplification tolerance
+# across British Columbia.
+SIMPLIFICATION_SRID = 3005
+
+_TO_ALBERS = Transformer.from_crs(
+    4326, SIMPLIFICATION_SRID, always_xy=True
+)
+_FROM_ALBERS = Transformer.from_crs(
+    SIMPLIFICATION_SRID, 4326, always_xy=True
+)
+
 
 def quote_identifier(identifier: str) -> str:
     """Quote a PostgreSQL identifier."""
@@ -138,7 +154,7 @@ def get_target_column_name(source_column: str) -> str:
 
 def sql_literal(value):
     """Convert a Python value into a PostgreSQL SQL literal."""
-    
+
     if isinstance(value, str):
         try:
             value.encode("utf-8")
@@ -177,14 +193,24 @@ def sql_literal(value):
     return "'" + text + "'"
 
 
-def geometry_expression(geojson_value):
+def geometry_expression(
+    geojson_value,
+    simplify_geom=False,
+    simplify_tolerance=1.0,
+):
     """
-    Convert GeoJSON into a PostGIS geometry expression.
+    Convert GeoJSON into a PostGIS geometry literal (hex EWKB).
 
     Source coordinates are assumed to use WGS84 / EPSG:4326.
 
     Both 2D and 3D GeoJSON are supported. 2D geometries are
     promoted to 3D with a Z value of 0.
+
+    When simplification is enabled, the geometry is transformed
+    (pyproj) to BC Albers (EPSG:3005), simplified (shapely) using
+    a tolerance in metres while preserving topology, and
+    transformed back to WGS84 / EPSG:4326. No simplification
+    occurs in the database.
     """
     if geojson_value is None:
         return "NULL"
@@ -209,22 +235,31 @@ def geometry_expression(geojson_value):
             "footprint_geojson must contain a JSON object"
         )
 
-    normalized_geojson = json.dumps(
-        geometry,
-        ensure_ascii=False,
-        separators=(",", ":"),
+    try:
+        geom = shape(geometry)
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        raise ValueError(
+            f"Invalid footprint_geojson geometry: {exc}"
+        ) from exc
+
+    if simplify_geom:
+        # Simplification is 2D; Z is reset to 0 below.
+        geom = shapely.force_2d(geom)
+        geom = shapely_transform(_TO_ALBERS.transform, geom)
+        geom = geom.simplify(simplify_tolerance, preserve_topology=True)
+        geom = shapely_transform(_FROM_ALBERS.transform, geom)
+
+    geom = shapely.force_3d(geom, z=0.0)
+    geom = shapely.set_srid(geom, 4326)
+
+    ewkb_hex = shapely.to_wkb(
+        geom,
+        hex=True,
+        output_dimension=3,
+        include_srid=True,
     )
 
-    escaped_geojson = normalized_geojson.replace("'", "''")
-
-    return (
-        "ST_Force3D("
-        "ST_SetSRID("
-        f"ST_GeomFromGeoJSON('{escaped_geojson}'), "
-        "4326"
-        ")"
-        ")"
-    )
+    return f"'{ewkb_hex}'::geometry"
 
 
 def get_connection(database_filename):
@@ -237,7 +272,13 @@ def get_connection(database_filename):
     return pyodbc.connect(connection_string)
 
 
-def generate_inserts(database_filename, target_table, output):
+def generate_inserts(
+    database_filename,
+    target_table,
+    output,
+    simplify_geom=False,
+    simplify_tolerance=1.0,
+):
     """Read the Access table and write PostgreSQL INSERT statements."""
     target_table_sql = quote_table_name(target_table)
 
@@ -296,9 +337,11 @@ def generate_inserts(database_filename, target_table, output):
 
             try:
                 geometry_sql = geometry_expression(
-                    row[footprint_index]
+                    row[footprint_index],
+                    simplify_geom=simplify_geom,
+                    simplify_tolerance=simplify_tolerance,
                 )
-            except ValueError as exc:
+            except (ValueError, UnicodeDecodeError) as exc:
                 raise ValueError(
                     f"Row {row_number}: {exc}"
                 ) from exc
@@ -346,22 +389,47 @@ def main():
         help="Output SQL file. The file is written as UTF-8.",
     )
 
+    parser.add_argument(
+        "--simplify-geom",
+        action="store_true",
+        default=False,
+        help=(
+            "Simplify geometries before exporting. "
+            "By default, geometries are not simplified."
+        ),
+    )
+
+    parser.add_argument(
+        "--simplify-tolerance",
+        type=float,
+        default=1.0,
+        help=(
+            "Geometry simplification tolerance in metres "
+            "(default: 1.0). Only used with --simplify-geom."
+        ),
+    )
+
     args = parser.parse_args()
 
-    try:
-      with open(
-          args.output,
-          "w",
-          encoding="utf-8",
-          newline="\n",
-      ) as output:
-          output.write("SET client_encoding = 'UTF8';\n\n")
+    if not math.isfinite(args.simplify_tolerance) or args.simplify_tolerance < 0:
+        parser.error("--simplify-tolerance must be a finite, non-negative number")
 
-          generate_inserts(
-              args.database,
-              args.target_table,
-              output,
-          )
+    try:
+        with open(
+            args.output,
+            "w",
+            encoding="utf-8",
+            newline="\n",
+        ) as output:
+            output.write("SET client_encoding = 'UTF8';\n\n")
+
+            generate_inserts(
+                args.database,
+                args.target_table,
+                output,
+                simplify_geom=args.simplify_geom,
+                simplify_tolerance=args.simplify_tolerance,
+            )
 
     except pyodbc.Error as exc:
         print(
