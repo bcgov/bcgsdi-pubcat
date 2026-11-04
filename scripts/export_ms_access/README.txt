@@ -86,7 +86,7 @@ Install:
 
 Generate SQL:
 
-    python export_ms_access.py -database "C:\data\cgkn.mdb" -target_table pubcat.publication -output pubcat_data_load.sql
+    python export_ms_access.py -database "C:\data\cgkn.mdb" -target_table pubcat.publication -output pubcat_data_load.sql --simplify-geom --simplify-tolerance 5
 
 
 Load into PostgreSQL with a statement similar to:
