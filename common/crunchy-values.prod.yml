@@ -44,7 +44,7 @@ crunchy:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9187"
     dataVolumeClaimSpec:
-      storage: 1.2Gi
+      storage: 1Gi
       storageClassName: netapp-block-standard
       walStorage: 420Mi
 
@@ -79,7 +79,7 @@ crunchy:
       incrementalBackupSchedule: 0 0-7,9-23 * * * # every hour incremental
       volume:
         accessModes: "ReadWriteOnce"
-        storage: 500Mi
+        storage: 600Mi
         storageClassName: netapp-file-backup
 
     config:
