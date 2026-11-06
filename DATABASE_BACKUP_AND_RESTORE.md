@@ -28,6 +28,10 @@ oc exec -n dd8ff1-prod \
 
 # Restore - Point in time recovery:
 
+The steps below will restore into an existing crunchy cluster. It will
+replace the contents of the existing database (if any) with the contents
+from the restore target.
+
 1. Edit the file common/crunchy-values.prod.yml. Update the restore section as follows:
 
 ```
