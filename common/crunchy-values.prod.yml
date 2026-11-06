@@ -33,9 +33,9 @@ crunchy:
   # follow https://access.crunchydata.com/documentation/postgres-operator/5.8/tutorials/backups-disaster-recovery/disaster-recovery
   # Perform an In-Place Point-in-time-Recovery (PITR)
   restore:
-    repoName: repo1
-    enabled: true
-    target: 2026-11-06 11:07:31-07 # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+    repoName: repo2
+    enabled: false
+    target: ~ # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
   instances:
     name: db # high availability
     replicas: 2 # 2 or 3 for high availability in TEST and PROD.
@@ -65,17 +65,17 @@ crunchy:
     retentionFullType: count
     s3:
       enabled: true # if enabled, below must be provided
-      retention: 7 # one weeks backup in object store.
+      retention: 30 # thirty days backup in object store.
       bucket: ~
       endpoint: ~
       accessKey: ~
       secretKey: ~
-      fullBackupSchedule: 0 9 * * *
-      incrementalBackupSchedule: 0 0/5 * * * # every 5 hour incremental
+      fullBackupSchedule: 0 4 * * * # daily at 4am
+      incrementalBackupSchedule: 0 */6 * * * # every 6 hour incremental (00:00, 06:00, 12:00, 18:00)
     pvc:
       retention: 1 # one day hot active backup in pvc
       retentionFullType: count
-      fullBackupSchedule: 0 8 * * *
+      fullBackupSchedule: 0 3 * * *
       incrementalBackupSchedule: 0 0-7,9-23 * * * # every hour incremental
       volume:
         accessModes: "ReadWriteOnce"
