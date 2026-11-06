@@ -1,11 +1,41 @@
-# Point in time recovery:
+# Backups
+
+Scheduled backups occur as defined in common/crunchy-values.prod.yml.
+
+Thirty days of backups are saved to S3. One day of backups is saved to PVC.  
+Because we keep a a longer backup archive on S3, that is usually the best
+source to restore from.
+
+## Helpful commands
+
+List PVC backup history
+
+```
+oc exec -n dd8ff1-prod \
+  pg-bcgsdi-pubcat-prod-crunchy-repo-host-0 \
+  -c pgbackrest -- \
+  pgbackrest --stanza=db --repo=1 info
+```
+
+List S3 backup history
+
+```
+oc exec -n dd8ff1-prod \
+  pg-bcgsdi-pubcat-prod-crunchy-repo-host-0 \
+  -c pgbackrest -- \
+  pgbackrest --stanza=db --repo=2 info
+```
+
+# Restore - Point in time recovery:
 
 1. Edit the file common/crunchy-values.prod.yml. Update the restore section as follows:
 
+```
 restore:
-repoName: repo2 #repo1 to restore from pvc. repo2 to restore from s3
-enabled: true
-target: [TARGET_TIME_HERE] # e.g. 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+  repoName: repo2 #repo1 to restore from pvc. repo2 to restore from s3
+  enabled: true
+  target: [TARGET_TIME_HERE] # e.g. 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+```
 
 2. Redeploy the changed file to production using the repository's CI/CD process.
 
@@ -60,10 +90,12 @@ Run some queries against the database to verify the contents are as expected.
 
 Disable the restore
 
+```
 restore:
-repoName: repo2 #repo1 to restore from pvc. repo2 to restore from s3
-enabled: false
-target: ~ # e.g. 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+  repoName: repo2 #repo1 to restore from pvc. repo2 to restore from s3
+  enabled: false
+  target: ~ # e.g. 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+```
 
 6. Redeploy the changed file to production using the repository's CI/CD process.
 
