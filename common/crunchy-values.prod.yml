@@ -33,9 +33,9 @@ crunchy:
   # follow https://access.crunchydata.com/documentation/postgres-operator/5.8/tutorials/backups-disaster-recovery/disaster-recovery
   # Perform an In-Place Point-in-time-Recovery (PITR)
   restore:
-    repoName: repo1
+    repoName: repo2
     enabled: true
-    target: 2026-11-05 17:00:00-07 # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
+    target: 2026-11-06 11:07:30-07 # 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
   instances:
     name: db # high availability
     replicas: 2 # 2 or 3 for high availability in TEST and PROD.
