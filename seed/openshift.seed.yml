@@ -51,7 +51,7 @@ objects:
         metadata:
           labels:
             app: ${NAME}-${ZONE}
-            deployment: ${NAME}-${ZONE}-backend
+            deployment: ${NAME}-${ZONE}-seed
         spec:
           restartPolicy: Never
           containers:
