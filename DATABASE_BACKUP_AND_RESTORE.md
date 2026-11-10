@@ -11,7 +11,7 @@ source to restore from.
 List PVC backup history
 
 ```
-oc exec -n dd8ff1-prod \
+oc exec -n [NAMESPACE] \
   pg-bcgsdi-pubcat-prod-crunchy-repo-host-0 \
   -c pgbackrest -- \
   pgbackrest --stanza=db --repo=1 info
@@ -20,7 +20,7 @@ oc exec -n dd8ff1-prod \
 List S3 backup history
 
 ```
-oc exec -n dd8ff1-prod \
+oc exec -n [NAMESPACE] \
   pg-bcgsdi-pubcat-prod-crunchy-repo-host-0 \
   -c pgbackrest -- \
   pgbackrest --stanza=db --repo=2 info
@@ -49,7 +49,7 @@ Check whether helm applied the proper restore configuration:
 
 ```
 oc get postgrescluster pg-bcgsdi-pubcat-prod-crunchy \
-  -n dd8ff1-prod \
+  -n [NAMESPACE] \
   -o jsonpath='{.spec.backups.pgbackrest.restore}{"\n"}'
 ```
 
@@ -59,7 +59,7 @@ The JSON output should show the correct contents of the restore section from com
 
 ```
 oc annotate postgrescluster pg-bcgsdi-pubcat-prod-crunchy \
-  -n dd8ff1-prod \
+  -n [NAMESPACE] \
   --overwrite \
   postgres-operator.crunchydata.com/pgbackrest-restore="$(date)"
 ```
@@ -68,20 +68,20 @@ Expect a "restore" job to begin shortly (within a minute or so). To check if it 
 
 ```
 oc get postgrescluster pg-bcgsdi-pubcat-prod-crunchy \
-  -n dd8ff1-prod \
+  -n [NAMESPACE] \
   -o jsonpath='{.metadata.annotations.postgres-operator\.crunchydata\.com/pgbackrest-restore}{"\n"}'
 ```
 
 Or actively monitor pod changes to watch for a pod associated with the restore:
 
 ```
-oc get pods -n dd8ff1-prod -w
+oc get pods -n [NAMESPACE] -w
 ```
 
 4. Connect to the database and verify the restore was successful
 
 ```
-port-forward pg-bcgsdi-pubcat-prod-crunchy-db-8sd9-0 15433:5432 -n dd8ff1-prod
+port-forward pg-bcgsdi-pubcat-prod-crunchy-db-8sd9-0 15433:5432 -n [NAMESPACE]
 ```
 
 ```
@@ -101,7 +101,7 @@ Disable the restore
 
 ```
 restore:
-  repoName: repo2 #repo1 to restore from pvc. repo2 to restore from s3
+  repoName: repo2
   enabled: false
   target: ~ # e.g. 2024-03-24 17:16:00-07 this is the target timestamp to go back to in current cluster
 ```
@@ -114,7 +114,7 @@ Check whether helm applied the proper restore configuration:
 
 ```
 oc get postgrescluster pg-bcgsdi-pubcat-prod-crunchy \
-  -n dd8ff1-prod \
+  -n [NAMESPACE] \
   -o jsonpath='{.spec.backups.pgbackrest.restore}{"\n"}'
 ```
 
@@ -126,8 +126,8 @@ may revert to the given target at some time in the future.
 ## Reinitialize a replica from the master
 
 ```
-oc exec -it -n dd8ff1-prod \
-  [POD_NAME_OF_MASTER] \
+oc exec -it -n [NAMESPACE] \
+  [NAME_OF_PRIMARY_DB_POD] \
   -c database -- \
   patronictl reinit \
     --from-leader \
@@ -143,7 +143,7 @@ where [PATRONI_CLUSTER_NAME] = "pg-bcgsdi-pubcat-prod-crunchy-ha"
 List all pods and some basic information about them
 
 ```
-oc get pods -n dd8ff1-prod -o wide
+oc get pods -n [NAMESPACE] -o wide
 ```
 
 Because our crunchy cluster is configured to run 2 replicas (i.e. one master and one copy),
@@ -154,7 +154,7 @@ Also check the Pod Disruption Budget:
 
 ```
 oc get pdb pg-bcgsdi-pubcat-prod-crunchy-set-db \
-  -n dd8ff1-prod
+  -n [NAMESPACE]
 ```
 
 Look for something like this to indicate that one (of the two) replicas may be disrupted
@@ -169,8 +169,8 @@ Connect directly to the master database and check that it is configured to strea
 changes to the one replica:
 
 ```
-oc exec -n dd8ff1-prod \
-  pg-bcgsdi-pubcat-prod-crunchy-db-ABCD-0 \
+oc exec -n [NAMESPACE] \
+  [NAME_OF_PRIMARY_DATABASE_POD] \
   -c database -- \
   psql -U postgres -d postgres -c "
     SELECT
@@ -190,7 +190,7 @@ Expect to see output similar to this:
 ```
             application_name             |   state   |  sent_lsn  | write_lsn  | flush_lsn  | replay_lsn | sync_state |          reply_time
 -----------------------------------------+-----------+------------+------------+------------+------------+------------+-------------------------------
- pg-bcgsdi-pubcat-prod-crunchy-db-ABCD-0 | streaming | 0/68000060 | 0/68000060 | 0/68000060 | 0/68000060 | async      | 2026-11-09 18:47:41.053989+00
+ [NAME_OF_PRIMARY_DATABASE_POD] | streaming | 0/68000060 | 0/68000060 | 0/68000060 | 0/68000060 | async      | 2026-11-09 18:47:41.053989+00
 ```
 
 This means:
@@ -207,8 +207,8 @@ the relication was successful. If not all the same, it means the replica databas
 Also run the following to show the petroni cluster status:
 
 ```
-oc exec -n dd8ff1-prod \
-  pg-bcgsdi-pubcat-prod-crunchy-db-ABCD-0 \
+oc exec -n [NAMESPACE] \
+  [NAME_OF_PRIMARY_DATABASE_POD] \
   -c database -- \
   patronictl -c /etc/patroni list
 
@@ -226,3 +226,41 @@ The output will be similar to
 ```
 
 Expect the Receive LSN and Replay LSN to match the values from the previous command.
+
+## Check if automated backups have been taken
+
+List backup history as recorded by pgbackrest
+
+```
+oc exec -n [NAMESPACE] \
+  [NAME_OF_ANY_DATABASE_POD] \
+  -c database -- \
+  pgbackrest info
+```
+
+List the OpenShift jobs that have recently run backups. See the "age" column to see how recently the jobs ran.
+
+```
+oc get jobs -n [NAMESPACE] \
+  -l postgres-operator.crunchydata.com/cluster=pg-bcgsdi-pubcat-prod-crunchy \
+  --sort-by=.metadata.creationTimestamp
+```
+
+For detailed information about a particular backup job:
+
+```
+oc describe job [JOB_NAME] -n [NAMESPACE]
+```
+
+Check the backup schedules
+
+```
+oc get cronjobs -n [NAMESPACE]
+```
+
+Check the last execution times of backup jobs
+
+```
+oc get cronjobs -n [NAMESPACE] \
+  -o custom-columns='NAME:.metadata.name,SCHEDULE:.spec.schedule,LAST-SCHEDULE:.status.lastScheduleTime,SUSPENDED:.spec.suspend'
+```
