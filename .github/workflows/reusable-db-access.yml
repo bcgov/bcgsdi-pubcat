@@ -28,7 +28,7 @@ jobs:
 
       - name: Validate ALLOWED_CIDR
         env:
-          ALLOWED_CIDR: ${{ vars.ALLOWED_CIDR }}
+          ALLOWED_CIDR: ${{ vars.DB_ALLOWED_CIDR }}
         run: |
           if [[ -z "$ALLOWED_CIDR" ]]; then
             echo "::error::ALLOWED_CIDR is not configured for the ${{ inputs.environment }} environment."
