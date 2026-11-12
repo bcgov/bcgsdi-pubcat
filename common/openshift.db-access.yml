@@ -1,0 +1,121 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+
+parameters:
+  - name: NAME
+    description: Product name
+    required: true
+  - name: ZONE
+    description: Deployment zone
+    required: true
+  - name: IMAGE_TAG
+    description: Container image tag
+    required: true
+  - name: RUN_ID
+    description: Unique GitHub Actions run ID
+    required: true
+  - name: DB_PORT
+    description: Database service port
+    value: "5432"
+
+
+objects:
+  - apiVersion: porter.devops.gov.bc.ca/v1alpha1
+    kind: TransportServerClaim
+    metadata:
+      name: {{ template "crunchy-postgres.fullname" . }}-tsc
+    spec:
+      monitor:
+        interval: 10
+        timeout: 10
+        type: tcp
+      service: {{ template "crunchy-postgres.fullname" . }}-pgbouncer
+      servicePort: 5432
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: {{ template "crunchy-postgres.fullname" . }}-ingress
+    spec:
+      podSelector:
+        matchLabels:
+          postgres-operator.crunchydata.com/cluster: {{ template "crunchy-postgres.fullname" . }}
+          postgres-operator.crunchydata.com/role: pgbouncer
+      policyTypes:
+        - Ingress
+      ingress:
+        - from:
+            - ipBlock:
+                cidr: 0.0.0.0/0 # Allows all IPs
+          ports:
+            - protocol: TCP
+              port: 5432        
+
+
+
+
+apiVersion: template.openshift.io/v1
+kind: Template
+
+metadata:
+  name: database-access
+
+parameters:
+  - name: NAME
+    description: Application name
+    value: pubcat
+    required: true
+
+  - name: ZONE
+    description: Deployment environment
+    value: prod
+    required: true
+
+  - name: DB_CLUSTER_NAME
+    description: Crunchy PostgreSQL cluster name
+    value: pg-bcgsdi-pubcat-prod-crunchy
+    required: true
+
+  - name: PGBOUNCER_SERVICE
+    description: Crunchy PgBouncer service name
+    value: pg-bcgsdi-pubcat-prod-crunchy-pgbouncer
+    required: true
+
+  - name: DB_PORT
+    description: Database service port
+    value: "5432"
+
+  - name: ALLOWED_CIDR
+    description: Approved external client IP range
+    required: true
+
+objects:
+  - apiVersion: porter.devops.gov.bc.ca/v1alpha1
+    kind: TransportServerClaim
+    metadata:
+      name: ${NAME}-${ZONE}-tsc
+    spec:
+      monitor:
+        interval: 10
+        timeout: 10
+        type: tcp
+      service: ${PGBOUNCER_SERVICE}
+      servicePort: ${DB_PORT}
+
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: ${NAME}-${ZONE}-db-ingress
+    spec:
+      podSelector:
+        matchLabels:
+          postgres-operator.crunchydata.com/cluster: ${DB_CLUSTER_NAME}
+          postgres-operator.crunchydata.com/role: pgbouncer
+      policyTypes:
+        - Ingress
+      ingress:
+        - from:
+            - ipBlock:
+                cidr: ${ALLOWED_CIDR}
+          ports:
+            - protocol: TCP
+              port: ${DB_PORT}
