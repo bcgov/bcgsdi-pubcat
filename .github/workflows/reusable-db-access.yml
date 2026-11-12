@@ -1,0 +1,52 @@
+name: Reusable Database Access Deployment
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub deployment environment (dev, test, or prod)
+        type: string
+        required: true
+    secrets:
+      oc_namespace:
+        required: true
+      oc_token:
+        required: true
+
+jobs:
+  deploy:
+    name: Database Access (${{ inputs.environment }})
+    runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Validate ALLOWED_CIDR
+        env:
+          ALLOWED_CIDR: ${{ vars.ALLOWED_CIDR }}
+        run: |
+          if [[ -z "$ALLOWED_CIDR" ]]; then
+            echo "::error::ALLOWED_CIDR is not configured for the ${{ inputs.environment }} environment."
+            exit 1
+          fi
+
+      - name: Deploy Database Access Resources
+        uses: bcgov/actions-openshift/deployer@<SAME_PIN_AS_REUSABLE_DEPLOY>
+        with:
+          file: openshift.db_access.yml
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_server: ${{ vars.oc_server }}
+          oc_token: ${{ secrets.oc_token }}
+          overwrite: true
+          parameters: >-
+            -p NAME=pubcat
+            -p ZONE=${{ inputs.environment }}
+            -p DB_CLUSTER_NAME=pg-bcgsdi-pubcat-${{ inputs.environment }}-crunchy
+            -p PGBOUNCER_SERVICE=pg-bcgsdi-pubcat-${{ inputs.environment }}-crunchy-pgbouncer
+            -p DB_PORT=5432
+            -p ALLOWED_CIDR=${{ vars.ALLOWED_CIDR }}

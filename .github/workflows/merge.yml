@@ -139,3 +139,17 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ needs.init.outputs.pr }}
           tags: prod
+
+  # Configure external access to the PROD Crunchy PostgreSQL database.
+  # Runs after all other production deployment tasks succeed.
+  database-access-prod:
+    name: Database Access (PROD)
+    needs: [deploy-prod]
+    uses: ./.github/workflows/reusable-db-access.yml
+    permissions:
+      contents: read
+    with:
+      environment: prod
+    secrets:
+      oc_namespace: ${{ secrets.oc_namespace }}
+      oc_token: ${{ secrets.oc_token }}
