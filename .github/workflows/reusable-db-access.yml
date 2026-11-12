@@ -49,4 +49,4 @@ jobs:
             -p DB_CLUSTER_NAME=pg-bcgsdi-pubcat-${{ inputs.environment }}-crunchy
             -p PGBOUNCER_SERVICE=pg-bcgsdi-pubcat-${{ inputs.environment }}-crunchy-pgbouncer
             -p DB_PORT=5432
-            -p ALLOWED_CIDR=${{ vars.ALLOWED_CIDR }}
+            -p ALLOWED_CIDR=${{ vars.DB_ALLOWED_CIDR }}
