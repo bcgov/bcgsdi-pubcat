@@ -36,7 +36,7 @@ jobs:
           fi
 
       - name: Deploy Database Access Resources
-        uses: bcgov/actions-openshift/deployer@<SAME_PIN_AS_REUSABLE_DEPLOY>
+        uses: bcgov/actions-openshift/deployer@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         with:
           file: openshift.db_access.yml
           oc_namespace: ${{ secrets.oc_namespace }}
