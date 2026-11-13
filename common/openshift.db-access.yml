@@ -35,6 +35,7 @@ objects:
     metadata:
       name: ${NAME}-${ZONE}-db-access
     spec:
+      mode: Standalone
       monitor:
         interval: 10
         timeout: 10
