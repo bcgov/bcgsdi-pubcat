@@ -74,7 +74,7 @@ objects:
                 - -c
                 - |
                   echo "Waiting for backend to be healthy..."
-                  max_retries=30
+                  max_retries=60
                   attempt=1
                   until wget -q --spider http://${NAME}-${ZONE}-backend/api/health; do
                     if [ "$attempt" -ge "$max_retries" ]; then
