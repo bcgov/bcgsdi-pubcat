@@ -34,8 +34,8 @@ jobs:
             ${{ github.event.pull_request.head.sha }}
           tag_fallback: latest
           triggers: |
-            ${{ matrix.package }}/
-            .github/workflows/
+            '${{ matrix.package }}/'
+            '.github/workflows/'
 
   deploys:
     name: Deploys (${{ github.event.number }})
@@ -58,12 +58,12 @@ jobs:
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
       triggers: |
-        backend/
-        frontend-public/
-        migrations/
-        common/
-        seed/
-        .github/workflows/
+        'backend/'
+        'frontend-public/'
+        'migrations/'
+        'common/'
+        'seed/'
+        '.github/workflows/'
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: true
