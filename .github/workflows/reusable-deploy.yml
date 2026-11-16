@@ -180,7 +180,7 @@ jobs:
 
       - name: Deploy Crunchy PostgreSQL
         if: ${{ vars.DB_TYPE == 'crunchy' }}
-        uses: bcgov/actions-openshift/crunchy@46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
+        uses: bcgov/actions-openshift/crunchy@5e6e33b0631b5d107c3e7a57a85acd1c852ebf90 # non-release commit.  supports NodePort and allows disable pvc backup.  46f2614322f7ba1a5ad88a7e4e1b98569c80dcf7 # v0.6.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
