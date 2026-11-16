@@ -33,7 +33,7 @@ objects:
   - apiVersion: porter.devops.gov.bc.ca/v1alpha1
     kind: TransportServerClaim
     metadata:
-      name: ${NAME}-${ZONE}-db-access
+      name: ${NAME}-${ZONE}-db-access-tsc
     spec:
       mode: Standalone
       monitor:
