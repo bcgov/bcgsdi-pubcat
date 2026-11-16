@@ -55,7 +55,7 @@ jobs:
       environment: dev
       target: ${{ github.event.number }}
       tag: ${{ github.event.pull_request.head.sha }}
-      triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', 'seed/', '.github/workflows/', )
+      triggers: ('backend/', 'frontend-public/', 'migrations/', 'common/', 'seed/', '.github/workflows/')
       db_schema: ${{ vars.db_schema }}
       backend_port: ${{ vars.backend_port }}
       seed_sample_data: true
