@@ -10,7 +10,10 @@ parameters:
     required: true
   - name: PG_DATABASE
     description: Postgres database name
-    value: app
+    value: pubcat
+  - name: DB_USER
+    description: PostgreSQL connection username
+    value: pubcat
   - name: DB_PASSWORD
     description: Password for the PostgreSQL connection user
     required: true
@@ -25,7 +28,7 @@ objects:
     stringData:
       database-name: ${PG_DATABASE}
       database-password: ${DB_PASSWORD}
-      database-user: ${NAME}
+      database-user: ${DB_USER}
 
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
@@ -43,6 +46,10 @@ objects:
                 matchLabels:
                   app: ${NAME}-${ZONE}
                   deployment: ${NAME}-${ZONE}-backend
+            - podSelector:
+                matchLabels:
+                  app: ${NAME}-${ZONE}
+                  deployment: ${NAME}-${ZONE}-seed
           ports:
             - protocol: TCP
               port: 5432

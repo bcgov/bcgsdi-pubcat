@@ -25,7 +25,7 @@ on:
         type: string
         default: common/crunchy-values.yml
       crunchy_db_user_for_app:
-        description: "Database username used by the application.  Only used when DB_TYPE is crunchy (when DB_TYPE is postgres, the db user is always the same as the repository name) "
+        description: "Database username used by the application. Only used when DB_TYPE is crunchy."
         type: string
         required: true
       db_schema:
@@ -155,9 +155,9 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
           overwrite: false
-          # TODO: Is there a better way to pass DB_PASSWORD so the deployer action
-          # can inject it as an environment variable into the YAML template?
-          parameters: -p DB_PASSWORD="${{ secrets.db_password }}"
+          parameters: -p PG_DATABASE=pubcat
+            -p DB_USER=pubcat
+            -p DB_PASSWORD="${{ secrets.db_password }}"
             -p ZONE="${{ inputs.target }}"
             -p NAME="${{ github.event.repository.name }}"
           triggers: ${{ inputs.triggers }}
