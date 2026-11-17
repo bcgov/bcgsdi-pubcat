@@ -20,6 +20,8 @@ Using host IP and port from the above, run the following:
 psql "postgresql://[USERNAME]@zzz.zzz.zzz.zzz:port/pubcat"
 ```
 
+This may require a VPN connection.
+
 # Approach #2 - Connect as the "postgres" user
 
 - Login to the Openshift web console
