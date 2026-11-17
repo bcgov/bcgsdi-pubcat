@@ -46,6 +46,10 @@ objects:
                 matchLabels:
                   app: ${NAME}-${ZONE}
                   deployment: ${NAME}-${ZONE}-backend
+            - podSelector:
+                matchLabels:
+                  app: ${NAME}-${ZONE}
+                  deployment: ${NAME}-${ZONE}-seed
           ports:
             - protocol: TCP
               port: 5432
