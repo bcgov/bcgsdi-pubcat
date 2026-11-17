@@ -162,7 +162,8 @@ REVOKE CREATE ON SCHEMA pubcat FROM pubcat_clerk;
 
 -- History table protection
 REVOKE ALL ON pubcat.publication_history FROM PUBLIC;
-REVOKE ALL ON pubcat.publication_history FROM pubcat_clerk;
+REVOKE ALL ON TABLE pubcat.publication_history FROM pubcat_clerk;
+GRANT SELECT ON TABLE pubcat.publication_history TO pubcat_clerk;
 
 -- Function protection
 REVOKE ALL ON FUNCTION pubcat.record_publication_history() FROM PUBLIC;
