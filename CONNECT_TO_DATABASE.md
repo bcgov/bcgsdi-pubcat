@@ -4,6 +4,20 @@
 oc exec -it [DATABASE_POD_NAME] -n [DEV_NAMESPACE] -- psql -U [USERNAME] -d [DB_NAME]
 ```
 
+# Connect to the test database
+
+```
+oc port-forward -n [TEST_NAMESPACE] \
+  svc/[PG_BOUNCER_SERVICE_NAME] \
+  15687:[PORT]
+```
+
+from another terminal
+
+```
+psql -U [USERNAME] -d [DB_NAME] -p 15687
+```
+
 # Connect to the production database
 
 ## Approach #1 - Connect with a personal user account

@@ -44,7 +44,7 @@ crunchy:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9187"
     dataVolumeClaimSpec:
-      storage: 210Mi
+      storage: 500Mi
       storageClassName: netapp-block-standard
       walStorage: 420Mi
 
